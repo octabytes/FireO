@@ -2,10 +2,18 @@ language: python
 sudo: false
 
 python:
-  - "3.6"
+  - '3.6'
 
 install:
   - pip install tox
 
 script:
   - tox -v -e py
+
+deploy:
+  provider: pypi,
+  user: OctaByte
+  password:
+    secure: Yl+7DZkP8lNN09QPaJ5Tazm1kAU1CZzbv5BwtIqXM+tQQdluTsSORETvfOI4c73llC8JpvMIuiP4LcwRJ8n2HXEc0cWUr4bT+gkVnGsqAUTekDc3LOCLeMcqqOfuQmuKXmx07kPE2vVov8A6xv8AoWOnP+BU5tbOqdctBHr9eRftd4JAP1iYwdY6ZlQcJ3IobInz1j8pzTZXDeQhToc2JY6jmW/u7feO40gaKxv9qUzTupQxaV4DeVxdk9FOa1As4nLN9uhf2GZLSECuXVYSLcM0rhbSXQoXQQeaEFqme8ZvJ0n4rVnPhQlW1WkCFUvWKFw0WQ3nsQO0b7bqTn6vQqvdCuNmhHR6wiDhr+V3/Q/Ri61SyrIqzWMYqZXd9+kJev0VbJaqhag+X7G9DutzrGE2A+AgrxpZv+Uo5frvhncf0O8hLGYGVIIUaKCFCwQfx0UMYc0Ec6fJs0HRE5qPn7zFg5vzXf88260w8XPXo9/N2evqI1YMQUKhsxqSXUBkQ7/po8iR1uC/aA5eBV39xZb6k0zAgwGaddJNxitMiPonodFO4r5PBJIk2h48OjGQdg4zYqdaWfn4mbBfvn8U30TxDYh2EMRS3Y94sGwEyRk1HwTAhLfnZTUyawzx2ZvW6FSN7Pg2940N6969XHhmcb5yP/WCXINZwlGWidwNE4I=
+  on:
+    branch: master
