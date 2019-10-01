@@ -1,19 +1,15 @@
 language: python
 sudo: false
-
 python:
-  - '3.6'
-
+- '3.6'
 install:
-  - pip install tox
-
+- pip install tox
 script:
-  - tox -v -e py
-
+- tox -v -e py
 deploy:
   provider: pypi,
   user: OctaByte
   password:
-    secure: Yl+7DZkP8lNN09QPaJ5Tazm1kAU1CZzbv5BwtIqXM+tQQdluTsSORETvfOI4c73llC8JpvMIuiP4LcwRJ8n2HXEc0cWUr4bT+gkVnGsqAUTekDc3LOCLeMcqqOfuQmuKXmx07kPE2vVov8A6xv8AoWOnP+BU5tbOqdctBHr9eRftd4JAP1iYwdY6ZlQcJ3IobInz1j8pzTZXDeQhToc2JY6jmW/u7feO40gaKxv9qUzTupQxaV4DeVxdk9FOa1As4nLN9uhf2GZLSECuXVYSLcM0rhbSXQoXQQeaEFqme8ZvJ0n4rVnPhQlW1WkCFUvWKFw0WQ3nsQO0b7bqTn6vQqvdCuNmhHR6wiDhr+V3/Q/Ri61SyrIqzWMYqZXd9+kJev0VbJaqhag+X7G9DutzrGE2A+AgrxpZv+Uo5frvhncf0O8hLGYGVIIUaKCFCwQfx0UMYc0Ec6fJs0HRE5qPn7zFg5vzXf88260w8XPXo9/N2evqI1YMQUKhsxqSXUBkQ7/po8iR1uC/aA5eBV39xZb6k0zAgwGaddJNxitMiPonodFO4r5PBJIk2h48OjGQdg4zYqdaWfn4mbBfvn8U30TxDYh2EMRS3Y94sGwEyRk1HwTAhLfnZTUyawzx2ZvW6FSN7Pg2940N6969XHhmcb5yP/WCXINZwlGWidwNE4I=
+    secure: eb1dW1LvpDEBUiHWLTSqdDDabCiaPGZV0337Ry1O21tw4oNEYJ2qTN4YYwDi3YpZQv6e65KH3NsE9wbv4AAg1Sd+ACT886KJPVW52930pTwjfgtdwsh+NwHvHsWB8SjWqZjZ9zJ8rq3BipibBbje5UGyNl/+JoL0akiRE2Gc0fC9n2Wqx04OL90ehqx7rsogbJ2sRvrBvHwFkJHT9Qu01+ormpV/TMAW0cNFP3sf05jhjRE3FOPjQF3Y/Tkf/mLbv6rWR3++5LcOZcE0UaydYvkGBX/TvfIseOCzIMlBFflEbY9eD+joO3/XqluaMqhTC+01mYqGH3gz+K4H1bKFduy6YP8nqx3tsqCYefP7kK5/4xSKfVQVCYGG/MK9D9TU6bRI9lhPnT2OwAw68JoSRws7OQdtz1OrvrlI8oWT0JfOt3uce5lzmlsvYp45HqSWKvY6O730RzTpdF2x4jjnt0oDSOg8mazE7JKvUE4OdDP1VDEmsjfoXDLvcH7ZxDiJl4KyW/4hQy5sgxLlMKLbGqAgdWN/jVIfIcWVSyxfdGI9JR5l/o59A4P1ZrZRFopHVOfUE7xxR3EwntF2679Xs/fNmZSGJY5tVMOFOzwFZRbf4PHgCM1zuprLeCajK2am5teoXnpo2eds8sS/edNZxXJkgUMtg9bE+hqlxwZYgE4=
   on:
     branch: master
