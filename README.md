@@ -16,7 +16,7 @@
 ## Installation
 
 ```python
-    pip install fireo
+pip install fireo
 ```
 
 ## Documentation
