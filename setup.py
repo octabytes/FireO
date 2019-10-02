@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name='fireo',
     version='0.0.3',
-    description='FireStore ORM',
+    description="FireO ORM is specifically designed for the Google's Firestore",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/octabytes/FireO.git",
