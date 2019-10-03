@@ -34,6 +34,6 @@ class ModelMeta(type):
         # get list of attribute from Model
         for name, attr in cls.__dict__.items():
             if isinstance(attr, fields.Field):
-                attr.attach_with_class(cls, name)
+                attr.contribute_to_model(cls, name)
 
         return cls
