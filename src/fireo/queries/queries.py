@@ -1,3 +1,5 @@
+from fireo.database import db
+
 
 class QuerySet:
 
@@ -10,8 +12,16 @@ class QuerySet:
 
 class BaseQuery:
 
-    def __int__(self, model):
+    def __init__(self, model):
         self.model = model
 
-    def get_ref(self):
-        pass
+    def doc_ref(self):
+        return db.conn.collection("/".join(self.model.collection_name))
+
+
+class InsertQuery(BaseQuery):
+
+    def __init__(self, model, **kwargs):
+        super().__init__(model)
+        self.insert_fields = kwargs
+

@@ -1,4 +1,5 @@
 from fireo.models import fields
+from fireo.utils import utils
 
 """
 Create modified instance of Model 
@@ -22,13 +23,16 @@ class ModelMeta(type):
         class Meta:
             fields = {}
 
+            def __init__(self, model):
+                self.collection_name = utils.collection_name(cls.__name__)
+
             # Add each single field into Meta fields
             def add_field(self, field):
                 self.fields[field.name] = field
 
         # instance of Meta class and set it to
         # Model class as _meta attribute
-        meta = Meta()
+        meta = Meta(cls)
         setattr(cls, 'meta', meta)
 
         # get list of attribute from Model
