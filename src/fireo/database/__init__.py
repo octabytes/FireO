@@ -5,8 +5,7 @@ from google.cloud import firestore
 class Database:
 
     def __init__(self):
-        self._conn = "todo"
-        #self._conn = firestore.Client()
+        self._conn = firestore.Client()
 
     @property
     def conn(self):

@@ -3,21 +3,40 @@ from fireo.models.field_validation import FieldValidation
 
 class Field:
 
+    allowed_attributes = ['column_name']
+
     def __init__(self, *args, **kwargs):
+        self.raw_attributes = kwargs
         self.name = None
-        self.field_validation = FieldValidation(
-            self, {
-                attr: val for attr, val in kwargs if attr in FieldValidation.ATTRIBUTES
-            }
-        )
+        self.validation = FieldValidation(self, kwargs)
 
     def contribute_to_model(self, model, name):
         self.name = name
         setattr(model, name, None)
-        model.meta.add_field(self)
+        model._meta.add_field(self)
 
-    def check_value(self):
-        pass
+    @property
+    def db_column_name(self):
+        return self.raw_attributes.get("column_name") or self.name
+
+    def get_value(self, val):
+        v = self.validation.validate(val)
+        return self.db_value(val)
+
+    def db_value(self, val):
+        return val
+
+    def field_value(self, val):
+        return val + "asdasd"
+
+
+class IDField(Field):
+
+    def contribute_to_model(self, model, name):
+        self.name = name
+        setattr(model, name, None)
+        model._meta.add_model_id(self)
+
 
 
 class IntegerField(Field):

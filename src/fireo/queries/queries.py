@@ -7,7 +7,7 @@ class QuerySet:
         self.model = model
 
     def create(self, **kwargs):
-        pass
+        return InsertQuery(self.model, **kwargs).exec()
 
 
 class BaseQuery:
@@ -16,12 +16,21 @@ class BaseQuery:
         self.model = model
 
     def doc_ref(self):
-        return db.conn.collection("/".join(self.model.collection_name))
+        ref = db.conn.collection(self.model.collection_name).document(self.model.id)
+        self.model.set_id(ref.id)
+        return ref
 
 
 class InsertQuery(BaseQuery):
 
     def __init__(self, model, **kwargs):
         super().__init__(model)
-        self.insert_fields = kwargs
+        self.fields = kwargs
 
+    def raw_exec(self):
+        ref = self.doc_ref()
+        ref.set(self.fields)
+        return ref.get()
+
+    def exec(self):
+        return self.raw_exec()

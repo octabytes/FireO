@@ -21,23 +21,28 @@ class ModelMeta(type):
             Model class inside meta attribute
         """
         class Meta:
-            fields = {}
+            field_list = {}
+            id = None
 
             def __init__(self, model):
                 self.collection_name = utils.collection_name(cls.__name__)
 
-            # Add each single field into Meta fields
+            # Add model id
+            def add_model_id(self, field):
+                self.id = (field.name, field)
+
+            # Add each single field into Meta fields into this Model
             def add_field(self, field):
-                self.fields[field.name] = field
+                self.field_list[field.name] = field
 
         # instance of Meta class and set it to
         # Model class as _meta attribute
-        meta = Meta(cls)
-        setattr(cls, 'meta', meta)
+        _meta = Meta(cls)
+        setattr(cls, '_meta', _meta)
 
         # get list of attribute from Model
-        for name, attr in cls.__dict__.items():
-            if isinstance(attr, fields.Field):
-                attr.contribute_to_model(cls, name)
+        for name, field in cls.__dict__.items():
+            if isinstance(field, fields.Field):
+                field.contribute_to_model(cls, name)
 
         return cls
