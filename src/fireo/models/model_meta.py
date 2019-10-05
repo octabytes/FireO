@@ -1,3 +1,4 @@
+from fireo.managers import managers
 from fireo.models import fields
 from fireo.utils import utils
 
@@ -27,6 +28,10 @@ class ModelMeta(type):
             def __init__(self, model):
                 self.collection_name = utils.collection_name(cls.__name__)
 
+            if 'collection' not in cls.__dict__:
+                manager = managers.Manager()
+                manager.contribute_to_model(cls)
+
             # Add model id
             def add_model_id(self, field):
                 self.id = (field.name, field)
@@ -34,6 +39,13 @@ class ModelMeta(type):
             # Add each single field into Meta fields into this Model
             def add_field(self, field):
                 self.field_list[field.name] = field
+
+            def get_field_by_column_name(self, name):
+                for field in self.field_list.values():
+                    if name in [field.name, field.db_column_name]:
+                        return field
+                raise AttributeError(f'Field {name} not found')
+
 
         # instance of Meta class and set it to
         # Model class as _meta attribute

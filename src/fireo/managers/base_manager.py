@@ -1,3 +1,0 @@
-
-class BaseManager:
-    pass

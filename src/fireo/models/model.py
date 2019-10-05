@@ -1,14 +1,20 @@
+from fireo.managers import managers
 from fireo.models.model_meta import ModelMeta
 from fireo.queries.queries import QuerySet
 
 
 class Model(metaclass=ModelMeta):
 
+    def __init__(self, *args, **kwargs):
+        self.__class__.collection.initialize(self)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
     # Get all the fields values from meta
     # which are attached with this mode
     # and convert them into corresponding db value
     # return dict {name: value}
-    def database_values(self):
+    def _database_values(self):
         return {
             f.db_column_name: f.get_value(getattr(self, f.name))
             for f in self._meta.field_list.values()
@@ -16,15 +22,16 @@ class Model(metaclass=ModelMeta):
 
     # Get model id
     @property
-    def id(self):
+    def _id(self):
         if self._meta.id is None:
             return None
         name, field = self._meta.id
         return field.get_value(getattr(self, name))
 
-    def set_id(self, doc_id):
+    @_id.setter
+    def _id(self, doc_id):
         id = 'id'
-        if self._meta is not None:
+        if self._meta.id is not None:
             id, _ = self._meta.id
         setattr(self, id, doc_id)
 
@@ -34,6 +41,5 @@ class Model(metaclass=ModelMeta):
         return self._meta.collection_name
 
     def save(self):
-        q = QuerySet(self)
-        q.create(**self.database_values())
+        return self.__class__.collection.create(**self._database_values())
 

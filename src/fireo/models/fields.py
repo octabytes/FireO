@@ -10,10 +10,10 @@ class Field:
         self.name = None
         self.validation = FieldValidation(self, kwargs)
 
-    def contribute_to_model(self, model, name):
+    def contribute_to_model(self, model_cls, name):
         self.name = name
-        setattr(model, name, None)
-        model._meta.add_field(self)
+        setattr(model_cls, name, None)
+        model_cls._meta.add_field(self)
 
     @property
     def db_column_name(self):
@@ -32,11 +32,10 @@ class Field:
 
 class IDField(Field):
 
-    def contribute_to_model(self, model, name):
+    def contribute_to_model(self, model_cls, name):
         self.name = name
-        setattr(model, name, None)
-        model._meta.add_model_id(self)
-
+        setattr(model_cls, name, None)
+        model_cls._meta.add_model_id(self)
 
 
 class IntegerField(Field):

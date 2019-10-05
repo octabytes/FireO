@@ -1,4 +1,5 @@
 from fireo.database import db
+from fireo.queries import query_result
 
 
 class QuerySet:
@@ -16,8 +17,7 @@ class BaseQuery:
         self.model = model
 
     def doc_ref(self):
-        ref = db.conn.collection(self.model.collection_name).document(self.model.id)
-        self.model.set_id(ref.id)
+        ref = db.conn.collection(self.model.collection_name).document(self.model._id)
         return ref
 
 
@@ -33,4 +33,4 @@ class InsertQuery(BaseQuery):
         return ref.get()
 
     def exec(self):
-        return self.raw_exec()
+        return query_result.ModelFromDict.convert(self.model, self.raw_exec())
