@@ -57,4 +57,6 @@ class ModelMeta(type):
             if isinstance(field, fields.Field):
                 field.contribute_to_model(cls, name)
 
+        setattr(cls, "collection_name", cls._meta.collection_name)
+
         return cls

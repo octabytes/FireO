@@ -14,11 +14,17 @@ class Model(metaclass=ModelMeta):
     # which are attached with this mode
     # and convert them into corresponding db value
     # return dict {name: value}
-    def _database_values(self):
+    def _get_fields(self):
         return {
-            f.db_column_name: f.get_value(getattr(self, f.name))
+            f.name: getattr(self, f.name)
             for f in self._meta.field_list.values()
         }
+
+    # def _database_values(self):
+    #     return {
+    #         f.db_column_name: f.get_value(getattr(self, f.name))
+    #         for f in self._meta.field_list.values()
+    #     }
 
     # Get model id
     @property
@@ -35,11 +41,6 @@ class Model(metaclass=ModelMeta):
             id, _ = self._meta.id
         setattr(self, id, doc_id)
 
-    # Get collection name that is converting from model
-    @property
-    def collection_name(self):
-        return self._meta.collection_name
-
     def save(self):
-        return self.__class__.collection.create(**self._database_values())
+        return self.__class__.collection.create(**self._get_fields())
 

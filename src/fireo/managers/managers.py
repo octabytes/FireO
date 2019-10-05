@@ -25,9 +25,10 @@ class Manager:
     def initialize(self, model):
         self.model = model
 
-    def contribute_to_model(self, model_cls, name="collection"):
+    def contribute_to_model(self, model, name="collection"):
         self.name = name
-        setattr(model_cls, name, ManagerDescriptor(self))
+        self.model = model
+        setattr(model, name, ManagerDescriptor(self))
 
     @property
     def queryset(self):

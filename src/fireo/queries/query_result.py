@@ -7,4 +7,4 @@ class ModelFromDict:
             val = field.field_value(v)
             setattr(model, field.name, val)
         setattr(model, '_id', doc.id)
-        return doc.id
+        return model
