@@ -1,3 +1,3 @@
 
-class DBConnectionERR(Exception):
+class DBConnectionError(Exception):
     pass
