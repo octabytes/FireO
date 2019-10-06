@@ -1,5 +1,5 @@
 from fireo.managers import managers
-from fireo.models import fields
+from fireo.fields import fields
 from fireo.utils import utils
 
 

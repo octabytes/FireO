@@ -1,4 +1,4 @@
-from fireo.models.field_validation import FieldValidation
+from fireo.fields.field_validation import FieldValidation
 
 
 class Field:
