@@ -2,61 +2,216 @@ from fireo.managers import managers
 from fireo.models import fields
 from fireo.utils import utils
 
-"""
-Create modified instance of Model 
-
-Add meta attribute to each Model which holds all the information about Model Fields
-Which help for further use of these Fields
-"""
-
 
 class ModelMeta(type):
+    """Create fields, manager and other stuff for Models
+
+    Add `_meta` attribute to each Model which hold all the information about fields, managers and any
+    other stuff related to model. Also responsible to generate collection name from model.
+
+    Methods
+    -------
+    __new__(mcs, name, base, attrs):
+        Create modified type for model class
+    """
+
     def __new__(mcs, name, base, attrs):
+        """Create modified type for model class
+
+        Convert fields, managers and other stuff into `Meta` class and attached it with model class
+
+        Attributes
+        ----------
+        _meta : Meta()
+            Hold all information about you model, can be accessible via class **cls._meta**
+
+        collection_name : str
+            Name of collection which is saved in database if user not provided any collection name
+            then `Meta` class generate it from Model name and attach it with class can be accessible
+            via class **cls.collection_name**
+
+        Returns
+        -------
+            Modified type for model class
+        """
         cls = super().__new__(mcs, name, base, attrs)
 
+        # check user specify any additional meta data for this model or not
+        # For example collection name etc if there is not then assign None to it
         if 'Meta' not in attrs:
             cls.Meta = None
 
-        """
-            Meta class holding all your Model fields and add them back to your 
-            Model class inside meta attribute
-        """
         class Meta:
-            field_list = {}
-            id = None
+            """Hold information about fields, manager and other model related stuff
+
+            Meta class get fields, manager and other model related stuff and attach it to
+            with model class.
+
+            For example:
+                class User:
+                    name = TextField()
+                    age = NumberField()
+
+                u = User()
+                u.name = "Azeem"
+                u.age = 25
+
+                This Meta class is responsible to attach these fields with model class
+                later on these fields can be accessible via **cls._meta**
+
+                For example:
+                    cls._meta.field_list() will return {name: <obj of TextField ox13>, age: <obj of NumberField 0x17>}
+
+                Later on you can use these fields to get corresponding value from model and use them further
+                field value can be get like this:
+
+                    getattr(self, field_name)
+
+                Here `self` is instance of model class and `field_name` is one the name from `field_list()`
+
+                In above example if you run this
+
+                    getattr(model_instance, name)
+                    getattr(model_instance, age)
+
+                it will return **Azeem** and **25**
+
+            Attributes
+            ----------
+            field_list : dict
+                Contain all model field
+
+            id : str, optional
+                Model id if not specify then it return `None` and later create by firestore
+                and attach to model
+
+            collection : manager
+                Collection is class level attribute can be used to access the manager
+
+            See Also
+            --------
+            fireo.managers.Manager :
+                Manager are responsible to run certain functions on firestore like creating collection
+                getting documents update etc
+
+            Methods
+            -------
+            add_model_id(field):
+                If user specify any id then attach this id to model
+
+            add_field(field):
+                All all user specified fields in Model class
+
+            get_field_by_column_name(name):
+                Get field according to firestore column name(field name)
+
+            Raises:
+            -------
+            AttributeError:
+                Raise from `get_field_by_column_name()` if there is no such in field
+                in model class
+            """
+            field_list = {}  # Hold all the model fields
+            id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
 
             def __init__(self, model):
+                # Convert Model class into collection name
+                # change it to lower case and snake case
+                # UserCollection into user_collection
                 self.collection_name = utils.collection_name(cls.__name__)
 
+            # Attached manager to model class
+            # later on manager can be accessible via class `collection` attribute
+            # like this **cls.collection**
             if 'collection' not in cls.__dict__:
                 manager = managers.Manager()
                 manager.contribute_to_model(cls)
 
-            # Add model id
             def add_model_id(self, field):
+                """ Attach user define id to model
+
+                If user specify any custom id for this model
+                attach it to model this contains two thing custom id and if field
+
+                For Example:
+                    class User:
+                        user_id = IDField()
+
+                    In this case it will hold (user_id, <obj of IDField 0x137>)
+
+                    later `id` can be accessible via `_meta`
+                    like this **cls._meta.id**
+
+                Parameters
+                ----------
+                field : IDField()
+                    User defined custom id field
+                """
                 self.id = (field.name, field)
 
-            # Add each single field into Meta fields into this Model
             def add_field(self, field):
+                """Add model fields into model meta class
+
+                These fields can be used later for getting corresponding values from
+                model instance and some other operations
+
+                can be accessible via `_meta`
+                like this **cls._meta.field_list()**
+
+                Parameters
+                ----------
+                field : Field
+                    This can be any type which is derived from `Field` sub class
+                    For example `TextField`, `NumberField` etc
+                """
                 self.field_list[field.name] = field
 
             def get_field_by_column_name(self, name):
+                """Get field by column name
+
+                User can also define different name for each field to save in firestore
+                Check if user specify any different name then get field corresponding to
+                this db_column_name. If no column name is specify for field then just
+                return the same field name
+
+                Parameters
+                ----------
+                name : str
+                    column name (field name) coming form firestore
+
+                Raises
+                -------
+                AttributeError:
+                    if field not found in model class
+                """
                 for field in self.field_list.values():
                     if name in [field.name, field.db_column_name]:
                         return field
                 raise AttributeError(f'Field {name} not found')
 
-
-        # instance of Meta class and set it to
+        # Create instance of Meta class and set it to
         # Model class as _meta attribute
         _meta = Meta(cls)
         setattr(cls, '_meta', _meta)
 
-        # get list of attribute from Model
+        # Get all fields from model and save them into `_meta.field_list()`
+        # and then attach this `_meta` to model class
         for name, field in cls.__dict__.items():
             if isinstance(field, fields.Field):
                 field.contribute_to_model(cls, name)
 
+        # Set collection name to model class that is generated from
+        # Model class this name can be user defined or auto generated
+        # from model class
+        #
+        # For example:
+        #   class UserCollection:
+        #       name = TextField()
+        #
+        # if user not defined collection name then it will auto generate
+        # for this class
+        #
+        # UserCollection will become user_collection
         setattr(cls, "collection_name", cls._meta.collection_name)
 
         return cls
