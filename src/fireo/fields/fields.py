@@ -38,7 +38,7 @@ class Field:
     field_value(val):
         How this field represent value that is coming from firestore
     """
-    allowed_attributes = ['column_name']
+    allowed_attributes = []
 
     def __init__(self, *args, **kwargs):
         self.raw_attributes = kwargs
