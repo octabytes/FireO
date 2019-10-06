@@ -1,4 +1,4 @@
-from fireo.fields.errors import RequiredField
+from fireo.fields.errors import RequiredField, FieldValidationFailed
 
 
 class FieldValidation:
@@ -22,12 +22,18 @@ class FieldValidation:
     default:
         if no value is define then default value is set for field
 
+    required:
+        Required field if no value or default set raise an Error
+
+    validator:
+        Custom validation for field specify by user
+
     Methods
     -------
     validate(value):
         validate the value and perform action according to attribute
     """
-    allowed_attributes = ['default','required','column_name']
+    allowed_attributes = ['default', 'required', 'column_name', 'validator']
 
     def __init__(self, field, attributes):
         self.field = field
@@ -46,7 +52,24 @@ class FieldValidation:
 
             # check this field is required or not
             if self.required and value is None:
-                raise RequiredField(f'{self.__class__.__name__} is required but received no default and no value.')
+                raise RequiredField(f'{self.field.__class__.__name__} is required but received no default and no value.')
+
+            # check if there any custom validation provided by user
+            if self.validator is not None:
+                if callable(self.validator):
+                    # get response back from user defined method
+                    validation_passed = self.validator()
+                    # check type of response
+                    if isinstance(validation_passed, bool):
+                        if not validation_passed:
+                            raise FieldValidationFailed(f'{self.field.__class__.__name__} failed validation with value {value}')
+                    # if response type is tuple then unpack the response
+                    # get the user defined error and show to user
+                    if isinstance(validation_passed, tuple):
+                        valid, error = validation_passed
+                        if not valid:
+                            raise FieldValidationFailed(f'{self.field.__class__.__name__} {error}')
+
 
     @property
     def default(self):
@@ -57,3 +80,8 @@ class FieldValidation:
     def required(self):
         """Required field if no value or default set raise an Error"""
         return self.attributes.get("required")
+
+    @property
+    def validator(self):
+        """Custom validation for field specify by user"""
+        return self.attributes.get("validator")
