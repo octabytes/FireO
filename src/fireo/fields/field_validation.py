@@ -1,4 +1,4 @@
-from fireo.fields.errors import RequiredField, FieldValidationFailed
+from fireo.fields.errors import RequiredField, FieldValidationFailed, ValidatorNotCallable
 
 
 class FieldValidation:
@@ -68,7 +68,9 @@ class FieldValidation:
                     if isinstance(validation_passed, tuple):
                         valid, error = validation_passed
                         if not valid:
-                            raise FieldValidationFailed(f'{self.field.__class__.__name__} {error}')
+                            raise FieldValidationFailed(f'{self.field.__class__.__name__} failed with {value}. {error}')
+                else:
+                    raise ValidatorNotCallable(f'Validator must be a callable, cannot be {type(self.validator)} {self.validator}')
 
 
     @property

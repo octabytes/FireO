@@ -64,7 +64,7 @@ class Model(metaclass=ModelMeta):
     save() : Model instance
         Save the model in firestore collection
     """
-
+    id = None
     _meta = None
     collection = None
 

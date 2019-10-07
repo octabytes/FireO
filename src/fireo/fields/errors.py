@@ -7,3 +7,7 @@ class RequiredField(Exception):
 
 class FieldValidationFailed(Exception):
     pass
+
+
+class ValidatorNotCallable(Exception):
+    pass
