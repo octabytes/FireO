@@ -11,3 +11,8 @@ class FieldValidationFailed(Exception):
 
 class ValidatorNotCallable(Exception):
     pass
+
+
+class AttributeMethodNotDefined(Exception):
+    pass
+

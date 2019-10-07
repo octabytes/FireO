@@ -1,4 +1,4 @@
-from fireo.fields.errors import RequiredField, FieldValidationFailed, ValidatorNotCallable
+from fireo.fields.errors import *
 
 
 class FieldValidation:
@@ -32,6 +32,26 @@ class FieldValidation:
     -------
     validate(value):
         validate the value and perform action according to attribute
+
+    field_attr(attribute):
+        Get value of field attribute
+
+    call_attr_method(attr, value):
+        Call method from field for custom attribute
+
+    Raises
+    ------
+    AttributeError:
+        if given attributes is not allowed in specific field
+
+    RequiredField:
+        If filed is required and no default and no value found
+
+    FieldValidationFailed:
+        if field not passed custom user defined validation
+
+    AttributeMethodNotDefined:
+        if any custom field not define the method for `allowed_attributes`
     """
     allowed_attributes = ['default', 'required', 'column_name', 'validator']
 
@@ -72,6 +92,80 @@ class FieldValidation:
                 else:
                     raise ValidatorNotCallable(f'Validator must be a callable, cannot be {type(self.validator)} {self.validator}')
 
+        # call those attributes method which are defined in this specific field
+        # each field can specify any additional attributes
+        for attr in self.field.allowed_attributes:
+            if self.field_attr(attr) is not None:
+                value = self.call_attr_method(attr, value)
+
+    def call_attr_method(self, attr, value):
+        """Call method from field for custom attribute
+
+        Any field which is extend from base `Field` and allow it's own attributes
+        then attribute method should be defined for each attribute. And attribute
+        method should return the value. if no value return then field value will set to None
+
+        And each attribute must be start with the name `attr_` and then the name of attribute itself
+
+            For example:
+                for attribute **name** you need to must define method **attr_name()** otherwise it
+                will raise `AttributeMethodNotDefined` exception
+
+        Parameters:
+        ----------
+        attr_val:
+            Attribute value that is define in field
+
+        field_val:
+            Field value that is define in model
+
+        Return
+        ------
+        value:
+            Modified or just the same value after performing action
+
+        Raises
+        ------
+        AttributeMethodNotDefined:
+            If method is not defined for attribute
+
+        Examples:
+        --------
+        .. code-block:: python
+            class HelloField(Field):
+                allowed_attributes = ['if_startfrom']
+
+                def attr_if_startfrom(self, attr_val, field_val)
+                    if field_val.startswith(attr_val):
+                        return "Hello" + field_val
+                    return field_value
+
+
+            class User(Model):
+                name = HelloField(if_startfrom="A")
+
+            u = User()
+            u.name = "Azeem"
+
+            # in this case attr_if_startfrom() method run and set the field value
+            # as **Hello Azeem**
+
+            u.save()
+            print(u.name)  # Hello Azeem
+
+        This is a way how you can create your own custom fields
+        """
+
+        try:
+            # call attribute method from field
+            return getattr(self.field, "attr_"+attr)(self.field_attr(attr), value)
+        except Exception as e:
+            raise AttributeMethodNotDefined(f'Method is not defined for attribute {attr} '
+                                            f'in field {self.field.__class__.__name__}') from e
+
+    def field_attr(self, attr):
+        """Get value of field attribute"""
+        return self.attributes.get(attr)
 
     @property
     def default(self):
