@@ -1,7 +1,10 @@
 
-class ModelFromDict:
+class ModelFromResult:
     @classmethod
     def convert(cls, model, doc):
+        if doc.to_dict() is None:
+            return None
+
         for k, v in doc.to_dict().items():
             field = model._meta.get_field_by_column_name(k)
             val = field.field_value(v)

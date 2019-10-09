@@ -1,51 +1,7 @@
 import inspect
 
-from fireo.database import db
 from fireo.queries import query_result
-
-
-class QuerySet:
-    """Provide operations related to firestore
-
-    Methods
-    -------
-    create(**kwargs):
-        Create new document in firestore collection
-    """
-    def __init__(self, model):
-        self.model = model
-
-    def create(self, **kwargs):
-        """Create new document in firestore collection
-
-        Parameters
-        ---------
-        **kwargs:
-            field name and value
-
-        Returns
-        -------
-        Model instance:
-            modified instance or new instance if no mutable instance provided
-        """
-        return InsertQuery(self.model, **kwargs).exec()
-
-
-class BaseQuery:
-    """Create connection with firestore and provide ref for model collection
-
-    Methods
-    -------
-    get_ref():
-        Provide firestore ref for model collection
-    """
-    def __init__(self, model_cls):
-        self.model_cls = model_cls
-
-    def get_ref(self):
-        """Provide firestore ref for model collection"""
-        ref = db.conn.collection(self.model_cls.collection_name)
-        return ref
+from fireo.queries.base_query import BaseQuery
 
 
 class InsertQuery(BaseQuery):
@@ -120,4 +76,4 @@ class InsertQuery(BaseQuery):
 
     def exec(self):
         """return modified or new instance of model"""
-        return query_result.ModelFromDict.convert(self.model, self._raw_exec())
+        return query_result.ModelFromResult.convert(self.model, self._raw_exec())

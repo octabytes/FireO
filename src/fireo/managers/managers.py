@@ -1,4 +1,4 @@
-from fireo.queries import queries
+from fireo.queries import query_set as queries
 
 
 class ManagerError(Exception):
@@ -44,6 +44,9 @@ class Manager:
 
     create(kwargs):
         create new document in firestore collection
+
+    get(id):
+        Get document from firestore
     """
     def __init__(self):
         self.model = None
@@ -83,3 +86,7 @@ class Manager:
     def create(self, **kwargs):
         """create new document in firestore collection"""
         return self.queryset.create(**kwargs)
+
+    def get(self, id):
+        """Get document from firestore"""
+        return self.queryset.get(id)
