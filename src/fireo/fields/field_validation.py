@@ -98,6 +98,9 @@ class FieldValidation:
             if self.field_attr(attr) is not None:
                 value = self.call_attr_method(attr, value)
 
+        # return the value back
+        return value
+
     def call_attr_method(self, attr, value):
         """Call method from field for custom attribute
 
