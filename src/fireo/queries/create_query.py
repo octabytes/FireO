@@ -4,7 +4,7 @@ from fireo.queries import query_result
 from fireo.queries.base_query import BaseQuery
 
 
-class InsertQuery(BaseQuery):
+class CreateQuery(BaseQuery):
     """Insert model into firestore
 
     Methods

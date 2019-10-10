@@ -1,6 +1,6 @@
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.get_query import GetQuery
-from fireo.queries.insert_query import InsertQuery
+from fireo.queries.create_query import CreateQuery
 from fireo.queries.update_query import UpdateQuery
 
 
@@ -37,7 +37,7 @@ class QuerySet:
         Model instance:
             modified instance or new instance if no mutable instance provided
         """
-        return InsertQuery(self.model, **kwargs).exec()
+        return CreateQuery(self.model, **kwargs).exec()
 
     def update(self, **kwargs):
         """Update existing document in firestore collection
