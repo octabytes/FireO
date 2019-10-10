@@ -42,10 +42,13 @@ class Manager:
     contribute_to_model(model_cls, name="collection"):
         Attach manager to model class
 
-    create(kwargs):
+    create(kwargs): Model instance
         create new document in firestore collection
 
-    get(id):
+    update(kwargs): Model instance
+        Update existing document in firestore collection
+
+    get(id): Model instance
         Get document from firestore
 
     delete(id)
@@ -89,6 +92,10 @@ class Manager:
     def create(self, **kwargs):
         """create new document in firestore collection"""
         return self.queryset.create(**kwargs)
+
+    def update(self, **kwargs):
+        """Update existing document in firestore collection"""
+        return self.queryset.update(**kwargs)
 
     def get(self, id):
         """Get document from firestore"""

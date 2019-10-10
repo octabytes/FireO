@@ -1,6 +1,7 @@
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.get_query import GetQuery
 from fireo.queries.insert_query import InsertQuery
+from fireo.queries.update_query import UpdateQuery
 
 
 class QuerySet:
@@ -8,8 +9,11 @@ class QuerySet:
 
     Methods
     -------
-    create(**kwargs):
+    create(kwargs):
         Create new document in firestore collection
+
+    update(kwargs):
+        Update existing document in firestore collection
 
     get(id)
         Get document from firestore
@@ -34,6 +38,21 @@ class QuerySet:
             modified instance or new instance if no mutable instance provided
         """
         return InsertQuery(self.model, **kwargs).exec()
+
+    def update(self, **kwargs):
+        """Update existing document in firestore collection
+
+        Parameters
+        ---------
+        **kwargs:
+            field name and value
+
+        Returns
+        -------
+        Model instance:
+            updated modified instance
+        """
+        return UpdateQuery(self.model, **kwargs).exec()
 
     def get(self, id):
         """Get document from firestore

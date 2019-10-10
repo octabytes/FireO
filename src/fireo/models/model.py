@@ -63,6 +63,9 @@ class Model(metaclass=ModelMeta):
 
     save() : Model instance
         Save the model in firestore collection
+
+    update() : Model instance
+        Update the existing document
     """
     id = None
     _meta = None
@@ -202,4 +205,29 @@ class Model(metaclass=ModelMeta):
             Modified instance of the model contains id etc
         """
         return self.__class__.collection.create(**self._get_fields())
+
+    def update(self):
+        """Update the existing document
+
+        Update document without overriding it. You can update selected fields.
+
+        Examples
+        --------
+        .. code-block:: python
+            class User(Model):
+                name = TextField()
+                age = NumberField()
+
+            u = User.collection.create(name="Azeem", age=25)
+            id = u.id
+
+            # update this
+            user = User.collection.get(id)
+            user.name = "Arfan"
+            user.update()
+
+            print(user.name)  # Arfan
+            print(user.age)  # 25
+        """
+        return self.__class__.collection.update(**self._get_fields())
 

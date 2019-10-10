@@ -60,7 +60,7 @@ class FieldValidation:
         self.attributes = attributes or {}
 
     # validate each field and it's attributes
-    def validate(self, value):
+    def validate(self, value, ignore_required):
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
             if attr not in self.field.allowed_attributes + FieldValidation.allowed_attributes:
@@ -71,7 +71,7 @@ class FieldValidation:
                 value = self.default
 
             # check this field is required or not
-            if self.required and value is None:
+            if self.required and value is None and not ignore_required:
                 raise RequiredField(f'{self.field.__class__.__name__} is required but received no default and no value.')
 
             # check if there any custom validation provided by user
