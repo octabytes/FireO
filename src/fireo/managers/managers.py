@@ -47,6 +47,9 @@ class Manager:
 
     get(id):
         Get document from firestore
+
+    delete(id)
+        Delete document from firestore
     """
     def __init__(self):
         self.model = None
@@ -90,3 +93,7 @@ class Manager:
     def get(self, id):
         """Get document from firestore"""
         return self.queryset.get(id)
+
+    def delete(self, id):
+        """Delete document from firestore"""
+        return self.queryset.delete(id)
