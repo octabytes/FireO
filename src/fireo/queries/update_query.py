@@ -1,6 +1,4 @@
-import inspect
-
-from fireo.queries import query_result
+from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 
 
@@ -61,4 +59,4 @@ class UpdateQuery(BaseQuery):
 
     def exec(self):
         """return modified instance of model"""
-        return query_result.ModelFromResult.convert(self.model, self._raw_exec())
+        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())

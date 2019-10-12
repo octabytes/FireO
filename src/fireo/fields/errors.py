@@ -1,6 +1,10 @@
 """Field related errors"""
 
 
+class ReferenceTypeError(Exception):
+    pass
+
+
 class MissingFieldOptionError(Exception):
     pass
 

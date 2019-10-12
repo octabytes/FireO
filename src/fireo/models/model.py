@@ -39,6 +39,10 @@ class Model(metaclass=ModelMeta):
         Model id if user specify any otherwise it will create automatically from firestore
         and attached with this model
 
+    key : str
+        Model key which contain the model collection name and model id, Id can be user defined
+        or generated from firestore
+
     collection_name : str
         Model name which is saved in firestore if user not specify any then Model class will convert
         automatically in collection name
@@ -74,6 +78,7 @@ class Model(metaclass=ModelMeta):
         Abstract model can not instantiate
     """
     id = None
+    key = None
     _meta = None
     collection = None
 
@@ -183,6 +188,12 @@ class Model(metaclass=ModelMeta):
         if self._meta.id is not None:
             id, _ = self._meta.id
         setattr(self, id, doc_id)
+        # set model key
+        self.set_model_key(doc_id)
+
+    def set_model_key(self, doc_id):
+        """Model Key contains model collection name and model id"""
+        self.key = self.collection_name + '/' + doc_id
 
     def save(self):
         """Save Model in firestore collection

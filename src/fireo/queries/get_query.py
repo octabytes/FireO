@@ -1,4 +1,4 @@
-from fireo.queries import query_result
+from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 
 
@@ -43,4 +43,4 @@ class GetQuery(BaseQuery):
 
     def exec(self):
         """Wrap the query result into model instance"""
-        return query_result.ModelFromResult.convert(self.model, self._raw_exec())
+        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())
