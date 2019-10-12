@@ -54,6 +54,12 @@ class Manager:
     filter(): Model instance
         Get filter document from firestore
 
+    fetch(limit) : generator
+        Fetch document from firestore, limit is optional here
+
+    order(field_name):
+        Order document by field_name
+
     delete(id)
         Delete document from firestore
     """
@@ -109,8 +115,12 @@ class Manager:
         return self.queryset.filter(*args)
 
     def fetch(self, limit=None):
-        """Fetch all document from collection"""
+        """Fetch document from collection"""
         return self.queryset.filter().fetch(limit)
+
+    def order(self, field_name):
+        """Order the document by field name"""
+        return self.queryset.filter().order(field_name)
 
     def delete(self, id):
         """Delete document from firestore"""
