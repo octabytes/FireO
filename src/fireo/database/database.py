@@ -35,6 +35,7 @@ class Database:
         self._conn = None
 
     def connect(self):
+        #self._conn = "asdsad"
         self._conn = firestore.Client()
 
     @property

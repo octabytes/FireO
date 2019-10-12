@@ -51,6 +51,9 @@ class Manager:
     get(id): Model instance
         Get document from firestore
 
+    filter(): Model instance
+        Get filter document from firestore
+
     delete(id)
         Delete document from firestore
     """
@@ -100,6 +103,14 @@ class Manager:
     def get(self, id):
         """Get document from firestore"""
         return self.queryset.get(id)
+
+    def filter(self, *args):
+        """Get filter document from firestore"""
+        return self.queryset.filter(*args)
+
+    def fetch(self, limit=None):
+        """Fetch all document from collection"""
+        return self.queryset.filter().fetch(limit)
 
     def delete(self, id):
         """Delete document from firestore"""

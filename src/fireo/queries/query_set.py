@@ -1,4 +1,5 @@
 from fireo.queries.delete_query import DeleteQuery
+from fireo.queries.filter_query import FilterQuery
 from fireo.queries.get_query import GetQuery
 from fireo.queries.create_query import CreateQuery
 from fireo.queries.update_query import UpdateQuery
@@ -68,6 +69,10 @@ class QuerySet:
             wrap query result into model instance
         """
         return GetQuery(self.model, id).exec()
+
+    def filter(self, *args):
+        """Filter document"""
+        return FilterQuery(self.model, *args)
 
     def delete(self, id):
         """Delete document from firestore

@@ -1,5 +1,7 @@
 """Field related errors"""
 
+class FieldNotFound(Exception):
+    pass
 
 class RequiredField(Exception):
     pass

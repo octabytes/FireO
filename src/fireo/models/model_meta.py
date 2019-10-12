@@ -1,3 +1,4 @@
+from fireo.fields.errors import FieldNotFound
 from fireo.managers import managers
 from fireo.fields import fields
 from fireo.utils import utils
@@ -102,6 +103,9 @@ class ModelMeta(type):
             add_field(field):
                 All all user specified fields in Model class
 
+            get_field(name):
+                Get field from model on the base of name
+
             get_field_by_column_name(name):
                 Get field according to firestore column name(field name)
 
@@ -114,10 +118,10 @@ class ModelMeta(type):
             field_list = {}  # Hold all the model fields
             id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
 
-            def __init__(self, model):
+            def __init__(self):
                 # Convert Model class into collection name
                 # change it to lower case and snake case
-                # UserCollection into user_collection
+                # e.g UserCollection into user_collection
                 self.collection_name = utils.collection_name(cls.__name__)
 
             # Attached manager to model class
@@ -166,6 +170,25 @@ class ModelMeta(type):
                 """
                 self.field_list[field.name] = field
 
+            def get_field(self, name):
+                """Get model field from field list
+
+                Get field on the base of it's name can be accessible via `_meta`
+                like this **cls._meta.get_field(name)**
+
+                Parameters
+                ---------
+                name:
+                    Field name
+
+                Returns
+                ------
+                    Model field
+                """
+                if name in self.field_list:
+                    return self.field_list[name]
+                raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
+
             def get_field_by_column_name(self, name):
                 """Get field by column name
 
@@ -187,11 +210,11 @@ class ModelMeta(type):
                 for field in self.field_list.values():
                     if name in [field.name, field.db_column_name]:
                         return field
-                raise AttributeError(f'Field {name} not found')
+                raise FieldNotFound(f'Field {name} not found')
 
         # Create instance of Meta class and set it to
         # Model class as _meta attribute
-        _meta = Meta(cls)
+        _meta = Meta()
         setattr(cls, '_meta', _meta)
 
         # Get all fields from model and save them into `_meta.field_list()`
