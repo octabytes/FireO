@@ -7,6 +7,17 @@ class FilterQuery(BaseQuery):
 
     Filter document by filed name, You can also sort and limit the documents.
 
+    Attributes
+    ----------
+    model:
+        Model instance
+
+    select_query:
+        Where filter
+
+    n_limit:
+        Number of documents
+
     Methods
     -------
     parse_where():
@@ -17,6 +28,9 @@ class FilterQuery(BaseQuery):
 
     filter(args):
         Apply filter for querying document
+
+    limit(n):
+        Apply limit on number of documents
 
     fetch(limit):
         Fetch document from firestore, limit is optional here
@@ -29,7 +43,7 @@ class FilterQuery(BaseQuery):
         super().__init__(model_cls)
         self.model = model_cls()
         self.select_query = [args]
-        self.limit = None
+        self.n_limit = None
 
     def parse_where(self):
         """Parse where filter
@@ -51,8 +65,8 @@ class FilterQuery(BaseQuery):
         for f in self.parse_where():
             ref = ref.where(*f)
         # Apply limit
-        if self.limit:
-            ref = ref.limit(self.limit)
+        if self.n_limit:
+            ref = ref.limit(self.n_limit)
         return ref
 
     def filter(self, *args):
@@ -73,6 +87,11 @@ class FilterQuery(BaseQuery):
         self.select_query.append(args)
         return self
 
+    def limit(self, limit):
+        if limit:
+            self.n_limit = limit
+        return self
+
     def fetch(self, limit=None):
         """Fetch the result from firestore
 
@@ -81,7 +100,8 @@ class FilterQuery(BaseQuery):
         limit : optional
             Apply limit to firestore documents, how much documents you want to retrieve
         """
-        self.limit = limit
+        if limit:
+            self.n_limit = limit
         docs = self.query().stream()
         for doc in docs:
             yield query_result.ModelFromResult.convert(self.model, doc)
