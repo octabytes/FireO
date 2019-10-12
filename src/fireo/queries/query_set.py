@@ -81,10 +81,5 @@ class QuerySet:
         ----------
         id : str
             Id of the document
-
-        Returns
-        -------
-        id : str, None
-            return document id or None
         """
-        return DeleteQuery(self.model, id).exec()
+        DeleteQuery(self.model, id).exec()

@@ -61,7 +61,7 @@ class Manager:
         Order document by field_name
 
     delete(id)
-        Delete document from firestore
+        Delete document from firestore, id is optional
     """
     def __init__(self):
         self.model = None
@@ -122,6 +122,9 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter().order(field_name)
 
-    def delete(self, id):
+    def delete(self, id=None):
         """Delete document from firestore"""
-        return self.queryset.delete(id)
+        if id:
+            self.queryset.delete(id)
+        else:
+            self.queryset.filter().delete()

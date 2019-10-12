@@ -1,5 +1,6 @@
 from fireo.queries import query_result
 from fireo.queries.base_query import BaseQuery
+from fireo.queries.delete_query import DeleteQuery
 from google.cloud import firestore
 
 
@@ -44,6 +45,9 @@ class FilterQuery(BaseQuery):
 
     get():
         Get the first matching document from firestore
+
+    delete():
+        Delete the filter documents
     """
 
     def __init__(self, model_cls, *args):
@@ -158,5 +162,10 @@ class FilterQuery(BaseQuery):
         This is same as `fetch(limit=1)` the only difference is `get()` method
         return **model instance** and the `fetch()` method return the **generator**
         """
-        self.limit = 1
+        self.n_limit = 1
         return query_result.ModelFromResult.convert(self.model, next(self.query().stream()))
+
+    def delete(self):
+        """Delete the filter documents"""
+        q = self.query()
+        DeleteQuery(self.model_cls, query=q).exec()
