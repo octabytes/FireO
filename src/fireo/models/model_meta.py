@@ -1,4 +1,5 @@
-from fireo.fields.errors import FieldNotFound
+from fireo.fields.base_field import Field
+from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.fields.fields import IDField
 from fireo.managers import managers
 from fireo.fields import fields
@@ -91,6 +92,10 @@ class ModelMeta(type):
             abstract: bool
                 Model is abstract or not
 
+            missing_field: str
+                Model config what to do with fields that are comming from firestore and not in model
+                possible values are (merge, ignore, raise_error) merge is default
+
             collection : manager
                 Collection is class level attribute can be used to access the manager
 
@@ -134,6 +139,7 @@ class ModelMeta(type):
                 # e.g UserCollection into user_collection
                 self.collection_name = utils.collection_name(cls.__name__)
                 self.abstract = False
+                self.missing_field = 'merge'
 
             # Attached manager to model class
             # later on manager can be accessible via class `collection` attribute
@@ -195,6 +201,11 @@ class ModelMeta(type):
                 Returns
                 ------
                     Model field
+
+                Raises
+                ------
+                FieldNotFound:
+                    If field not found in model
                 """
                 if name in self.field_list:
                     return self.field_list[name]
@@ -215,13 +226,20 @@ class ModelMeta(type):
 
                 Raises
                 -------
-                AttributeError:
-                    if field not found in model class
+                FieldNotFound:
+                    if field not found in model class and model config for `missing_field` is **raise_error**
                 """
                 for field in self.field_list.values():
                     if name in [field.name, field.db_column_name]:
                         return field
-                raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
+                if self.missing_field == 'merge':
+                    f = Field()
+                    f.name = name
+                    return f
+                if self.missing_field == 'ignore':
+                    return None
+                if self.missing_field == 'raise_error':
+                    raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
 
             def set_user_defined_meta(self, user_meta):
                 """Set user defined meta attributes for model
@@ -243,12 +261,24 @@ class ModelMeta(type):
                 ---------
                 user_meta:
                     User defined meta for model class
+
+                Raises
+                -------
+                MissingFieldOptionError:
+                    If option for missing_field is other than ignore, merge or raise_error
                 """
                 for name, val in user_meta.__dict__.items():
                     if name == 'collection_name':
                         self.collection_name = val
                     if name == 'abstract':
                         self.abstract = val
+                    if name == 'missing_field':
+                        if val in ['merge', 'ignore', 'raise_error']:
+                            self.missing_field = val
+                        else:
+                            raise MissingFieldOptionError(
+                                f'Option {val} is not supported by missing_field. '
+                                f'Possible values are ignore, merge, raise_error')
 
         # Create instance of Meta class and set it to
         # Model class as _meta attribute

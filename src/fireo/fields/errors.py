@@ -1,7 +1,13 @@
 """Field related errors"""
 
+
+class MissingFieldOptionError(Exception):
+    pass
+
+
 class FieldNotFound(Exception):
     pass
+
 
 class RequiredField(Exception):
     pass
