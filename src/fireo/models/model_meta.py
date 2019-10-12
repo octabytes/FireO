@@ -1,6 +1,4 @@
-from fireo.fields.base_field import Field
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
-from fireo.fields.fields import IDField
 from fireo.managers import managers
 from fireo.fields import fields
 from fireo.models.errors import NonAbstractModel
@@ -233,7 +231,7 @@ class ModelMeta(type):
                     if name in [field.name, field.db_column_name]:
                         return field
                 if self.missing_field == 'merge':
-                    f = Field()
+                    f = fields.Field()
                     f.name = name
                     return f
                 if self.missing_field == 'ignore':
@@ -290,7 +288,7 @@ class ModelMeta(type):
         for name, field in cls.__dict__.items():
             if isinstance(field, type) and name == 'Meta':
                 _meta.set_user_defined_meta(field)
-            if isinstance(field, fields.Field):
+            if isinstance(field, (managers.Manager, fields.Field)):
                 field.contribute_to_model(cls, name)
 
         # Get base Model if they are abstract then add these models field
@@ -319,7 +317,7 @@ class ModelMeta(type):
                 continue
             for name, field in b._meta.field_list.items():
                 # Ignore the id field
-                if isinstance(field, IDField): continue
+                if isinstance(field, fields.IDField): continue
                 field.contribute_to_model(cls, name)
 
         # Set collection name to model class that is generated from
