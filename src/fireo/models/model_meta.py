@@ -1,6 +1,8 @@
 from fireo.fields.errors import FieldNotFound
+from fireo.fields.fields import IDField
 from fireo.managers import managers
 from fireo.fields import fields
+from fireo.models.errors import NonAbstractModel
 from fireo.utils import utils
 
 
@@ -86,6 +88,9 @@ class ModelMeta(type):
                 Model id if not specify then it return `None` and later create by firestore
                 and attach to model
 
+            abstract: bool
+                Model is abstract or not
+
             collection : manager
                 Collection is class level attribute can be used to access the manager
 
@@ -109,11 +114,16 @@ class ModelMeta(type):
             get_field_by_column_name(name):
                 Get field according to firestore column name(field name)
 
+            set_user_defined_meta(user_meta):
+                Set user defined meta in model class, These meta is actually the config for model
+
             Raises:
             -------
-            AttributeError:
-                Raise from `get_field_by_column_name()` if there is no such in field
-                in model class
+            FieldNotFound:
+                if there is no such in field in model class
+
+            NonAbstractModel:
+                If any model is inherit from non abstract model
             """
             field_list = {}  # Hold all the model fields
             id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
@@ -123,6 +133,7 @@ class ModelMeta(type):
                 # change it to lower case and snake case
                 # e.g UserCollection into user_collection
                 self.collection_name = utils.collection_name(cls.__name__)
+                self.abstract = False
 
             # Attached manager to model class
             # later on manager can be accessible via class `collection` attribute
@@ -210,7 +221,34 @@ class ModelMeta(type):
                 for field in self.field_list.values():
                     if name in [field.name, field.db_column_name]:
                         return field
-                raise FieldNotFound(f'Field {name} not found')
+                raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
+
+            def set_user_defined_meta(self, user_meta):
+                """Set user defined meta attributes for model
+
+                User can define config by using `Meta` class in models
+
+                Examples
+                --------
+                .. code-block:: python
+                    class User(Model):
+                        name = TextField()
+
+                        class Meta:
+                            collection_name = "user_test_collection"
+
+                    # All the documents now save in *user_test_collection* for this model
+
+                Parameters
+                ---------
+                user_meta:
+                    User defined meta for model class
+                """
+                for name, val in user_meta.__dict__.items():
+                    if name == 'collection_name':
+                        self.collection_name = val
+                    if name == 'abstract':
+                        self.abstract = val
 
         # Create instance of Meta class and set it to
         # Model class as _meta attribute
@@ -220,7 +258,38 @@ class ModelMeta(type):
         # Get all fields from model and save them into `_meta.field_list()`
         # and then attach this `_meta` to model class
         for name, field in cls.__dict__.items():
+            if isinstance(field, type) and name == 'Meta':
+                _meta.set_user_defined_meta(field)
             if isinstance(field, fields.Field):
+                field.contribute_to_model(cls, name)
+
+        # Get base Model if they are abstract then add these models field
+        # in child classes
+        #
+        # For example:
+        #   class AbstractModel(Model):
+        #       name = TextField()
+        #
+        #       class Meta:
+        #           abstract = True
+        #
+        #   class User(AbstractModel):
+        #       age = NumberFiled()
+        #
+        #   class Student(AbstractModel):
+        #       age = NumberFiled()
+        #
+        # Both Model user and student now contains the name field
+        #
+        for b in base:
+            if not b._meta.abstract:
+                from fireo.models import Model
+                if b != Model:
+                    raise NonAbstractModel(f'Model {cls.__name__} can not inherit from non abstract model {b.__name__}')
+                continue
+            for name, field in b._meta.field_list.items():
+                # Ignore the id field
+                if isinstance(field, IDField): continue
                 field.contribute_to_model(cls, name)
 
         # Set collection name to model class that is generated from

@@ -1,3 +1,4 @@
+from fireo.models.errors import AbstractNotInstantiate
 from fireo.models.model_meta import ModelMeta
 
 
@@ -66,12 +67,20 @@ class Model(metaclass=ModelMeta):
 
     update() : Model instance
         Update the existing document
+
+    Raises
+    ------
+    AbstractNotInstantiate:
+        Abstract model can not instantiate
     """
     id = None
     _meta = None
     collection = None
 
     def __init__(self, *args, **kwargs):
+        # check this is not abstract model otherwise stop creating instance of this model
+        if self._meta.abstract:
+            raise AbstractNotInstantiate(f'Can not instantiate abstract model {self.__class__.__name__}')
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
         self.__class__.collection.mutable_model(self)
