@@ -28,19 +28,26 @@ class Database:
     Raises
     ------
     DBConnectionError:
-        Missing or wrong project id and credentials
+        Missing or wrong project id or credentials
     """
 
     def __init__(self):
         self._conn = None
 
-    def connect(self):
-        #self._conn = "asdsad"
-        self._conn = firestore.Client()
+    def connect(self,credentials=None, from_file=None):
+        try:
+            if credentials:
+                self._conn = firestore.Client(credentials=credentials)
+            elif from_file:
+                self._conn = firestore.Client.from_service_account_json(from_file)
+            else:
+                raise DBConnectionError("Credentials or service account json file required to connect with firestore")
+        except Exception as e:
+            raise DBConnectionError(e) from e
 
     @property
     def conn(self):
         if self._conn is None:
-            raise DBConnectionError("Unable to connect with Firestore")
+            self._conn = firestore.Client()
         return self._conn
 
