@@ -1,6 +1,10 @@
 """Field related errors"""
 
 
+class AttributeTypeError(Exception):
+    pass
+
+
 class ReferenceTypeError(Exception):
     pass
 

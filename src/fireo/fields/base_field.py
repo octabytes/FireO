@@ -1,4 +1,4 @@
-from fireo.fields.field_validation import FieldValidation
+from fireo.fields.field_attribute import FieldAttribute
 
 
 class MetaField(type):
@@ -38,6 +38,15 @@ class Field(metaclass=MetaField):
         return the name of the field according to `column_name` attribute if no `column_name` is
         specify then same field name will return
 
+    name:
+        name of the field
+
+    model_cls:
+        Class of the model
+
+    field_attribute:
+        Parse field attributes
+
     Methods
     -------
     contribute_to_model(mdoel_cls, name):
@@ -57,7 +66,8 @@ class Field(metaclass=MetaField):
     def __init__(self, *args, **kwargs):
         self.raw_attributes = kwargs
         self.name = None
-        self.validation = FieldValidation(self, kwargs)
+        self.model_cls = None
+        self.field_attribute = FieldAttribute(self, kwargs)
 
     def contribute_to_model(self, model_cls, name):
         """Attach field to model class
@@ -73,6 +83,7 @@ class Field(metaclass=MetaField):
             What is the name of this field when it is attaching with model
         """
         self.name = name
+        self.model_cls = model_cls
         setattr(model_cls, name, None)
         model_cls._meta.add_field(self)
 
@@ -103,7 +114,7 @@ class Field(metaclass=MetaField):
         -------
             DB value
         """
-        v = self.validation.validate(val, ignore_required)
+        v = self.field_attribute.parse(val, ignore_required)
         return self.db_value(v)
 
     def db_value(self, val):

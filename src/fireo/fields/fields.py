@@ -11,21 +11,46 @@ class ReferenceField(Field):
     A DocumentReference refers to a document location in a Firestore database and
     can be used to write, read, or listen to the location. The document at the referenced
     location may or may not exist.
+
+    Attributes
+    ----------
+    allowed_attribute: ['auto_load']
+        Allow reference field to load automatically or not
+
+    model_ref:
+        Reference of the model
+
+    auto_load:
+        Reference field load setting, load it auto or not
+
+    Methods
+    -------
+    attr_auto_load():
+        Method for attribute auto_load
+
+    Raises
+    ------
+    AttributeTypeError:
+        If given type is not supported by attribute
     """
 
-    def __init__(self, model_ref):
-        super().__init__()
+    allowed_attributes = ['auto_load']
+
+    def __init__(self, model_ref, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # Check model ref class is subclass for Model
         from fireo.models import Model
         if not issubclass(model_ref, Model):
             raise errors.ReferenceTypeError(f'Reference model {model_ref.__name__} must be inherit from Model class')
         self.model_ref = model_ref
+        self.auto_load = True
 
-    def get_value(self, val, ignore_required=False):
-        if val is None:
-            return None
-        return self.db_value(val)
+    # Override method
+    def field_value(self, val):
+        v = self.field_attribute.parse(val)
+        return v
 
+    # Override method
     def db_value(self, model):
         # check reference model and passing model is same
         if not issubclass(model.__class__, self.model_ref):
@@ -33,6 +58,18 @@ class ReferenceField(Field):
                                             f'field {self.model_ref.__name__}, but got {model.__class__.__name__}')
         # Get document reference from firestore
         return firestore.DocumentReference(*utils.ref_path(model.key), client=db.conn)
+
+    def attr_auto_load(self, attr_val, field_val):
+        """Attribute method for auto load
+
+        Allow users to load reference documents automatically or just return the reference
+        and user itself call the `get()` method to load the document.
+        """
+        if type(attr_val) is not bool:
+            raise errors.AttributeTypeError(f'Attribute auto_load only accept bool type, got {type(attr_val)} in '
+                                            f'model {self.model_cls.__name__} field {self.name}')
+        self.auto_load = attr_val
+        return field_val
 
 
 

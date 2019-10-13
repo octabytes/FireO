@@ -1,8 +1,8 @@
 from fireo.fields.errors import *
 
 
-class FieldValidation:
-    """Validate the field
+class FieldAttribute:
+    """Parse the field attributes
 
     Check validation for fields and perform action according to field attributes
 
@@ -60,10 +60,10 @@ class FieldValidation:
         self.attributes = attributes or {}
 
     # validate each field and it's attributes
-    def validate(self, value, ignore_required):
+    def parse(self, value, ignore_required=False):
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
-            if attr not in self.field.allowed_attributes + FieldValidation.allowed_attributes:
+            if attr not in self.field.allowed_attributes + FieldAttribute.allowed_attributes:
                 raise AttributeError(f'{self.field.__class__.__name__} not allow attribute {attr}')
 
             # check default value if set for field
@@ -162,7 +162,7 @@ class FieldValidation:
         try:
             # call attribute method from field
             return getattr(self.field, "attr_"+attr)(self.field_attr(attr), value)
-        except Exception as e:
+        except AttributeError as e:
             raise AttributeMethodNotDefined(f'Method is not defined for attribute {attr} '
                                             f'in field {self.field.__class__.__name__}') from e
 
