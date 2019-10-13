@@ -23,10 +23,16 @@ class ReferenceField(Field):
     auto_load:
         Reference field load setting, load it auto or not
 
+    on_load:
+        Call user specify method when reference document load
+
     Methods
     -------
     attr_auto_load():
         Method for attribute auto_load
+
+    attr_on_load():
+        Method for attribute on_load
 
     Raises
     ------
@@ -34,7 +40,7 @@ class ReferenceField(Field):
         If given type is not supported by attribute
     """
 
-    allowed_attributes = ['auto_load']
+    allowed_attributes = ['auto_load', 'on_load']
 
     def __init__(self, model_ref, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,6 +50,7 @@ class ReferenceField(Field):
             raise errors.ReferenceTypeError(f'Reference model {model_ref.__name__} must be inherit from Model class')
         self.model_ref = model_ref
         self.auto_load = True
+        self.on_load = None
 
     # Override method
     def field_value(self, val):
@@ -71,7 +78,22 @@ class ReferenceField(Field):
         self.auto_load = attr_val
         return field_val
 
+    def attr_on_load(self, method_name, field_val):
+        """Attribute method for on load
 
+        Call user specify method when reference document is loaded
+        """
+        try:
+            m = getattr(self.model_cls, method_name)
+            if not callable(m):
+                raise errors.AttributeTypeError(f'Attribute {m} is not callable in model {self.model_cls.__name__} '
+                                                f'field {self.name}')
+            self.on_load = method_name
+        except AttributeError as e:
+            raise errors.AttributeMethodNotDefined(f'Method {method_name} is not defined for attribute on_load in '
+                                                   f'model {self.model_cls.__name__} field {self.name}') from e
+
+        return field_val
 
 
 class IDField(Field):

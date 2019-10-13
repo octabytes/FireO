@@ -17,7 +17,7 @@ class ModelWrapper:
                 continue
             # Check if it is Reference field
             if isinstance(field, ReferenceField):
-                val = ReferenceFieldWrapper.from_doc_ref(field, field.field_value(v))
+                val = ReferenceFieldWrapper.from_doc_ref(model, field, field.field_value(v))
             else:
                 # get field value
                 val = field.field_value(v)
@@ -33,11 +33,11 @@ class ReferenceFieldWrapper:
     `get()` method to retrieve the document
     """
     @classmethod
-    def from_doc_ref(cls, field, ref):
+    def from_doc_ref(cls, parent_model, field, ref):
         if not ref:
             return None
 
-        ref_doc = ReferenceDocLoader(field, ref)
+        ref_doc = ReferenceDocLoader(parent_model, field, ref)
 
         if field.auto_load:
             return ref_doc.get()
@@ -46,7 +46,8 @@ class ReferenceFieldWrapper:
 
 class ReferenceDocLoader:
     """Get reference doc and Convert into model instance"""
-    def __init__(self, field, ref):
+    def __init__(self, parent_model, field, ref):
+        self.parent_model = parent_model
         self.field = field
         self.ref = ref
 
@@ -54,4 +55,10 @@ class ReferenceDocLoader:
         doc = self.ref.get()
         if not doc.exists:
             raise errors.ReferenceDocNotExist(f'{self.field.model_ref.collection_name}/{self.ref.id} not exist')
-        return ModelWrapper.from_query_result(self.field.model_ref(), doc)
+        model = ModelWrapper.from_query_result(self.field.model_ref(), doc)
+
+        # if on_load method is defined then call it
+        if self.field.on_load:
+            method_name = self.field.on_load
+            getattr(self.parent_model, method_name)(model)
+        return model
