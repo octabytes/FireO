@@ -35,6 +35,15 @@ class GetQuery(BaseQuery):
     def __init__(self, model_cls, key):
         super().__init__(model_cls, utils.collection_path(key))
         self.model = model_cls()
+        # Attach key to this model for updating this model
+        # Purpose of attaching this key is user can update
+        # this model after getting it
+        #
+        # For example:
+        #   u = User.collection.get(user_key)
+        #   u.name = "Updated Name"
+        #   u.update()
+        self.model.update_doc = key
         self.id = utils.get_id(key)
 
     def _raw_exec(self):

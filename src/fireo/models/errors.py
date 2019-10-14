@@ -7,3 +7,4 @@ class NonAbstractModel(Exception):
 
 class AbstractNotInstantiate(Exception):
     pass
+

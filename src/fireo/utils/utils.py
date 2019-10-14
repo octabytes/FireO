@@ -17,5 +17,9 @@ def get_parent(key):
     return collection_path(key)
 
 
+def get_parent_doc(key):
+    return '/'.join(key.split('/')[:-2])
+
+
 def get_id(key):
     return key.split('/')[-1]

@@ -39,7 +39,7 @@ class BaseQuery:
 
         #  Validate the key
         self.validate_key()
-        print(self.collection_path)
+
         ref = db.conn.collection(self.collection_path)
         return ref
 

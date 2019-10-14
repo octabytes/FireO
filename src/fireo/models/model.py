@@ -1,6 +1,7 @@
 from fireo.fields.fields import IDField
 from fireo.models.errors import AbstractNotInstantiate
 from fireo.models.model_meta import ModelMeta
+from fireo.queries.errors import InvalidKey
 from fireo.utils import utils
 
 
@@ -302,13 +303,15 @@ class Model(metaclass=ModelMeta):
 
         # make sure update doc in not None
         if self.update_doc:
-            # set key to this updated document key
-            self._key = self.update_doc
+            # set parent doc from this updated document key
+            self.parent = utils.get_parent_doc(self.update_doc)
             # Get id from key and set it for model
             setattr(self, '_id', utils.get_id(self.update_doc))
             # Add the temp id field if user is not specified any
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', IDField()))
+        else:
+            raise InvalidKey(f'Invalid key to update model {self.__class__.__name__} ')
 
         # Get the updated fields
         updated_fields = {k:v for k, v in self._get_fields().items() if k in self.field_changed}

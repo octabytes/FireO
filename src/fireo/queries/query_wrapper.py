@@ -26,7 +26,6 @@ class ModelWrapper:
                 # get field value
                 val = field.field_value(v)
             setattr(model, field.name, val)
-        print(model.key)
         setattr(model, '_id', doc.id)
         return model
 
