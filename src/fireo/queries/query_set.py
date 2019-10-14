@@ -16,10 +16,10 @@ class QuerySet:
     update(kwargs):
         Update existing document in firestore collection
 
-    get(id)
+    get(key)
         Get document from firestore
 
-    delete(id)
+    delete(key)
         Delete document in firestore
     """
     def __init__(self, model):
@@ -55,31 +55,39 @@ class QuerySet:
         """
         return UpdateQuery(self.model, **kwargs).exec()
 
-    def get(self, id):
+    def get(self, key):
         """Get document from firestore
 
         Parameters
         ----------
-        id : str
-            Id of the document
+        key : str
+            key of the document
 
         Returns
         -------
         Model instance:
             wrap query result into model instance
         """
-        return GetQuery(self.model, id).exec()
+        return GetQuery(self.model, key).exec()
 
-    def filter(self, *args):
-        """Filter document"""
-        return FilterQuery(self.model, *args)
+    def filter(self, parent=None, *args):
+        """Filter document from firestore
 
-    def delete(self, id):
+        Parameters
+        ----------
+        parent:
+            Parent collection if any
+        args:
+            Where clauses document filter on the base of this
+        """
+        return FilterQuery(self.model, parent,  *args)
+
+    def delete(self, key):
         """Delete document from firestore
 
         Parameters
         ----------
-        id : str
-            Id of the document
+        key : str
+            key of the document
         """
-        DeleteQuery(self.model, id).exec()
+        DeleteQuery(self.model, key).exec()

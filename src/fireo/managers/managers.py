@@ -34,6 +34,15 @@ class Manager:
     queryset:
         Read only property, provide operations related to firestore
 
+    parent_key:
+        Parent key if any
+
+    name:
+        Name of the manager
+
+    model:
+        Model where this manger is contributing
+
     Methods
     -------
     mutable_model(model):
@@ -48,8 +57,11 @@ class Manager:
     update(kwargs): Model instance
         Update existing document in firestore collection
 
-    get(id): Model instance
+    get(key): Model instance
         Get document from firestore
+
+    parent(key):
+        Parent key if any
 
     filter(): Model instance
         Get filter document from firestore
@@ -60,12 +72,13 @@ class Manager:
     order(field_name):
         Order document by field_name
 
-    delete(id)
-        Delete document from firestore, id is optional
+    delete(key)
+        Delete document from firestore, key is optional
     """
     def __init__(self):
         self.model = None
         self.name = None
+        self.parent_key = None
 
     def mutable_model(self, model):
         """Make changes in existing model instance
@@ -106,25 +119,30 @@ class Manager:
         """Update existing document in firestore collection"""
         return self.queryset.update(**kwargs)
 
-    def get(self, id):
+    def get(self, key):
         """Get document from firestore"""
-        return self.queryset.get(id)
+        return self.queryset.get(key)
+
+    def parent(self, key):
+        """Parent collection"""
+        self.parent_key = key
+        return self
 
     def filter(self, *args):
         """Get filter document from firestore"""
-        return self.queryset.filter(*args)
+        return self.queryset.filter(self.parent_key, *args)
 
     def fetch(self, limit=None):
         """Fetch document from collection"""
-        return self.queryset.filter().fetch(limit)
+        return self.queryset.filter(self.parent_key).fetch(limit)
 
     def order(self, field_name):
         """Order the document by field name"""
-        return self.queryset.filter().order(field_name)
+        return self.queryset.filter(self.parent_key).order(field_name)
 
-    def delete(self, id=None):
+    def delete(self, key=None):
         """Delete document from firestore"""
-        if id:
-            self.queryset.delete(id)
+        if key:
+            self.queryset.delete(key)
         else:
-            self.queryset.filter().delete()
+            self.queryset.filter(self.parent_key).delete()

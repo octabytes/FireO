@@ -1,4 +1,5 @@
 from fireo.queries.base_query import BaseQuery
+from fireo.utils import utils
 
 
 class DeleteQuery(BaseQuery):
@@ -27,9 +28,9 @@ class DeleteQuery(BaseQuery):
         execute the delete operation
     """
 
-    def __init__(self, model_cls, id=None, query=None):
-        super().__init__(model_cls)
-        self.id = id
+    def __init__(self, model_cls, key=None, query=None):
+        super().__init__(model_cls, utils.collection_path(key))
+        self.id = utils.get_id(key)
         self.query = query
 
     def _delete_document(self):

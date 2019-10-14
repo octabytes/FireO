@@ -1,4 +1,8 @@
+import inspect
+
 from fireo.database import db
+from fireo.utils import utils
+from fireo.queries import errors
 
 
 class BaseQuery:
@@ -6,13 +10,78 @@ class BaseQuery:
 
     Methods
     -------
+    set_collection_path(path):
+        Set collection path
+
     get_ref():
         Provide firestore ref for model collection
+
+    validate_key():
+        Validate the key
     """
-    def __init__(self, model_cls):
+    def __init__(self, model_cls, collection_path=None):
         self.model_cls = model_cls
+        # Check collection path is given if not then get it from model key
+        # If model key is also not defined then raise the error and handle it
+        try:
+            self.collection_path = collection_path if collection_path else utils.collection_path(model_cls.key)
+        except AttributeError:
+            # if collection path and model key both are not available then
+            # collection_name will be the base collection path
+            self.collection_path = model_cls.collection_name
+
+    def set_collection_path(self, path):
+        """Set collection path"""
+        self.collection_path = path
 
     def get_ref(self):
         """Provide firestore ref for model collection"""
-        ref = db.conn.collection(self.model_cls.collection_name)
+
+        #  Validate the key
+        self.validate_key()
+        print(self.collection_path)
+        ref = db.conn.collection(self.collection_path)
         return ref
+
+    def validate_key(self):
+        """Validate key, Key collection must be the same as the model collection name
+
+        Examples
+        --------
+        .. code-block:: python
+            class User(Model):
+                name = TextField()
+
+            u = User.collection.create(name="Azeem")
+
+            Student.collection.get(u.key)  # Invalid key because collection is student and key is for User
+
+            # Valid key
+            User.collection.get(u.key)
+
+        Raises
+        ------
+        InvalidKey:
+            If collection path in key is not same as the model collection name
+        """
+        # Get model name because when document is saving model instance is passed instead of
+        # model class for modifying the model instance
+        if inspect.isclass(self.model_cls):
+            model_name = self.model_cls.__name__
+        else:
+            model_name = self.model_cls.__class__.__name__
+        # Check collection is not parent
+        if '/' not in self.collection_path:
+            # check collection path is the same as collection name
+            if self.collection_path != self.model_cls.collection_name:
+                raise errors.InvalidKey(f'Invalid key is given, expected {model_name} type key, '
+                                        f'got {self.collection_path} type key')
+        else:
+            # If collection path is contains the parent then
+            # Get last name from collection path
+            # For example if collection path is "user/doc_id/student/student_doc_id then student
+            # will be the collection name
+            key_collection = self.collection_path.split('/')[-1]
+            if key_collection != self.model_cls.collection_name:
+                raise errors.InvalidKey(f'Invalid key is given, expected {model_name} type key, '
+                                        f'got {key_collection} type key')

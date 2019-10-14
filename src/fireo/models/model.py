@@ -1,5 +1,7 @@
+from fireo.fields.fields import IDField
 from fireo.models.errors import AbstractNotInstantiate
 from fireo.models.model_meta import ModelMeta
+from fireo.utils import utils
 
 
 class Model(metaclass=ModelMeta):
@@ -40,8 +42,11 @@ class Model(metaclass=ModelMeta):
         and attached with this model
 
     key : str
-        Model key which contain the model collection name and model id, Id can be user defined
+        Model key which contain the model collection name and model id and parent if provided, Id can be user defined
         or generated from firestore
+
+    parent: str
+        Parent key if user specify
 
     collection_name : str
         Model name which is saved in firestore if user not specify any then Model class will convert
@@ -72,15 +77,34 @@ class Model(metaclass=ModelMeta):
     update() : Model instance
         Update the existing document
 
+    _set_key(doc_id):
+        Set the model key
+
     Raises
     ------
     AbstractNotInstantiate:
         Abstract model can not instantiate
     """
     id = None
-    key = None
+    _key = None
+    parent = ""
     _meta = None
     collection = None
+    collection_name = None
+
+    # Track which fields are changed or not
+    # it is useful when updating document
+    field_list = []
+    field_changed = []
+
+    # check instance is modified or not
+    # When you get the document from firestore or
+    # save the document then the model instance changed
+    # This also give the help to track update fields
+    instance_modified = False
+
+    # Update doc hold the key which is used to update the document
+    update_doc = None
 
     def __init__(self, *args, **kwargs):
         # check this is not abstract model otherwise stop creating instance of this model
@@ -188,12 +212,28 @@ class Model(metaclass=ModelMeta):
         if self._meta.id is not None:
             id, _ = self._meta.id
         setattr(self, id, doc_id)
-        # set model key
-        self.set_model_key(doc_id)
+        self._set_key(doc_id)
 
-    def set_model_key(self, doc_id):
-        """Model Key contains model collection name and model id"""
-        self.key = self.collection_name + '/' + doc_id
+    @property
+    def key(self):
+        if self._key:
+            return self._key
+        try:
+            k = '/'.join([self.parent, self.collection_name, self._id])
+        except TypeError:
+            k = '/'.join([self.parent, self.collection_name, '@temp_doc_id'])
+        if k[0] == '/':
+            return k[1:]
+        else:
+            return k
+
+    def _set_key(self, doc_id):
+        """Set key for model"""
+        p = '/'.join([self.parent, self.collection_name, doc_id])
+        if p[0] == '/':
+            self._key = p[1:]
+        else:
+            self._key = p
 
     def save(self):
         """Save Model in firestore collection
@@ -226,7 +266,7 @@ class Model(metaclass=ModelMeta):
         """
         return self.__class__.collection.create(**self._get_fields())
 
-    def update(self):
+    def update(self, doc_key=None):
         """Update the existing document
 
         Update document without overriding it. You can update selected fields.
@@ -248,6 +288,36 @@ class Model(metaclass=ModelMeta):
 
             print(user.name)  # Arfan
             print(user.age)  # 25
-        """
-        return self.__class__.collection.update(**self._get_fields())
 
+        Parameters
+        ----------
+        doc_key: str
+            Key of document which is going to update this is optional you can also set
+            the update_doc explicitly
+        """
+
+        # Check doc key is given or not
+        if doc_key:
+            self.update_doc = doc_key
+
+        # make sure update doc in not None
+        if self.update_doc:
+            # set key to this updated document key
+            self._key = self.update_doc
+            # Get id from key and set it for model
+            setattr(self, '_id', utils.get_id(self.update_doc))
+            # Add the temp id field if user is not specified any
+            if self._id is None and self.id:
+                setattr(self._meta, 'id', ('id', IDField()))
+
+        # Get the updated fields
+        updated_fields = {k:v for k, v in self._get_fields().items() if k in self.field_changed}
+        return self.__class__.collection.update(**updated_fields)
+
+    def __setattr__(self, key, value):
+        """Keep track which filed values are changed"""
+        if key in self.field_list or not self.instance_modified:
+            self.field_changed.append(key)
+        else:
+            self.field_list.append(key)
+        super(Model, self).__setattr__(key, value)

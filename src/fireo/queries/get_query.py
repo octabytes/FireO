@@ -1,5 +1,6 @@
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
+from fireo.utils import utils
 
 
 class GetQuery(BaseQuery):
@@ -18,7 +19,7 @@ class GetQuery(BaseQuery):
         u.save()
 
         # Getting model
-        user = User.collection.get(u.id)
+        user = User.collection.get(u.key)
         print(user.name)  # Azeem
         print(user.age)  # 26
 
@@ -31,10 +32,10 @@ class GetQuery(BaseQuery):
         Get document from firestore and wrap them into model
     """
 
-    def __init__(self, model_cls, id):
-        super().__init__(model_cls)
+    def __init__(self, model_cls, key):
+        super().__init__(model_cls, utils.collection_path(key))
         self.model = model_cls()
-        self.id = id
+        self.id = utils.get_id(key)
 
     def _raw_exec(self):
         """Get firestore reference and then get document based on id"""

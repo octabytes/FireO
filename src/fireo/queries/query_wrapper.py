@@ -9,6 +9,10 @@ class ModelWrapper:
         if doc.to_dict() is None:
             return None
 
+        # instance values is changed according to firestore
+        # so mark it modified this will help later for figuring
+        # out the updated fields when need to update this document
+        setattr(model, 'instance_modified', True)
         for k, v in doc.to_dict().items():
             field = model._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
@@ -22,6 +26,7 @@ class ModelWrapper:
                 # get field value
                 val = field.field_value(v)
             setattr(model, field.name, val)
+        print(model.key)
         setattr(model, '_id', doc.id)
         return model
 

@@ -1,6 +1,7 @@
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
+from fireo.utils import utils
 from google.cloud import firestore
 
 
@@ -50,12 +51,14 @@ class FilterQuery(BaseQuery):
         Delete the filter documents
     """
 
-    def __init__(self, model_cls, *args):
+    def __init__(self, model_cls, parent=None, *args):
         super().__init__(model_cls)
         self.model = model_cls()
         self.select_query = [args] if args else []
         self.n_limit = None
         self.order_by = []
+        if parent:
+            super().set_collection_path(parent)
 
     def parse_where(self):
         """Parse where filter
