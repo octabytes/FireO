@@ -6,7 +6,7 @@ class ManagerError(Exception):
 
 
 class ManagerDescriptor:
-    """Restrict user to get `Manager` from model instance"""
+    """Restrict user to get `Manager` from model instance and from abstract model"""
     def __init__(self, manager):
         self.manager = manager
 
