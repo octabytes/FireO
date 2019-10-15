@@ -1,6 +1,10 @@
 """Field related errors"""
 
 
+class InvalidFieldType(Exception):
+    pass
+
+
 class AttributeTypeError(Exception):
     pass
 

@@ -139,18 +139,6 @@ class IDField(Field):
         model_cls._meta.add_model_id(self)
 
 
-class NumberField(Field):
-    """Number field for Models
-
-    Define numbers for models integer, float etc
-
-    Examples
-    --------
-        class User(Model):
-            age = NumberField()
-    """
-    pass
-
 
 class TextField(Field):
     """Text field for Models

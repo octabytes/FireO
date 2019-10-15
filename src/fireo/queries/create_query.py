@@ -86,6 +86,9 @@ class CreateQuery(BaseQuery):
 
     def _raw_exec(self):
         """save model into firestore and return the document"""
+        # TODO: remve this
+        self._parse_field()
+        return
         ref = self._doc_ref()
         ref.set(self._parse_field())
         return ref.get()

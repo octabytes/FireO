@@ -8,8 +8,11 @@ class ModelWrapper:
     def from_query_result(cls, model, doc, nested_doc=False):
         if nested_doc:
             doc_dict = doc
-        elif doc.to_dict():
-            doc_dict = doc.to_dict()
+        elif doc:
+            if doc.to_dict():
+                doc_dict = doc.to_dict()
+            else:
+                return None
         else:
             return None
 
