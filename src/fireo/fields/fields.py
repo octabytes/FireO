@@ -12,15 +12,5 @@ from google.cloud import firestore
 
 
 
-class TextField(Field):
-    """Text field for Models
 
-        Define text for models
-
-        Examples
-        --------
-            class User(Model):
-                age = TextField()
-        """
-    pass
 
