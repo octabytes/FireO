@@ -1,3 +1,4 @@
+from fireo.fields import fields
 from fireo.fields.fields import IDField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate
@@ -168,10 +169,18 @@ class Model(metaclass=ModelMeta):
         dict:
             name value dict of model
         """
-        return {
-            f.name: getattr(self, f.name)
-            for f in self._meta.field_list.values()
-        }
+        field_list = {}
+        for f in self._meta.field_list.values():
+            if isinstance(f, fields.NestedModel):
+                model_instance = getattr(self, f.name)
+                if f.valid_model(model_instance):
+                    field_list[f.name] = model_instance._get_fields()
+            else:
+                field_list[f.name] = getattr(self, f.name)
+        return field_list
+
+    def testing(self):
+        print(self._get_fields())
 
     @property
     def _id(self):

@@ -6,8 +6,22 @@ from google.cloud import firestore
 
 
 class NestedModel(Field):
-    pass
+    """Model inside another model"""
 
+    def __init__(self, model, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Check nested model class is subclass for Model
+        from fireo.models import Model
+        if not issubclass(model, Model):
+            raise errors.NestedModelTypeError(f'Nested model {model.__name__} must be inherit from Model class')
+        self.nested_model = model
+
+    def valid_model(self, model_instance):
+        """Check nested model and passing model is same"""
+        if self.nested_model == model_instance.__class__:
+            return True
+        raise errors.NestedModelTypeError(f'Invalid nested model type. Field "{self.name}" required value type '
+                                          f'{self.nested_model.__name__}, but got {model_instance.__class__.__name__}')
 
 class ReferenceField(Field):
     """Reference of other model
@@ -65,8 +79,8 @@ class ReferenceField(Field):
     def db_value(self, model):
         # check reference model and passing model is same
         if not issubclass(model.__class__, self.model_ref):
-            raise errors.ReferenceTypeError(f'Invalid reference type {self.name} required value type '
-                                            f'field {self.model_ref.__name__}, but got {model.__class__.__name__}')
+            raise errors.ReferenceTypeError(f'Invalid reference type. Field "{self.name}" required value type '
+                                            f'{self.model_ref.__name__}, but got {model.__class__.__name__}')
         # Get document reference from firestore
         return firestore.DocumentReference(*utils.ref_path(model.key), client=db.conn)
 

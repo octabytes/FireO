@@ -5,6 +5,10 @@ class AttributeTypeError(Exception):
     pass
 
 
+class NestedModelTypeError(Exception):
+    pass
+
+
 class ReferenceTypeError(Exception):
     pass
 

@@ -1,19 +1,23 @@
-from fireo.fields.fields import ReferenceField
+from fireo.fields.fields import ReferenceField, NestedModel
 from fireo.queries import errors
 
 
 class ModelWrapper:
     """Convert query result into Model instance"""
     @classmethod
-    def from_query_result(cls, model, doc):
-        if doc.to_dict() is None:
+    def from_query_result(cls, model, doc, nested_doc=False):
+        if nested_doc:
+            doc_dict = doc
+        elif doc.to_dict():
+            doc_dict = doc.to_dict()
+        else:
             return None
 
         # instance values is changed according to firestore
         # so mark it modified this will help later for figuring
         # out the updated fields when need to update this document
         setattr(model, 'instance_modified', True)
-        for k, v in doc.to_dict().items():
+        for k, v in doc_dict.items():
             field = model._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
             # get_field_by_column_name return None So, just skip this field
@@ -22,12 +26,24 @@ class ModelWrapper:
             # Check if it is Reference field
             if isinstance(field, ReferenceField):
                 val = ReferenceFieldWrapper.from_doc_ref(model, field, field.field_value(v))
+            elif isinstance(field, NestedModel):
+                val = NestedModelWrapper.from_model_dict(field, field.field_value(v))
             else:
-                # get field value
                 val = field.field_value(v)
             setattr(model, field.name, val)
-        setattr(model, '_id', doc.id)
+
+        # If it is not nested model then set the id for this model
+        if nested_doc is None:
+            setattr(model, '_id', doc.id)
         return model
+
+
+class NestedModelWrapper:
+    """Get nested document"""
+    @classmethod
+    def from_model_dict(cls, field, doc):
+        model = field.nested_model()
+        return ModelWrapper.from_query_result(model, doc, nested_doc=True)
 
 
 class ReferenceFieldWrapper:

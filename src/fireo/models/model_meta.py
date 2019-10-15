@@ -290,8 +290,6 @@ class ModelMeta(type):
                 _meta.set_user_defined_meta(field)
             if isinstance(field, (managers.Manager, fields.Field)):
                 field.contribute_to_model(cls, name)
-            if isinstance(field, fields.NestedModel):
-                print('find nested model')
 
         # Get base Model if they are abstract then add these models field
         # in child classes
