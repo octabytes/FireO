@@ -49,6 +49,7 @@ class UpdateQuery(BaseQuery):
             v = f.get_value(self.query.get(f.name), ignore_required=True)
             if v:
                 field_dict[f.db_column_name] = v
+        print(field_dict)
         return field_dict
 
     def _raw_exec(self):

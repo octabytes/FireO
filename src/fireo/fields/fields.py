@@ -5,6 +5,10 @@ from fireo.utils import utils
 from google.cloud import firestore
 
 
+class NestedModel(Field):
+    pass
+
+
 class ReferenceField(Field):
     """Reference of other model
 

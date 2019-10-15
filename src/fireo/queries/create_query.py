@@ -42,6 +42,22 @@ class CreateQuery(BaseQuery):
             # _id setter in model check either user defined
             # any id or not in model
             setattr(self.model, '_id', kwargs.get(id_field))
+        # Attach key to this model for updating this model
+        # Purpose of attaching this key is user can update
+        # this model after getting it
+        #
+        # For example:
+        #   u = User.collection.create(name="Azeem", age=25)
+        #   u.name = "Updated Name"
+        #   u.update()
+        self.model.update_doc = self.model.key
+
+        # Reset the field list and changed list
+        # This is important to reset so we can
+        # find next time which fields are changed
+        # when we are going to update it
+        self.model.field_list = []
+        self.model.field_changed = []
 
     def _doc_ref(self):
         """create document ref from firestore"""
