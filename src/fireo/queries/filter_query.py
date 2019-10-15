@@ -49,6 +49,9 @@ class FilterQuery(BaseQuery):
 
     delete():
         Delete the filter documents
+
+    _update_doc_key(model):
+        Attach key to model for later updating the model
     """
 
     def __init__(self, model_cls, parent=None, *args):
@@ -57,6 +60,7 @@ class FilterQuery(BaseQuery):
         self.select_query = [args] if args else []
         self.n_limit = None
         self.order_by = []
+        self.parent = parent
         if parent:
             super().set_collection_path(parent)
 
@@ -156,7 +160,9 @@ class FilterQuery(BaseQuery):
             self.n_limit = limit
         docs = self.query().stream()
         for doc in docs:
-            yield query_wrapper.ModelWrapper.from_query_result(self.model, doc)
+            m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
+            m.update_doc = self._update_doc_key(m)
+            yield m
 
     def get(self):
         """Get the first matching document from firestore
@@ -166,9 +172,42 @@ class FilterQuery(BaseQuery):
         return **model instance** and the `fetch()` method return the **generator**
         """
         self.n_limit = 1
-        return query_wrapper.ModelWrapper.from_query_result(self.model, next(self.query().stream()))
+        doc = next(self.query().stream(), None)
+        if doc:
+            m = query_wrapper.ModelWrapper.from_query_result(self.model, next(self.query().stream()))
+            m.update_doc = self._update_doc_key(m)
+            return m
+        return None
 
     def delete(self):
         """Delete the filter documents"""
         q = self.query()
         DeleteQuery(self.model_cls, query=q).exec()
+
+    def _update_doc_key(self, model):
+        """Attach key to model for later updating the model
+
+        Attach key to this model for updating this model
+        Purpose of attaching this key is user can update
+        this model after getting it
+
+        For example:
+          u = User.collection.get(user_key)
+          u.name = "Updated Name"
+          u.update()
+
+        Parameters
+        ----------
+        model:
+            Current model where update key need to attach
+
+        Returns
+        -------
+        update_doc_key:
+            Doc key for updating document
+        """
+        if self.parent:
+            update_doc_key = self.parent + '/' + model._id
+        else:
+            update_doc_key = model.key
+        return update_doc_key
