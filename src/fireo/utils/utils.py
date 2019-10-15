@@ -1,5 +1,7 @@
 import re
 
+from google.cloud import firestore
+
 
 def collection_name(model):
     return re.sub('(?!^)([A-Z]+)', r'_\1', model).lower()
@@ -23,3 +25,7 @@ def get_parent_doc(key):
 
 def get_id(key):
     return key.split('/')[-1]
+
+
+def GeoPoint(latitude: float, longitude: float):
+    return firestore.GeoPoint(latitude, longitude)
