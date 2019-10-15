@@ -1,3 +1,4 @@
+from fireo.fields.fields import NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 
@@ -46,9 +47,26 @@ class UpdateQuery(BaseQuery):
         """
         field_dict = {}
         for f in self.model._meta.field_list.values():
-            v = f.get_value(self.query.get(f.name), ignore_required=True)
-            if v:
-                field_dict[f.db_column_name] = v
+            # Check if it is nested model
+            if isinstance(f, NestedModel):
+                # Get nested model field
+                for nested_f in f.nested_model._meta.field_list.values():
+                    v = nested_f.get_value(self.query.get(f.name+"."+nested_f.name), ignore_required=True)
+                    if v:
+                        # create the name with parent field name and child name
+                        # For example:
+                        #   class User(Model):
+                        #       address = TextField()
+                        #   class Student(Model):
+                        #       age = NumberField()
+                        #       user = NestedModel(User)
+                        #
+                        # Then the field name for nested model will be "user.address"
+                        field_dict[f.db_column_name+"."+nested_f.db_column_name] = v
+            else:
+                v = f.get_value(self.query.get(f.name), ignore_required=True)
+                if v:
+                    field_dict[f.db_column_name] = v
         return field_dict
 
     def _raw_exec(self):

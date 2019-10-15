@@ -341,7 +341,26 @@ class Model(metaclass=ModelMeta):
             raise InvalidKey(f'Invalid key to update model {self.__class__.__name__} ')
 
         # Get the updated fields
-        updated_fields = {k:v for k, v in self._get_fields().items() if k in self.field_changed}
+        updated_fields = {}
+        for k, v in self._get_fields().items():
+            if k in self.field_changed:
+                updated_fields[k] = v
+            # Get nested fields if any
+            # Nested model store as dict in firestore so check values type is dict
+            if type(v) is dict:
+                # nested field name and value
+                for name, value in v.items():
+                    if name in self.field_changed:
+                        # create the name with parent field name and child name
+                        # For example:
+                        #   class User(Model):
+                        #       address = TextField()
+                        #   class Student(Model):
+                        #       age = NumberField()
+                        #       user = NestedModel(User)
+                        #
+                        # Then the field name for nested model will be "user.address"
+                        updated_fields[k+"."+name] = value
         return self.__class__.collection.update(**updated_fields)
 
     def __setattr__(self, key, value):
