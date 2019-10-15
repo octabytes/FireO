@@ -1,7 +1,6 @@
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
-from fireo.utils import utils
 from google.cloud import firestore
 
 

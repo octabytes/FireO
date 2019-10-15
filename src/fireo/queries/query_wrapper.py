@@ -1,4 +1,4 @@
-from fireo.fields.fields import ReferenceField, NestedModel
+from fireo.fields import ReferenceField, NestedModel
 from fireo.queries import errors
 
 

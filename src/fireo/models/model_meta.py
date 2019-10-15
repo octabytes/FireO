@@ -1,6 +1,6 @@
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.managers import managers
-from fireo.fields import fields
+from fireo import fields
 from fireo.models.errors import NonAbstractModel
 from fireo.utils import utils
 

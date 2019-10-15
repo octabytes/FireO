@@ -1,4 +1,4 @@
-from fireo.fields.fields import NestedModel
+from fireo.fields import NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 
