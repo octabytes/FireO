@@ -17,13 +17,6 @@ class NumberField(Field):
 
     allowed_attributes = ['int_only', 'float_only']
 
-    # override method
-    def db_value(self, val):
-        if type(val) is int or type(val) is float:
-            return val
-        raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {int} or {float}, '
-                                      f'got {type(val)}')
-
     def attr_int_only(self, attr_val, field_val):
         """Method for attribute int_only"""
         if attr_val and type(field_val) is not int:
@@ -37,3 +30,10 @@ class NumberField(Field):
             raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {float} type, '
                                           f'got {type(field_val)}')
         return field_val
+
+    # override method
+    def db_value(self, val):
+        if type(val) is int or type(val) is float:
+            return val
+        raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {int} or {float}, '
+                                      f'got {type(val)}')
