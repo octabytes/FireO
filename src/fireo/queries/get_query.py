@@ -33,7 +33,8 @@ class GetQuery(BaseQuery):
     """
 
     def __init__(self, model_cls, key):
-        super().__init__(model_cls, utils.collection_path(key))
+        super().__init__(model_cls)
+        super().set_collection_path(key=key)
         self.model = model_cls()
         # Attach key to this model for updating this model
         # Purpose of attaching this key is user can update

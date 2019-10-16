@@ -20,7 +20,7 @@ class BaseQuery:
         Validate the key
     """
 
-    def __init__(self, model_cls, collection_path=None):
+    def __init__(self, model_cls):
         self.model_cls = model_cls
         # if collection path and model key both are not available then
         # collection_name will be the base collection path
@@ -39,7 +39,7 @@ class BaseQuery:
 
         #  Validate the key
         self.validate_key()
-
+        
         ref = db.conn.collection(self.collection_path)
         return ref
 
