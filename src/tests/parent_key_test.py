@@ -106,7 +106,7 @@ def test_parent_key_without_id_field():
     e1.address = 'testing parent student key without field'
     e1.save()
 
-    e2 = Student.collection.get(e1.key)
+    e2 = Employee.collection.get(e1.key)
     assert e1.id == e2.id
     assert e1.key == e2.key
 
@@ -122,7 +122,7 @@ def test_parent_key_with_value():
     e1.address = 'testing parent student key with value'
     e1.save()
 
-    e2 = Student.collection.get(e1.key)
+    e2 = Employee.collection.get(e1.key)
     assert e1.id == e2.id
     assert e1.key == e2.key
 
@@ -138,7 +138,7 @@ def test_parent_key_with_id_name():
     e1.address = 'testing parent student key with value'
     e1.save()
 
-    e2 = Student.collection.get(e1.key)
+    e2 = Employee.collection.get(e1.key)
     assert e1.id == e2.id
     assert e1.key == e2.key
 

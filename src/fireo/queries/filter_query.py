@@ -61,7 +61,7 @@ class FilterQuery(BaseQuery):
         self.order_by = []
         self.parent = parent
         if parent:
-            super().set_collection_path(parent)
+            super().set_collection_path(path=parent)
 
     def parse_where(self):
         """Parse where filter

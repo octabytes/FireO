@@ -10,7 +10,7 @@ class BaseQuery:
 
     Methods
     -------
-    set_collection_path(path):
+    set_collection_path(path, key):
         Set collection path
 
     get_ref():
@@ -19,27 +19,27 @@ class BaseQuery:
     validate_key():
         Validate the key
     """
+
     def __init__(self, model_cls, collection_path=None):
         self.model_cls = model_cls
-        # Check collection path is given if not then get it from model key
-        # If model key is also not defined then raise the error and handle it
-        try:
-            self.collection_path = collection_path if collection_path else utils.collection_path(model_cls.key)
-        except AttributeError:
-            # if collection path and model key both are not available then
-            # collection_name will be the base collection path
-            self.collection_path = model_cls.collection_name
+        # if collection path and model key both are not available then
+        # collection_name will be the base collection path
+        self.collection_path = model_cls.collection_name
 
-    def set_collection_path(self, path):
+    def set_collection_path(self, path=None, key=None):
         """Set collection path"""
-        self.collection_path = path
+        # Check collection path is given if not then get it from model key
+        if path:
+            self.collection_path = path
+        elif key:
+            self.collection_path = utils.collection_path(key)
 
     def get_ref(self):
         """Provide firestore ref for model collection"""
 
         #  Validate the key
         self.validate_key()
-
+        
         ref = db.conn.collection(self.collection_path)
         return ref
 

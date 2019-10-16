@@ -28,6 +28,7 @@ class CreateQuery(BaseQuery):
         # otherwise set mutable instance to self.model
         if mutable_instance:
             self.model = mutable_instance
+            super().set_collection_path(key=mutable_instance.key)
         else:
             self.model = model_cls()
 
