@@ -24,6 +24,7 @@ class UpdateQuery(BaseQuery):
         super().__init__(model_cls)
         self.query = kwargs
         self.model = mutable_instance
+        super().set_collection_path(key=mutable_instance.key)
 
     def _doc_ref(self):
         """create document ref from firestore"""
