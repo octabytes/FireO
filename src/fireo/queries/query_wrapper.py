@@ -36,7 +36,7 @@ class ModelWrapper:
             setattr(model, field.name, val)
 
         # If it is not nested model then set the id for this model
-        if nested_doc is None:
+        if not nested_doc:
             setattr(model, '_id', doc.id)
         return model
 

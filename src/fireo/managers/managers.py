@@ -42,21 +42,18 @@ class Manager:
     name:
         Name of the manager
 
-    model:
+    model_cls:
         Model where this manger is contributing
 
     Methods
     -------
-    mutable_model(model):
-        Make changes in existing model instance
-
     contribute_to_model(model_cls, name="collection"):
         Attach manager to model class
 
-    create(kwargs): Model instance
+    create(mutable_instance, kwargs): Model instance
         create new document in firestore collection
 
-    update(kwargs): Model instance
+    update(mutable_instance, kwargs): Model instance
         Update existing document in firestore collection
 
     get(key): Model instance
@@ -78,17 +75,9 @@ class Manager:
         Delete document from firestore, key is optional
     """
     def __init__(self):
-        self.model = None
+        self.model_cls = None
         self.name = None
         self.parent_key = None
-
-    def mutable_model(self, model):
-        """Make changes in existing model instance
-
-        After performing firestore action modified this instance
-        adding things init like id etc
-        """
-        self.model = model
 
     def contribute_to_model(self, model_cls, name="collection"):
         """Attach manager to model class
@@ -105,21 +94,35 @@ class Manager:
             later can be accessible with this name
         """
         self.name = name
-        self.model = model_cls
+        self.model_cls = model_cls
         setattr(model_cls, name, ManagerDescriptor(self))
 
     @property
     def queryset(self):
         """provide operations related to firestore"""
-        return queries.QuerySet(self.model)
+        return queries.QuerySet(self.model_cls)
 
-    def create(self, **kwargs):
-        """create new document in firestore collection"""
-        return self.queryset.create(**kwargs)
+    def create(self, mutable_instance=None, **kwargs,):
+        """create new document in firestore collection
 
-    def update(self, **kwargs):
-        """Update existing document in firestore collection"""
-        return self.queryset.update(**kwargs)
+        Parameters
+        ---------
+        mutable_instance: Model instance
+            Make changes in existing model instance After performing firestore action modified this instance
+            adding things init like id, key etc
+        """
+        return self.queryset.create(mutable_instance, **kwargs)
+
+    def update(self, mutable_instance=None, **kwargs):
+        """Update existing document in firestore collection
+
+        Parameters
+        ---------
+        mutable_instance: Model instance
+            Make changes in existing model instance After performing firestore action modified this instance
+            adding things init like id, key etc
+        """
+        return self.queryset.update(mutable_instance, **kwargs)
 
     def get(self, key):
         """Get document from firestore"""

@@ -1,5 +1,3 @@
-import inspect
-
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 
@@ -21,23 +19,25 @@ class CreateQuery(BaseQuery):
     exec():
         return modified or new instance of model
     """
-    def __init__(self, model, **kwargs):
-        super().__init__(model)
+    def __init__(self, model_cls, mutable_instance=None, **kwargs):
+        super().__init__(model_cls)
         self.query = kwargs
-        self.model = model
         # If this is called from manager or mutable model is
         # not provided then this `model` will be a class not instance
         # then create new instance from this model class
-        if inspect.isclass(model):
-            self.model = model()
+        # otherwise set mutable instance to self.model
+        if mutable_instance:
+            self.model = mutable_instance
+        else:
+            self.model = model_cls()
 
             # Suppose user is defined the id for model
             # let name id **id**
             id_field = 'id'
 
             # Check user provide any custom name for id
-            if model._meta.id is not None:
-                id_field, _ = model._meta.id
+            if model_cls._meta.id is not None:
+                id_field, _ = model_cls._meta.id
 
             # _id setter in model check either user defined
             # any id or not in model

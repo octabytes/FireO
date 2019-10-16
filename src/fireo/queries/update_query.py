@@ -20,10 +20,10 @@ class UpdateQuery(BaseQuery):
     exec():
         return modified instance of model
     """
-    def __init__(self, model, **kwargs):
-        super().__init__(model)
+    def __init__(self, model_cls, mutable_instance=None, **kwargs):
+        super().__init__(model_cls)
         self.query = kwargs
-        self.model = model
+        self.model = mutable_instance
 
     def _doc_ref(self):
         """create document ref from firestore"""

@@ -22,14 +22,18 @@ class QuerySet:
     delete(key)
         Delete document in firestore
     """
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, model_cls):
+        self.model_cls = model_cls
 
-    def create(self, **kwargs):
+    def create(self, mutable_instance=None, **kwargs):
         """Create new document in firestore collection
 
         Parameters
         ---------
+        mutable_instance: Model instance
+            Make changes in existing model instance After performing firestore action modified this instance
+            adding things init like id, key etc
+
         **kwargs:
             field name and value
 
@@ -38,13 +42,19 @@ class QuerySet:
         Model instance:
             modified instance or new instance if no mutable instance provided
         """
-        return CreateQuery(self.model, **kwargs).exec()
+        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec()
 
-    def update(self, **kwargs):
+    def update(self, mutable_instance=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
         ---------
+        Parameters
+        ---------
+        mutable_instance: Model instance
+            Make changes in existing model instance After performing firestore action modified this instance
+            adding things init like id, key etc
+
         **kwargs:
             field name and value
 
@@ -53,7 +63,7 @@ class QuerySet:
         Model instance:
             updated modified instance
         """
-        return UpdateQuery(self.model, **kwargs).exec()
+        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec()
 
     def get(self, key):
         """Get document from firestore
@@ -68,7 +78,7 @@ class QuerySet:
         Model instance:
             wrap query result into model instance
         """
-        return GetQuery(self.model, key).exec()
+        return GetQuery(self.model_cls, key).exec()
 
     def filter(self, parent=None, *args):
         """Filter document from firestore
@@ -80,7 +90,7 @@ class QuerySet:
         args:
             Where clauses document filter on the base of this
         """
-        return FilterQuery(self.model, parent,  *args)
+        return FilterQuery(self.model_cls, parent, *args)
 
     def delete(self, key):
         """Delete document from firestore
@@ -90,4 +100,4 @@ class QuerySet:
         key : str
             key of the document
         """
-        DeleteQuery(self.model, key).exec()
+        DeleteQuery(self.model_cls, key).exec()

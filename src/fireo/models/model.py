@@ -129,9 +129,6 @@ class Model(metaclass=ModelMeta):
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
             raise AbstractNotInstantiate(f'Can not instantiate abstract model {self.__class__.__name__}')
-        # pass the model instance if want change in it after save, fetch etc operations
-        # otherwise it will return new model instance
-        self.__class__.collection.mutable_model(self)
 
         # Allow users to set fields values direct from the constructor method
         for k, v in kwargs.items():
@@ -291,7 +288,9 @@ class Model(metaclass=ModelMeta):
         model instance:
             Modified instance of the model contains id etc
         """
-        return self.__class__.collection.create(**self._get_fields())
+        # pass the model instance if want change in it after save, fetch etc operations
+        # otherwise it will return new model instance
+        return self.__class__.collection.create(self, **self._get_fields())
 
     def update(self, doc_key=None):
         """Update the existing document
@@ -360,7 +359,9 @@ class Model(metaclass=ModelMeta):
                         #
                         # Then the field name for nested model will be "user.address"
                         updated_fields[k+"."+name] = value
-        return self.__class__.collection.update(**updated_fields)
+        # pass the model instance if want change in it after save, fetch etc operations
+        # otherwise it will return new model instance
+        return self.__class__.collection.update(self, **updated_fields)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
