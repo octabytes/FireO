@@ -38,17 +38,17 @@ class Student1(mdl.Model):
 
 
 def test_parent_key_with_custom_field():
-    u = User()
+    u = User1()
     u.user_id = 'test_parent_key_with_custom_field'
     u.name = 'testing parent key with_custom_field'
     u.save()
 
-    s1 = Student(parent=u.key)
+    s1 = Student1(parent=u.key)
     s1.student_id = 'student_id_test_parent_key_with_custom_field'
     s1.address = 'testing parent student keywith_custom_field'
     s1.save()
 
-    s2 = Student.collection.get(s1.key)
+    s2 = Student1.collection.get(s1.key)
     assert s1.student_id == s2.student_id
     assert s1.key == s2.key
 
@@ -57,15 +57,15 @@ def test_parent_key_with_custom_field():
 
 
 def test_parent_key_custom_field_without_value():
-    u = User()
+    u = User1()
     u.name = 'testing parent key with_custom_field'
     u.save()
 
-    s1 = Student(parent=u.key)
+    s1 = Student1(parent=u.key)
     s1.address = 'testing parent student keywith_custom_field'
     s1.save()
 
-    s2 = Student.collection.get(s1.key)
+    s2 = Student1.collection.get(s1.key)
     assert s1.student_id == s2.student_id
     assert s1.key == s2.key
 
