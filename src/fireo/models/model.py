@@ -233,7 +233,12 @@ class Model(metaclass=ModelMeta):
         if self._meta.id is not None:
             id, _ = self._meta.id
         setattr(self, id, doc_id)
-        self._set_key(doc_id)
+        # Doc id can be None when user create Model directly from manager
+        # For Example:
+        #   User.collection.create(name="Azeem")
+        # in this any empty doc id send just for setup things
+        if doc_id:
+            self._set_key(doc_id)
 
     @property
     def key(self):

@@ -43,6 +43,10 @@ class CreateQuery(BaseQuery):
             # _id setter in model check either user defined
             # any id or not in model
             setattr(self.model, '_id', kwargs.get(id_field))
+            # Check if there is any parent
+            parent = kwargs.get('parent')
+            if parent:
+                self.model.parent = parent
         # Attach key to this model for updating this model
         # Purpose of attaching this key is user can update
         # this model after getting it
