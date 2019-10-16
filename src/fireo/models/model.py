@@ -175,9 +175,6 @@ class Model(metaclass=ModelMeta):
                 field_list[f.name] = getattr(self, f.name)
         return field_list
 
-    def testing(self):
-        print(self._get_fields())
-
     @property
     def _id(self):
         """Get Model id

@@ -36,6 +36,8 @@ class GetQuery(BaseQuery):
         super().__init__(model_cls)
         super().set_collection_path(key=key)
         self.model = model_cls()
+        # set parent to this model if any
+        self.model.parent = utils.get_parent_doc(key)
         # Attach key to this model for updating this model
         # Purpose of attaching this key is user can update
         # this model after getting it
