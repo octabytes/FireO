@@ -17,6 +17,6 @@ class MapField(Field):
     # Override method
     def db_value(self, val):
         if type(val) is dict:
-            return dict
+            return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {dict}, '
                                       f'got {type(val)}')
