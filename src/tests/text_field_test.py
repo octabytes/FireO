@@ -1,4 +1,6 @@
+import pytest
 from fireo.fields import TextField
+from fireo.fields.errors import RequiredField
 from fireo.models import Model
 
 

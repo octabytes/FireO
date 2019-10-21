@@ -19,3 +19,4 @@ class NestedModel(Field):
             return True
         raise errors.NestedModelTypeError(f'Invalid nested model type. Field "{self.name}" required value type '
                                           f'{self.nested_model.__name__}, but got {model_instance.__class__.__name__}')
+

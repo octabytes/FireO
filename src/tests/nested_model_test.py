@@ -23,16 +23,6 @@ def test_save_nested():
     assert s2.user.name == 'Nested_Model'
 
 
-def test_create_nested():
-    s = Student(address="Student_address")
-    s.user.name = 'Nested_Model'
-    s.save()
-
-    s2 = Student.collection.get(s.key)
-    assert s2.address == 'Student_address'
-    assert s2.user.name == 'Nested_Model'
-
-
 def test_update_nested():
     u = User(name='Nested_Model')
 

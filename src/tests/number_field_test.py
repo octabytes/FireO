@@ -27,14 +27,14 @@ class User2(Model):
 
 
 def test_num_float():
-    u = User()
+    u = User2()
     u.age = 25.23
     u.save()
 
-    u2 = User.collection.get(u.key)
+    u2 = User2.collection.get(u.key)
     assert u2.age == 25.23
 
 
 def test_num_float_wrong():
     with pytest.raises(InvalidFieldType):
-        assert User.collection.create(age=12)
+        assert User2.collection.create(age=12)
