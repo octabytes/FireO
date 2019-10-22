@@ -12,7 +12,7 @@ install:
   - pip install tox
 
 before_script:
-  - firebase emulators:start --only firestore --host-port localhost:8080
+  - firebase emulators:start --only firestore
 
 script:
   - tox -v -e py
