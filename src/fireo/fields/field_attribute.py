@@ -79,7 +79,7 @@ class FieldAttribute:
             if self.validator is not None:
                 if callable(self.validator):
                     # get response back from user defined method
-                    validation_passed = self.validator()
+                    validation_passed = self.validator(value)
                     # check type of response
                     if isinstance(validation_passed, bool):
                         if not validation_passed:
