@@ -10,7 +10,7 @@ class NestedModel(Field):
         # Check nested model class is subclass for Model
         from fireo.models import Model
         if not issubclass(model, Model):
-            raise errors.NestedModelTypeError(f'Nested model {model.__name__} must be inherit from Model class')
+            raise errors.NestedModelTypeError(f'Nested model "{model.__name__}" must be inherit from Model class')
         self.nested_model = model
 
     def valid_model(self, model_instance):
@@ -18,5 +18,6 @@ class NestedModel(Field):
         if self.nested_model == model_instance.__class__:
             return True
         raise errors.NestedModelTypeError(f'Invalid nested model type. Field "{self.name}" required value type '
-                                          f'{self.nested_model.__name__}, but got {model_instance.__class__.__name__}')
+                                          f'"{self.nested_model.__name__}", but got '
+                                          f'"{model_instance.__class__.__name__}"')
 

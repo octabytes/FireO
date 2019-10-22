@@ -74,8 +74,8 @@ class BaseQuery:
         if '/' not in self.collection_path:
             # check collection path is the same as collection name
             if self.collection_path != self.model_cls.collection_name:
-                raise errors.InvalidKey(f'Invalid key is given, expected {model_name} type key, '
-                                        f'got {self.collection_path} type key')
+                raise errors.InvalidKey(f'Invalid key is given, expected "{model_name}" type key, '
+                                        f'got "{self.collection_path}" type key')
         else:
             # If collection path is contains the parent then
             # Get last name from collection path
@@ -83,5 +83,5 @@ class BaseQuery:
             # will be the collection name
             key_collection = self.collection_path.split('/')[-1]
             if key_collection != self.model_cls.collection_name:
-                raise errors.InvalidKey(f'Invalid key is given, expected {model_name} type key, '
-                                        f'got {key_collection} type key')
+                raise errors.InvalidKey(f'Invalid key is given, expected "{model_name}" type key, '
+                                        f'got "{key_collection}" type key')

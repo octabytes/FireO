@@ -12,9 +12,9 @@ class ManagerDescriptor:
 
     def __get__(self, instance, owner):
         if instance is not None:
-            raise ManagerError(f"Manager {self.manager.name} can not accessible via {owner.__name__} instance")
+            raise ManagerError(f'Manager "{self.manager.name}" can not accessible via {owner.__name__} instance')
         if owner._meta.abstract:
-            raise ManagerError(f'Manager {self.manager.name} is not accessible via {owner.__name__} abstract model')
+            raise ManagerError(f'Manager "{self.manager.name}" is not accessible via {owner.__name__} abstract model')
         return self.manager
 
 

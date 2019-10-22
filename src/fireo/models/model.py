@@ -128,7 +128,7 @@ class Model(metaclass=ModelMeta):
     def __init__(self, *args, **kwargs):
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
-            raise AbstractNotInstantiate(f'Can not instantiate abstract model {self.__class__.__name__}')
+            raise AbstractNotInstantiate(f'Can not instantiate abstract model "{self.__class__.__name__}"')
 
         # Allow users to set fields values direct from the constructor method
         for k, v in kwargs.items():
@@ -338,7 +338,7 @@ class Model(metaclass=ModelMeta):
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', fields.IDField()))
         else:
-            raise InvalidKey(f'Invalid key to update model {self.__class__.__name__} ')
+            raise InvalidKey(f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
         updated_fields = {}
