@@ -2,7 +2,7 @@ from datetime import datetime
 
 import fireo
 import pytest
-from fireo.fields import BooleanField, DateTime, GeoPoint, ListField, MapField, NumberField, TextField
+from fireo.fields import BooleanField, DateTime, GeoPoint, ListField, MapField, NumberField, TextField, Field
 from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
 
