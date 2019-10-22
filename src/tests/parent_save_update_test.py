@@ -1,10 +1,6 @@
-from fireo.database import db
 from fireo.fields import TextField, IDField
 from fireo.models import Model
 from fireo.utils import utils
-
-
-db.local_connection()
 
 
 class User(Model):

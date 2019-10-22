@@ -6,7 +6,6 @@ from fireo.models import Model
 from fireo.models.errors import UnSupportedMeta
 from fireo.utils import utils
 
-db.local_connection()
 
 def test_collection_name():
     class User(Model):

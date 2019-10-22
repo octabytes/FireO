@@ -1,7 +1,5 @@
 from fireo import models as mdl
-from fireo.database import db
 
-db.local_connection()
 
 class User(mdl.Model):
     id = mdl.IDField()
