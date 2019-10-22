@@ -4,8 +4,11 @@ sudo: false
 python:
   - '3.6'
 
+before_install:
+    - npm i -g firebase firebase-tools
+    - firebase setup:emulators:firestore
+
 install:
-  - firebase setup:emulators:firestore
   - pip install tox
 
 script:
