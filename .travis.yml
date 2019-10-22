@@ -1,11 +1,16 @@
 language: python
 sudo: false
+
 python:
-- '3.6'
+  - '3.6'
+
 install:
-- pip install tox
+  - firebase setup:emulators:firestore
+  - pip install tox
+
 script:
-- tox -v -e py
+  - tox -v -e py
+
 deploy:
   provider: pypi,
   user: OctaByte
