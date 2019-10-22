@@ -1,8 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import TextField, NumberField
 from fireo.models import Model
 from fireo.models.errors import AbstractNotInstantiate, NonAbstractModel
 
+db.local_connection()
 
 class User(Model):
     name = TextField()

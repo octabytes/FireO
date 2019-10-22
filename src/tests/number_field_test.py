@@ -1,8 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import NumberField
 from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
 
+db.local_connection()
 
 class User(Model):
     age = NumberField(int_only=True)

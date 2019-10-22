@@ -1,8 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import Field
 from fireo.fields.errors import AttributeMethodNotDefined
 from fireo.models import Model
 
+db.local_connection()
 
 class Employee(Field):
     allowed_attributes = ['some_attr']

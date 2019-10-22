@@ -1,8 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import TextField
 from fireo.fields.errors import FieldValidationFailed, ValidatorNotCallable
 from fireo.models import Model
 
+db.local_connection()
 
 class Student(Model):
     name = TextField(validator="not_callable")

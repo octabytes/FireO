@@ -1,5 +1,8 @@
 from fireo.database.errors import DBConnectionError
 from google.cloud import firestore
+import grpc
+from google.cloud.firestore_v1.gapic import firestore_client
+from google.cloud.firestore_v1.gapic.transports import firestore_grpc_transport
 
 
 class Database:
@@ -25,6 +28,9 @@ class Database:
     connect():
         create a connection with firestore
 
+    local_connection():
+        Local firestore connection for testing
+
     Raises
     ------
     DBConnectionError:
@@ -44,6 +50,12 @@ class Database:
                 raise DBConnectionError("Credentials or service account json file required to connect with firestore")
         except Exception as e:
             raise DBConnectionError(e) from e
+
+    def local_connection(self):
+        self._conn = firestore.Client()
+        channel = grpc.insecure_channel("localhost:8080")
+        transport = firestore_grpc_transport.FirestoreGrpcTransport(channel=channel)
+        self._conn._firestore_api_internal = firestore_client.FirestoreClient(transport=transport)
 
     @property
     def conn(self):

@@ -1,8 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import TextField
 from fireo.managers.managers import ManagerError
 from fireo.models import Model
 
+db.local_connection()
 
 class User(Model):
     name = TextField()

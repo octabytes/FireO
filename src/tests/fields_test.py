@@ -2,10 +2,12 @@ from datetime import datetime
 
 import fireo
 import pytest
+from fireo.database import db
 from fireo.fields import BooleanField, DateTime, GeoPoint, ListField, MapField, NumberField, TextField, Field
 from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
 
+db.local_connection()
 
 class User(Model):
     field = BooleanField()

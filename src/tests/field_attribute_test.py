@@ -5,6 +5,7 @@ from fireo.fields.errors import RequiredField, UnSupportedAttribute
 from fireo.models import Model
 from fireo.utils import utils
 
+db.local_connection()
 
 class User1(Model):
     name = TextField(default="default_value")

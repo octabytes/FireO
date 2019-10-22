@@ -1,7 +1,10 @@
 import pytest
+from fireo.database import db
 from fireo.fields import TextField
 from fireo.fields.errors import RequiredField
 from fireo.models import Model
+
+db.local_connection()
 
 
 class User(Model):
