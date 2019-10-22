@@ -1,6 +1,7 @@
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
+from fireo.utils import utils
 from google.cloud import firestore
 
 
@@ -206,7 +207,7 @@ class FilterQuery(BaseQuery):
             Doc key for updating document
         """
         if self.parent:
-            update_doc_key = self.parent + '/' + model._id
+            update_doc_key = self.parent + '/' + utils.get_id(model.key)
         else:
             update_doc_key = model.key
         return update_doc_key

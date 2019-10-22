@@ -30,7 +30,7 @@ class BaseQuery:
         """Set collection path"""
         # Check collection path is given if not then get it from model key
         if path:
-            self.collection_path = path
+            self.collection_path = path + '/' + self.model_cls.collection_name
         elif key:
             self.collection_path = utils.collection_path(key)
 

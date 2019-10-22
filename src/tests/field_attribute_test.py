@@ -1,7 +1,7 @@
 import pytest
 from fireo.database import db
 from fireo.fields import TextField
-from fireo.fields.errors import RequiredField
+from fireo.fields.errors import RequiredField, UnSupportedAttribute
 from fireo.models import Model
 from fireo.utils import utils
 
@@ -42,3 +42,15 @@ def test_column_name():
     doc_dict = doc.to_dict()
 
     assert doc_dict['fireo_column'] == 'db_column_name_test'
+
+
+class User4(Model):
+    name = TextField(not_supported="Un supported attribute")
+
+
+def test_un_supported_attribute():
+    u = User4()
+    u.name = 'Azeem'
+
+    with pytest.raises(UnSupportedAttribute):
+        u.save()

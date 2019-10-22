@@ -29,9 +29,11 @@ class DeleteQuery(BaseQuery):
     """
 
     def __init__(self, model_cls, key=None, query=None):
-        super().__init__(model_cls, utils.collection_path(key))
-        self.id = utils.get_id(key)
+        super().__init__(model_cls)
         self.query = query
+        self.id = utils.get_id(key)
+        if key:
+            super().set_collection_path(key=key)
 
     def _delete_document(self):
         self.get_ref().document(self.id).delete()

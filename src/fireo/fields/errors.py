@@ -1,6 +1,10 @@
 """Field related errors"""
 
 
+class UnSupportedAttribute(Exception):
+    pass
+
+
 class InvalidFieldType(Exception):
     pass
 

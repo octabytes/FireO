@@ -24,7 +24,10 @@ def get_parent_doc(key):
 
 
 def get_id(key):
-    return key.split('/')[-1]
+    try:
+        return key.split('/')[-1]
+    except AttributeError:
+        return None
 
 
 def GeoPoint(latitude: float, longitude: float):

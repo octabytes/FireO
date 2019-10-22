@@ -64,7 +64,7 @@ class FieldAttribute:
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
             if attr not in self.field.allowed_attributes + FieldAttribute.allowed_attributes:
-                raise AttributeError(f'{self.field.__class__.__name__} not allow attribute {attr}')
+                raise UnSupportedAttribute(f'{self.field.__class__.__name__} not support attribute {attr}')
 
             # check default value if set for field
             if self.default is not None and value is None:

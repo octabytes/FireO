@@ -1,7 +1,7 @@
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.managers import managers
 from fireo import fields
-from fireo.models.errors import NonAbstractModel
+from fireo.models.errors import NonAbstractModel, UnSupportedMeta
 from fireo.utils import utils
 
 
@@ -207,7 +207,7 @@ class ModelMeta(type):
                 """
                 if name in self.field_list:
                     return self.field_list[name]
-                raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
+                raise FieldNotFound(f'Field "{name}" not found in model "{cls.__name__}"')
 
             def get_field_by_column_name(self, name):
                 """Get field by column name
@@ -237,7 +237,7 @@ class ModelMeta(type):
                 if self.missing_field == 'ignore':
                     return None
                 if self.missing_field == 'raise_error':
-                    raise FieldNotFound(f'Field {name} not found in model {cls.__name__}')
+                    raise FieldNotFound(f'Field "{name}" not found in model "{cls.__name__}"')
 
             def set_user_defined_meta(self, user_meta):
                 """Set user defined meta attributes for model
@@ -266,6 +266,14 @@ class ModelMeta(type):
                     If option for missing_field is other than ignore, merge or raise_error
                 """
                 for name, val in user_meta.__dict__.items():
+                    supported_meta = ['collection_name', 'abstract', 'missing_field']
+
+                    # check if name is supported by meta and name is not
+                    # any special name for example '__main__, __doc__'
+                    if name not in supported_meta and '__' not in name:
+                        raise UnSupportedMeta(f'Meta "{name}" is not recognize in model "{cls.__name__}" '
+                                              f'Possible value are {", ".join(supported_meta)}')
+
                     if name == 'collection_name':
                         self.collection_name = val
                     if name == 'abstract':
@@ -275,7 +283,7 @@ class ModelMeta(type):
                             self.missing_field = val
                         else:
                             raise MissingFieldOptionError(
-                                f'Option {val} is not supported by missing_field. '
+                                f'Option "{val}" is not supported by missing_field. '
                                 f'Possible values are ignore, merge, raise_error')
 
         # Create instance of Meta class and set it to
@@ -313,7 +321,8 @@ class ModelMeta(type):
             if not b._meta.abstract:
                 from fireo.models import Model
                 if b != Model:
-                    raise NonAbstractModel(f'Model {cls.__name__} can not inherit from non abstract model {b.__name__}')
+                    raise NonAbstractModel(f'Model "{cls.__name__}" can not inherit from non abstract '
+                                           f'model "{b.__name__}"')
                 continue
             for name, field in b._meta.field_list.items():
                 # Ignore the id field
