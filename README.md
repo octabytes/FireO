@@ -1,6 +1,6 @@
 <p align="right">
-https://badge.fury.io/py/fireo.svg
-https://travis-ci.org/octabytes/FireO.svg?branch=master
+<a href="https://badge.fury.io/py/fireo"><img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version" height="18"></a>
+<a href="https://travis-ci.org/octabytes/FireO"><img src="https://travis-ci.org/octabytes/FireO.svg?branch=master" alt="Build Status" height="18"></a>
 </p>
 <br><br>
 <p>
