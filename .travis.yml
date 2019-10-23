@@ -7,12 +7,10 @@ python:
 before_install:
     - npm i -g firebase firebase-tools
     - firebase setup:emulators:firestore
+    - firebase emulators:start --only firestore &
 
 install:
   - pip install tox
-
-before_script: 
-  - firebase emulators:start --only firestore &
 
 script:
   - tox -v -e py
