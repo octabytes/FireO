@@ -1,3 +1,8 @@
+<p align="right">
+[![PyPI version](https://badge.fury.io/py/fireo.svg)](https://badge.fury.io/py/fireo)
+[![Build Status](https://travis-ci.org/octabytes/FireO.svg?branch=master)](https://travis-ci.org/octabytes/FireO)
+</p>
+<br><br>
 <p>
     <h1 align="center">FireO</h1>
     <p align="center">
@@ -28,6 +33,10 @@ Full documentation is available in the [FireO Doc](https://octabyte.io/fireo).
 Bug reports and pull requests are welcome. This project is intended to be a safe, welcoming 
 space for collaboration, and contributors are expected to adhere to the 
 [Contributor Covenant](https://github.com/octabytes/FireO/blob/master/CODE_OF_CONDUCT.md) code of conduct.
+
+1. Check FireO [Project TODO list](https://github.com/octabytes/FireO/projects)
+2. Write tests for your functionality
+3. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you has done and how other can use it  
 
 ## License
 
