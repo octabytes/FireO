@@ -62,6 +62,8 @@ def test_ref_auto_load():
     assert e2.address == 'Employee_address'
     c2 = e2.company.get()
     assert c2.name == 'Abc_company'
+    e2.company = c2
+    assert e2.company.name == 'Abc_company'
 
 
 class Employee3(Model):
