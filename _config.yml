@@ -1,7 +1,6 @@
-remote_theme: pmarsceill/just-the-docs
-
 theme: "just-the-docs"
 
+remote_theme: pmarsceill/just-the-docs
 
 title: FireO
 description: A modern and simplest convenient ORM package in Python. FireO is specifically designed for the Google's Firestore

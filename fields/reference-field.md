@@ -47,6 +47,8 @@ The following attributes supported by Reference Field.
 2. [required](#required)
 3. [column_name](#column-name)
 4. [validator](#validator)
+5. [auto_load](#auto-load)
+6. [on_load](#on-load)
 
 - ### Default
 Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
