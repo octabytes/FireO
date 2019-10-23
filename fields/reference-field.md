@@ -77,5 +77,22 @@ e = Employee.collection.get(emp_key)
 print(e.company)  # object of ReferenceDocLoader
 
 # Reference document can be get using get() method
-e.company.get()
+com = e.company.get()
+print(com.name)
+```
+
+- ### On Load
+Call user specify method when reference document load
+
+#### Example Usage
+{: .no_toc }
+
+```python
+class Employee(Model):
+    name = TextField()
+    company = ReferenceField(Company, on_load="do_something")
+
+    def do_something(self, company):
+        # do something with company document
+        print(company.name)
 ```
