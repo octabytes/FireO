@@ -11,8 +11,10 @@ before_install:
 install:
   - pip install tox
 
+before_script: 
+  - firebase emulators:start --only firestore &
+
 script:
-  - firebase emulators:start --only firestore
   - tox -v -e py
 
 deploy:
