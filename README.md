@@ -1,6 +1,6 @@
 <p align="right">
-[![PyPI version](https://badge.fury.io/py/fireo.svg)](https://badge.fury.io/py/fireo)
-[![Build Status](https://travis-ci.org/octabytes/FireO.svg?branch=master)](https://travis-ci.org/octabytes/FireO)
+https://badge.fury.io/py/fireo.svg
+https://travis-ci.org/octabytes/FireO.svg?branch=master
 </p>
 <br><br>
 <p>
