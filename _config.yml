@@ -1,0 +1,21 @@
+theme: "just-the-docs"
+
+
+title: FireO
+description: A modern and simplest convenient ORM package in Python. FireO is specifically designed for the Google's Firestore
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "https://islam.octabyte.io" # the base hostname & protocol for your site, e.g. http://example.com
+
+permalink: pretty
+
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+
+# Aux links for the upper right navigation
+aux_links:
+  "FireO on GitHub":
+    - "//github.com/octabytes/fireo"
+
+# Footer content appears at the bottom of every page's main content
+footer_content: "Copyright &copy; 2019 All rights reserved. Powered by <a href=\"https://octabyte.io\">OctaByte</a>"
