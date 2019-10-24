@@ -21,10 +21,11 @@ Meta class is used for `Model` configuration. Here are some common configuration
 2. Collection Name
 3. Missing Field
 
-### Abstract Model
+## Abstract Model
 Abstract model is used to create some common fields into a number of other models.
 
 ### Exmaple Usage
+{: .no_toc }
 
 ```python
 class Animal(Model):
@@ -57,11 +58,12 @@ f.eat = 'Eats sea food'
 f.save()
 ```
 
-### Collection Name
+## Collection Name
 Set collection name in Firestore if no collection name specify then by default Model name will be used for collection,
 For example: UserProfile will become user_profile
 
 ### Example Usage
+{: .no_toc }
 
 ```python
 class User(Model):
@@ -71,10 +73,13 @@ class User(Model):
         collection_name = "my_user_collection"
 ```
 
-### Missing Fields
+## Missing Fields
 Manage how fields behave when they are not in `Model` but in Firestore, this is happen when you change model after
 adding some records. By default missing field `merge` with the model.
 Possible values are **merge, ignore, raise_error**
+
+### Example Usage
+{: .no_toc }
 
 ```python
 class User(Model):

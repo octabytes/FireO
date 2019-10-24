@@ -18,7 +18,7 @@ nav_order: 10
 
 Create your own custom fields, extend the class from base `Field` or you can extend any existing field also.
 
-### Simple
+## Simple
 You can create simplest field just by extending base `Field`
 
 ### Example Usage
@@ -36,7 +36,7 @@ u = User(day=1)
 u.save()
 ```
 
-### Extend DB value
+## Extend DB value
 Control how the value of field will be save in Firestore. Override method `db_value()` to change the value.
 
 ### Example Usage
@@ -56,7 +56,7 @@ u.save()
 print(u.day)  # Mon
 ```
 
-### Extend Field Value
+## Extend Field Value
 Control how value represent when coming for Firestore. Override method `field_value()` to control this behaviour.
 
 ### Example Usage
@@ -83,11 +83,11 @@ user = User.collection.get(u.key)
 print(user.day)  # 0
 ```
 
-### Create attributes
+## Create attributes
 [Default](/fields/field/#default), [Required](/fields/field/#required) and [Column Name](/fields/field/#column-name) 
 attributes are allowed in every field. But you can create more attributes for your field.
 
-#### Method to create field attributes
+### Method to create field attributes
 Add filed attribute in the `aloowed_attributes` list and then create method for each attribute. Method name must 
 be start from `attr_` and then the name of the attribute. Method should return the value otherwise `None` value
 set for field
