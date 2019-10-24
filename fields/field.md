@@ -16,6 +16,23 @@ nav_order: 10
 
 ---
 
+All fields are extend from base `Field` This field can be used to store any kind of data in Firestore.
+This work also like **Dynamic Field** 
+
+### Example Usage
+
+```python
+class User(Model):
+    name = Field()
+    age = Field()
+
+
+u = User()
+u.name = "Azeem"
+u.age = 26
+u.save()
+```
+
 ## Allowed Attributes
 
 The following attributes supported by DateTime Field.
