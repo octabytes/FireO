@@ -70,9 +70,9 @@ def test_custom_get_value_after_saving_extend_field_value():
     assert u.day == 0
 
 class EmailGenerator(Field):
-    allowed_attributes = ['suffix', 'domain']
+    allowed_attributes = ['prefix', 'domain']
 
-    def attr_suffix(self, attr_val, field_val):
+    def attr_prefix(self, attr_val, field_val):
         return attr_val + "." + field_val
 
     def attr_domain(self, attr_val, field_val):
@@ -80,7 +80,7 @@ class EmailGenerator(Field):
 
 
 class Student(Model):
-    email = EmailGenerator(suffix='suffix', domain='example.com')
+    email = EmailGenerator(prefix='prefix', domain='example.com')
 
 
 def test_custom_field_attributes():
@@ -89,4 +89,4 @@ def test_custom_field_attributes():
     s.save()
 
     s2 = Student.collection.get(s.key)
-    assert s2.email == 'suffix.my_email@example.com'
+    assert s2.email == 'prefix.my_email@example.com'
