@@ -90,3 +90,11 @@ def test_custom_field_attributes():
 
     s2 = Student.collection.get(s.key)
     assert s2.email == 'prefix.my_email@example.com'
+
+
+def test_custom_field_attribute_without_saving():
+    s = Student()
+    s.email = 'my_email'
+    s.save()
+
+    assert s.email == 'prefix.my_email@example.com'
