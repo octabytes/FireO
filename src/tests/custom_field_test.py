@@ -56,6 +56,19 @@ def test_custom_field_value_extend():
     assert u2.day == 0
 
 
+def test_custom_get_value_after_saving():
+    u = User2(day=0)
+    u.save()
+
+    assert u.day == 'Mon'
+
+
+def test_custom_get_value_after_saving_extend_field_value():
+    u = User3(day=0)
+    u.save()
+
+    assert u.day == 0
+
 class EmailGenerator(Field):
     allowed_attributes = ['suffix', 'domain']
 
