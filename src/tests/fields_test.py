@@ -7,6 +7,21 @@ from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
 
 
+class Animal(Model):
+    name = Field()
+    age = Field()
+
+
+def test_base_field():
+    a = Animal()
+    a.name = "Bird"
+    a.age = 10
+    a.save()
+
+    a2 = Animal.collection.get(a.key)
+    assert a2.name == a.name
+    assert a2.age == a.age
+
 class User(Model):
     field = BooleanField()
 
