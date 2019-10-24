@@ -54,7 +54,7 @@ Validate given value of field. This is base attribute that is available in all f
 
 Allow only integer numbers. Other than integer number it will raise error
 
-#### Example Usage
+### Example Usage
 {: .no_toc }
 
 ```python
@@ -70,7 +70,7 @@ u.save()
 
 Allow only float numbers. Other than float number it will raise error
 
-#### Example Usage
+### Example Usage
 {: .no_toc }
 
 ```python

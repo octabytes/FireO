@@ -2,7 +2,7 @@
 layout: default
 title: DateTime
 parent: Fields
-nav_order: 5
+nav_order: 7
 ---
 
 # DateTime Field
@@ -53,7 +53,7 @@ Validate given value of field. This is base attribute that is available in all f
 
 Set the auto date if no value is provided
 
-#### Example Usage
+### Example Usage
 {: .no_toc }
 
 

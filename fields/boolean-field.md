@@ -2,7 +2,7 @@
 layout: default
 title: Boolean Field
 parent: Fields
-nav_order: 1
+nav_order: 4
 ---
 
 # Boolean Field

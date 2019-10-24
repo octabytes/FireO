@@ -2,7 +2,7 @@
 layout: default
 title: Custom Field
 parent: Fields
-nav_order: 10
+nav_order: 12
 ---
 
 # Custom Field
@@ -60,7 +60,7 @@ print(u.day)  # Mon
 Control how value represent when coming for Firestore. Override method `field_value()` to control this behaviour.
 
 ### Example Usage
-{: .not_toc }
+{: .no_toc }
 
 ```python
 class WeekDays(Field):

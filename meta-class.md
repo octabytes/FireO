@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Meta Class
-nav_order: 2
+nav_order: 4
 ---
 
 # Meta Class
@@ -17,9 +17,9 @@ nav_order: 2
 
 Meta class is used for `Model` configuration. Here are some common configuration for `Model`
 
-1. Abstract Model
-2. Collection Name
-3. Missing Field
+1. [Abstract Model](#abstract-model)
+2. [Collection Name](#collection-name)
+3. [Missing Field](#missing-fields)
 
 ## Abstract Model
 Abstract model is used to create some common fields into a number of other models.

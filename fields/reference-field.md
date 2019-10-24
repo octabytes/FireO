@@ -2,7 +2,7 @@
 layout: default
 title: Reference Field
 parent: Fields
-nav_order: 3
+nav_order: 10
 ---
 
 # Reference Field
@@ -66,7 +66,7 @@ Validate given value of field. This is base attribute that is available in all f
 Load reference document automatically, by default it is `True` If you disable the `auto_load` then you can get 
 document by `get()` method.
 
-#### Example Usage
+### Example Usage
 {: .no_toc }
 
 ```python
@@ -86,7 +86,7 @@ print(com.name)
 - ### On Load
 Call user specify method when reference document load
 
-#### Example Usage
+### Example Usage
 {: .no_toc }
 
 ```python

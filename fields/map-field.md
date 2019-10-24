@@ -2,7 +2,7 @@
 layout: default
 title: Map Field
 parent: Fields
-nav_order: 3
+nav_order: 6
 ---
 
 # Map Field
