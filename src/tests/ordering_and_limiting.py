@@ -37,36 +37,22 @@ capital=True, population=21500000, regions=['hebei']
 )
 
 
-def test_simple_query():
-    cities = City.collection.filter('state', '==', 'CA').fetch()
+def test_limit_query():
+    cities = City.collection.order('name').limit(3).fetch()
 
+    index = 0
     for c in cities:
-        assert c.state == 'CA'
+        index = index + 1
+
+    assert index == 3
 
 
-def test_simple_query_bool():
-    cities = City.collection.filter('capital', '==', True).fetch()
+def test_fetch_limit():
+    cities = City.collection.order('name').fetch(3)
 
+    index = 0
     for c in cities:
-        assert c.capital == True
+        index = index + 1
 
+    assert index == 3
 
-def test_smiple_query_first_result():
-    city = City.collection.filter('state', '==', 'CA').get()
-
-    assert city.state == 'CA'
-
-
-def test_query_list_membership():
-    cities = City.collection.filter('regions', 'array_contains', 'west_coast').fetch()
-
-    for c in cities:
-        assert 'west_coast' in c.regions
-
-
-def test_compund_query():
-    cities = City.collection.filter('state', '==', 'CO').filter('name', '==', 'Denver').fetch()
-
-    for c in cities:
-        assert c.state == 'CO'
-        assert c.name == 'Denver'

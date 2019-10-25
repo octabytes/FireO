@@ -145,6 +145,10 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter(self.parent_key).order(field_name)
 
+    def limit(self, number):
+        """Limit the document"""
+        return self.queryset.filter(self.parent_key).limit(number)
+
     def delete(self, key=None):
         """Delete document from firestore"""
         if key:
