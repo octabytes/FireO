@@ -30,7 +30,11 @@ class ModelWrapper:
             if isinstance(field, ReferenceField):
                 val = ReferenceFieldWrapper.from_doc_ref(model, field, field.field_value(v))
             elif isinstance(field, NestedModel):
-                val = NestedModelWrapper.from_model_dict(field, field.field_value(v))
+                nested_doc_val = field.field_value(v)
+                if nested_doc_val:
+                    val = NestedModelWrapper.from_model_dict(field, nested_doc_val)
+                else:
+                    val = None
             else:
                 val = field.field_value(v)
             setattr(model, field.name, val)

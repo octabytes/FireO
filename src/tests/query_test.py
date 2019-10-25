@@ -75,3 +75,40 @@ def test_delete_filter_document():
     doc = next(docs, None)
 
     assert doc is None
+
+
+class Uni(Model):
+    name = TextField()
+
+
+def test_query_fetch_doc():
+    Uni.collection.create(name="First Uni")
+    Uni.collection.create(name="Second Uni")
+    Uni.collection.create(name="Third Uni")
+
+    name_list = ['First Uni', 'Second Uni', 'Third Uni', 'Parent Uni']
+
+    uni_list = Uni.collection.fetch()
+
+    for u in uni_list:
+        assert u.name in name_list
+
+
+class Teacher(Model):
+    age = NumberField()
+
+
+def test_query_fetch_parent_doc():
+    u = Uni.collection.create(name="Parent Uni")
+
+    Teacher.collection.create(parent=u.key, age=25)
+    Teacher.collection.create(parent=u.key, age=26)
+    Teacher.collection.create(parent=u.key, age=27)
+
+    t_age = [25, 26, 27]
+
+    teacher_list = Teacher.collection.parent(u.key).fetch()
+
+    for t in teacher_list:
+        assert t.age in t_age
+

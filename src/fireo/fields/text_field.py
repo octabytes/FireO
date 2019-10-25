@@ -25,7 +25,7 @@ class TextField(Field):
 
     # override method
     def db_value(self, val):
-        if type(val) is str:
+        if type(val) is str or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {str}, '
                                       f'got {type(val)}')

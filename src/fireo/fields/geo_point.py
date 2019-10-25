@@ -17,7 +17,7 @@ class GeoPoint(Field):
 
     # Override method
     def db_value(self, val):
-        if type(val) is firestore.GeoPoint:
+        if type(val) is firestore.GeoPoint or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {firestore.GeoPoint}, '
                                       f'got {type(val)}')

@@ -15,6 +15,11 @@ class NestedModel(Field):
 
     def valid_model(self, model_instance):
         """Check nested model and passing model is same"""
+
+        # return False if no Nested model apply
+        if model_instance is None:
+            return False
+
         if self.nested_model == model_instance.__class__:
             return True
         raise errors.NestedModelTypeError(f'Invalid nested model type. Field "{self.name}" required value type '

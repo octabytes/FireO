@@ -15,7 +15,7 @@ class BooleanField(Field):
 
     # Override method
     def db_value(self, val):
-        if type(val) is bool:
+        if type(val) is bool or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {bool}, '
                                       f'got {type(val)}')

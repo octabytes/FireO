@@ -29,7 +29,7 @@ class DateTime(Field):
 
     # Override method
     def db_value(self, val):
-        if type(val) is datetime or type(val) is Sentinel:
+        if type(val) is datetime or type(val) is Sentinel or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {datetime}, '
                                       f'got {type(val)}')

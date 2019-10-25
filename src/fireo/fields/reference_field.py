@@ -59,6 +59,9 @@ class ReferenceField(Field):
 
     # Override method
     def db_value(self, model):
+        # if no model is provided then return None
+        if model is None:
+            return None
         # check reference model and passing model is same
         if not issubclass(model.__class__, self.model_ref):
             raise errors.ReferenceTypeError(f'Invalid reference type. Field "{self.name}" required value type '
