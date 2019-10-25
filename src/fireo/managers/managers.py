@@ -1,3 +1,5 @@
+from fireo.fields import NestedModel
+from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
 
 
@@ -111,7 +113,29 @@ class Manager:
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
         """
-        return self.queryset.create(mutable_instance, **kwargs)
+        field_list = {}
+        # if mutable instance is none this mean user is creating document directly from manager
+        # For example User.collection.create(name="Azeem") in this case mutable instance will be None
+        # If document is creating by directly using manager then check if there is any NestedModel
+        # If there is any nested model then get get value from nested model
+        if mutable_instance is None:
+            for k, v in kwargs.items():
+                try:
+                    # if this is an id field then save it in field list and pass it
+                    f = self.model_cls._meta.get_field(k)
+                except FieldNotFound:
+                    field_list[k] = v
+                    continue
+                if isinstance(f, NestedModel):
+                    model_instance = v
+                    if f.valid_model(model_instance):
+                        field_list[f.name] = model_instance._get_fields()
+                else:
+                    field_list[k] = v
+        else:
+            field_list = kwargs
+
+        return self.queryset.create(mutable_instance, **field_list)
 
     def update(self, mutable_instance=None, **kwargs):
         """Update existing document in firestore collection

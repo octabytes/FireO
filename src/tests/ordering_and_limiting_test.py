@@ -2,7 +2,7 @@ from fireo.fields import IDField, TextField, BooleanField, NumberField, ListFiel
 from fireo.models import Model
 
 
-class City(Model):
+class CityOrderAndLimit(Model):
     short_name = IDField()
     name = TextField()
     state = TextField()
@@ -11,34 +11,35 @@ class City(Model):
     population = NumberField()
     regions = ListField()
 
-City.collection.create(
+CityOrderAndLimit.collection.create(
 short_name='SF', name='San Francisco', state='CA', country='USA',
 capital=False, population=860000, regions=['west_coast', 'norcal']
 )
 
-City.collection.create(
+CityOrderAndLimit.collection.create(
 short_name='LA', name='Los Angeles', state='CA', country='USA',
 capital=False, population=3900000, regions=['west_coast', 'socal']
 )
 
-City.collection.create(
+CityOrderAndLimit.collection.create(
 short_name='DC', name='Washington D.C.', state='CA', country='USA',
 capital=True, population=680000, regions=['east_coast']
 )
 
-City.collection.create(
+CityOrderAndLimit.collection.create(
 short_name='TOK', state=None, name='Tokyo', country='Japan',
 capital=True, population=9000000, regions=['kanto', 'honshu']
 )
 
-City.collection.create(
+CityOrderAndLimit.collection.create(
 short_name='BJ', name='Beijing', country='China',
 capital=True, population=21500000, regions=['hebei']
 )
 
+name_list = ['Beijing', 'Los Angeles', 'San Francisco', 'Tokyo', 'Washington D.C.']
 
 def test_limit_query():
-    cities = City.collection.order('name').limit(3).fetch()
+    cities = CityOrderAndLimit.collection.limit(3).fetch()
 
     index = 0
     for c in cities:
@@ -48,7 +49,7 @@ def test_limit_query():
 
 
 def test_fetch_limit():
-    cities = City.collection.order('name').fetch(3)
+    cities = CityOrderAndLimit.collection.fetch(3)
 
     index = 0
     for c in cities:
@@ -56,3 +57,29 @@ def test_fetch_limit():
 
     assert index == 3
 
+
+def test_order_query():
+    cities = CityOrderAndLimit.collection.order('name').fetch()
+
+    for index, city in enumerate(cities):
+        assert city.name == name_list[index]
+
+
+def test_reverse_order_query():
+    cities = CityOrderAndLimit.collection.order('-name').fetch()
+
+    index = 4
+    for c in cities:
+        assert c.name == name_list[index]
+        index = index - 1
+
+
+def test_order_with_limit_query():
+    cities = CityOrderAndLimit.collection.order('name').limit(3).fetch()
+
+    index = 0
+    for c in cities:
+        assert c.name == name_list[index]
+        index = index + 1
+
+    assert index == 3
