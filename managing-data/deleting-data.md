@@ -2,7 +2,7 @@
 layout: default
 title: Deleting Data
 parent: Managing Data
-nav_order: 4
+nav_order: 2
 ---
 
 # Deleting Data
@@ -30,6 +30,7 @@ User.collection.delete(user_key)
 ```
 
 ## Delete collection
+Delete all documents from collection
 
 ### Example Usage
 {: .no_toc }

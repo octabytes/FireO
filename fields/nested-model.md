@@ -37,6 +37,18 @@ s.user = u
 s.save()
 ```
 
+## Common mistake
+Don't save the `NestedModel` otherwise this model will save separately and can not be used in other model.
+**Invalid:** Don't save the `NestedModel`
+```python
+u = User(name='Nested_Model')
+u.save()  # Don't save nested model
+
+s = Student(address="Student_address")
+s.user = u
+s.save()  # raise error
+```
+
 ## Allowed Attributes
 
 The following attributes supported by Nested Model.

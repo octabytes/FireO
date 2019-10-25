@@ -2,7 +2,7 @@
 layout: default
 title: Adding Data
 parent: Managing Data
-nav_order: 4
+nav_order: 1
 ---
 
 # Adding Data
