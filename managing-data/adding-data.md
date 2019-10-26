@@ -56,7 +56,7 @@ print(u.key)  # user/xaIkLAGEjkSON
 ```
 
 `key` contain more information e.g **id, parent collection, parent document** these things can be get 
-from `key` using utils class.and useful when getting, updating or delete data. 
+from `key` using [utils class](/utils).and useful when getting, updating or delete data. 
 `key` also used for creating sub collections.
 
 ### Custom id
@@ -102,7 +102,7 @@ You can choose any name for id field it can be **id** itself
 
 ## Using Manager
 Data can be saved by using manger without create model object. Manager return model object after saving data.
-`collection` is default manager for models but you can create your own custom managers also.
+`collection` is default manager for models.
 
 ### Example Usage
 ```python

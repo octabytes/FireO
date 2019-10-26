@@ -56,7 +56,7 @@ $ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/keyfile.json"
 or you can pass JSON file in FireO connection
 
 ```python
-db.connect(from_file="/path/to/keyfile.json")
+fireo.connection(from_file="/path/to/keyfile.json")
 ```
 
 ## Explicit Credentials
@@ -72,7 +72,7 @@ However, you may want to be explicit because
 In these situations, you can create an explicit [Credentials](https://google-auth.readthedocs.io/en/stable/reference/google.auth.credentials.html#google.auth.credentials.Credentials) object suited to your environment. After creation, you can pass it directly to a Connection
 
 ```python
-db.connect(credentials=credentials)
+fireo.connection(credentials=credentials)
 ```
 
 ## Read more

@@ -14,7 +14,7 @@ search_enabled: true
 # Aux links for the upper right navigation
 aux_links:
   "FireO on GitHub":
-    - "//github.com/octabytes/fireo"
+    - "//github.com/octabytes/FireO"
 
 # Footer content appears at the bottom of every page's main content
 footer_content: "Copyright &copy; 2019 All rights reserved. Powered by <a href=\"https://octabyte.io\">OctaByte</a>"

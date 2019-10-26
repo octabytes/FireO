@@ -38,3 +38,18 @@ Delete all documents from collection
 ```python
 User.collection.delete()
 ```
+
+## Delete child document
+To delete child document just pass the child `key`
+
+*Suppose **Review** is child of **Post** model*
+```python
+Review.collection.delete(review_key)
+```
+
+## Delete child collection
+Delete all documents from child collection
+
+```python
+Review.collection.parent(post_key).delete()
+```

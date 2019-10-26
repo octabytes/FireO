@@ -10,7 +10,9 @@ permalink: /
 # FireO is ORM package in Python for the Google's Firestore
 {: .fs-9 }
 
-A modern and simplest convenient ORM package in Python. FireO is specifically designed for the Google's Firestore, it's more than just ORM. It implements validation, type checking, relational model logic and much more facilities. 
+A modern and simplest convenient ORM package in Python. FireO is specifically designed for the Google's Firestore. 
+It implements validation, type checking, relational model logic and much more facilities. 
+FireO is more than just ORM
 {: .fs-6 .fw-300 }
 
 [Quickstart](/quick-start){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/ocatbytes/FireO){: .btn .fs-5 .mb-4 .mb-md-0 }

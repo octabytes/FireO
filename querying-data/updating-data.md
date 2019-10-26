@@ -71,7 +71,7 @@ print(u.age)  # 26
 ### Passing key is not always efficient
 {: .no_toc }
 
-For example if you are creating new document and late you want to update it or if you getting document from 
+For example if you are creating new document and later you want to update it or if you getting document from 
 query filter then passing `key` to `update()` is not make it efficient
 
 ### For Example
