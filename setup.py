@@ -58,7 +58,7 @@ setup(
     keywords='Python Firestore Models ORM Google Cloud Firebase',
 
     # Add all packages except tests
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages('src', exclude=['tests']),
 
     package_dir={'': 'src'},
 
