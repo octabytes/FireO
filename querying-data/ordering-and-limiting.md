@@ -61,3 +61,44 @@ City.collection.filter('population', '>', 2500000).order('population').fetch()
 ```python
 City.collection.filter('population', '>', 2500000).order('country')
 ```
+
+## Sub collection
+Sub collection queries work in same fashion but you need to pass `parent_key` to search in specific 
+collection. Ordering and limiting apply same like other root collection
+
+### Sample Data
+{: .no_toc }
+
+```python
+class Post(Model):
+    title = TextField()
+    content = TextField()
+
+
+class Review(Model):
+    name = TextField()
+    stars = NumberField()
+
+
+p = Post(title="First Post", content="Some Content")
+p.save()
+
+r1 = Review(parent=p.key)
+r1.name = 'Azeem'
+r1.stars = 5
+r1.save()
+
+r2 = Review(parent=p.key)
+r2.name = 'Arfan'
+r2.stars = 3
+r2.save()
+```
+
+### Example Usage
+{: .no_doc }
+
+The following query returns all reviews order by **review stars**
+
+```python
+reviews = Review.collection.parent(post_key).order('stars').fetch()
+```

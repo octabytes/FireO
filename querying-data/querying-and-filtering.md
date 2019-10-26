@@ -125,6 +125,115 @@ City.collection.filter('state', '>=', 'CA').filter('state', '<=', 'IN')
 City.collection.filter('state', '>=', 'CA').filter('population', '>=', 1000000)
 ```
 
+## Custom Query Method
+Instead of creating query again and again you can create `@classmethod`
+
+### Example Usage
+{: .no_toc }
+
+```python
+class City(Model):
+    # .. code ..
+
+    @classmethod
+    def get_capital_cities(cls):
+        return cls.collection.filter('capital', '==', True).fetch()
+
+# The following query returns all the capital cities
+capital_cities = City.get_capital_cities()
+```
+
+### More useful Example
+{: .no_toc }
+
+```python
+class Post(Model):
+    title = TextField()
+    content = TextField()
+
+    @classmethod
+    def get_detail(cls, key):
+        post = cls.collection.get(key)
+        recent_review = Review.collection.parent(key).order('-created_on').fetch(3)
+
+        return post, recent_review
+
+class Review(Model):
+    name = TextField()
+    stars = NumberField()
+    created_on = DateTime(auto=True)
+
+p = Post(title="First Post", content="Post Content")
+p.save()
+
+r1 = Review(parent=p.key)
+r1.name = "Azeem"
+r1.stars = 5
+r1.save()
+
+r2 = Review(parent=p.key)
+r2.name = "Azeem"
+r2.stars = 4
+r2.save()
+
+r2 = Review(parent=p.key)
+r2.name = "Arfan"
+r2.stars = 3
+r2.save()
+```
+
+Get **Post** and most recent **Reviews**
+
+```python
+post, reviews = Post.get_detail(post_key)
+
+print(post.title)
+
+for r in reviews:
+    print(r.name, r.stars)
+```
+
+## Sub collection
+Sub collection queries work in same fashion but you need to pass `parent_key` to search in specific 
+collection.
+
+### Sample Data
+{: .no_toc }
+
+```python
+class Post(Model):
+    title = TextField()
+    content = TextField()
+
+
+class Review(Model):
+    name = TextField()
+    stars = NumberField()
+
+
+p = Post(title="First Post", content="Some Content")
+p.save()
+
+r1 = Review(parent=p.key)
+r1.name = 'Azeem'
+r1.stars = 5
+r1.save()
+
+r2 = Review(parent=p.key)
+r2.name = 'Arfan'
+r2.stars = 3
+r2.save()
+```
+
+### Example Usage
+{: .no_doc }
+
+The following query returns all reviews which is posted by **Azeem**
+
+```python
+reviews = Review.collection.parent(post_key).filter('name', '==', 'Azeem').fetch()
+```
+
 ## Query limitations
 Cloud Firestore does not support the following types of queries:
 
