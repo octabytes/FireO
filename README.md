@@ -19,6 +19,22 @@
 pip install fireo
 ```
 
+## Example Usage
+
+```python
+class User(Model):
+    name = TextField()
+
+
+u = User()
+u.name = "Azeem Haider"
+u.save()
+
+# Get user
+user = User.collection.get(u.key)
+print(user.name)
+```
+
 ## Documentation
 
 Full documentation is available in the [FireO Doc](https://octabyte.io/fireo).
