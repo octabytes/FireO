@@ -2,9 +2,8 @@
 <a href="https://badge.fury.io/py/fireo"><img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version"></a>
 <a href="https://travis-ci.org/octabytes/FireO"><img src="https://travis-ci.org/octabytes/FireO.svg?branch=master" alt="Build Status"></a>
 </p>
-<br><br>
 <p>
-    <h1 align="center"><img src="fireo_logo.png" alt="FireO Logo"></h1>
+    <h1 align="center"><img src="fireo_logo.png" height="100" alt="FireO Logo"></h1>
     <p align="center">
         A modern and simplest convenient ORM package in Python.
         FireO is specifically designed for the Google's Firestore, it's more than just ORM.
