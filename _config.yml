@@ -5,6 +5,9 @@ description: A modern and simplest convenient ORM package in Python. FireO is sp
 baseurl: "/" # the subpath of your site, e.g. /blog
 url: "https://octabyte.io" # the base hostname & protocol for your site, e.g. http://example.com
 
+# Logo
+logo: "/fireo_logo.png"
+
 permalink: pretty
 
 # Enable or disable the site search
@@ -13,8 +16,8 @@ search_enabled: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "FireO on GitHub":
-    - "//github.com/octabytes/FireO"
+  "Edit FireO Doc":
+    - "//github.com/octabytes/FireO/tree/gh-pages"
 
 # Footer content appears at the bottom of every page's main content
 footer_content: "Copyright &copy; 2019 All rights reserved. Powered by <a href=\"https://octabyte.io\">OctaByte</a>"
