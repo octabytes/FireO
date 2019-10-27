@@ -4,7 +4,7 @@
 </p>
 <br><br>
 <p>
-    <h1 align="center">FireO</h1>
+    <h1 align="center"><img src="fireo_logo.png" alt="FireO Logo"></h1>
     <p align="center">
         A modern and simplest convenient ORM package in Python.
         FireO is specifically designed for the Google's Firestore, it's more than just ORM.
