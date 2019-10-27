@@ -7,7 +7,7 @@
     </p>
     <p align="center">
         <strong>
-            <a href="https://octabyte.io/fireo">Get Started!</a>
+            <a href="https://octabyte.io/FireO">Get Started!</a>
         </strong>
     </p>
     <br><br><br>
@@ -37,7 +37,7 @@ print(user.name)
 
 ## Documentation
 
-Full documentation is available in the [FireO Doc](https://octabyte.io/fireo).
+Full documentation is available in the [FireO Doc](https://octabyte.io/FireO).
 
 ## License
 
