@@ -15,7 +15,7 @@ It implements validation, type checking, relational model logic and much more fa
 FireO is more than just ORM
 {: .fs-6 .fw-300 }
 
-[Quickstart](/quick-start){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/ocatbytes/FireO){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Quickstart](/quick-start){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/octabytes/FireO){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
