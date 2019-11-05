@@ -29,9 +29,12 @@ Create model object and add values to it and `save()` the model. After saving mo
 ### Example Usage
 
 ```python
-class User(Model):
-    name = TextField()
-    age = NumberField()
+from fireo import models as mdl
+
+
+class User(mdl.Model):
+    name = mdl.TextField()
+    age = mdl.NumberField()
 
 
 u = User()
@@ -66,6 +69,10 @@ Custom id can also be specified by using [IDField](/fields/id-field)
 {: .no_toc }
 
 ```python
+from fireo.models import Model
+from fireo.fields import IDField, TextField, NumberField
+
+
 class User(Model):
     user_id = IDField()
     name = TextField()

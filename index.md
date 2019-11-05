@@ -30,6 +30,10 @@ pip install fireo
 ### Example Usage
 
 ```python
+from fireo.models import Model
+from fireo.fields import TextField
+
+
 class User(Model):
     name = TextField()
 
