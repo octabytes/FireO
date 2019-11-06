@@ -50,4 +50,4 @@ print(user.name)
 ## License
 
 This is official [FireO](https://github.com/octabytes/FireO) Repository. Powered by [OctaByte](https://octabyte.io)
-Licensed under GNU General Public License v3.0 [GPL-3.0](https://github.com/octabytes/FireO/blob/master/LICENSE)
+Licensed under [Apache License 2.0](https://github.com/octabytes/FireO/blob/master/LICENSE)
