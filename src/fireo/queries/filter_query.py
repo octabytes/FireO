@@ -1,6 +1,7 @@
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
+from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
 from google.cloud import firestore
 
@@ -158,11 +159,7 @@ class FilterQuery(BaseQuery):
         """
         if limit:
             self.n_limit = limit
-        docs = self.query().stream()
-        for doc in docs:
-            m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
-            m.update_doc = self._update_doc_key(m)
-            yield m
+        return QueryIterator(self)
 
     def get(self):
         """Get the first matching document from firestore
