@@ -44,6 +44,7 @@ class QueryIterator:
         if self.offset:
             # check if fetch end then use last doc otherwise use the offset
             if self.fetch_end:
+                self.fetch_end = False
                 q = self.query.query().start_after(self.last_doc)
             else:
                 q = self.query.query().offset(self.offset)
@@ -51,5 +52,8 @@ class QueryIterator:
             # Apply new Limit if there is any
             if limit:
                 q = q.limit(limit)
+                self.offset += limit
+            else:
+                self.offset += self.query.n_limit
 
             self.docs = itertools.chain(self.docs, q.stream())
