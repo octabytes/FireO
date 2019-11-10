@@ -52,8 +52,9 @@ space for collaboration, and contributors are expected to adhere to the
 [Contributor Covenant](https://github.com/octabytes/FireO/blob/master/CODE_OF_CONDUCT.md) code of conduct.
 
 1. Check FireO [Project TODO list](https://github.com/octabytes/FireO/projects) or [newcomers contribute](https://github.com/octabytes/FireO/contribute)
-2. Write tests for your functionality
-3. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you has done and how other can use it  
+2. Checkout [Feature](https://github.com/octabytes/FireO/tree/feature) branch
+3. Write tests for your functionality
+4. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you has done and how other can use it  
 
 ## License
 
