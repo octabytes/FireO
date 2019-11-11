@@ -77,10 +77,10 @@ class FilterQuery(BaseQuery):
             name, op, val = w
             # save the filter in cursor for next fetch
             f = name + ' ' + op + ' ' + val
-            if 'where' in self.cursor_dict:
-                self.cursor_dict['where'] = self.cursor_dict['where'] + ',' + f
+            if 'filter' in self.cursor_dict:
+                self.cursor_dict['filter'] = self.cursor_dict['filter'] + ',' + f
             else:
-                self.cursor_dict['where'] = f
+                self.cursor_dict['filter'] = f
 
             f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))

@@ -1,3 +1,6 @@
+import base64
+
+from fireo.database import db
 from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
@@ -179,3 +182,18 @@ class Manager:
             self.queryset.delete(key)
         else:
             self.queryset.filter(self.parent_key).delete()
+
+    def cursor(self, cursor):
+        cursor_dict = eval(base64.b64encode(cursor))
+        filters = cursor_dict['filter'].split(',')
+        query = self.queryset.filter(self.parent_key)
+        print(filters)
+        for filter in filters:
+            name, op, val = filter.split(' ')
+            query.filter(name, op, val)
+        query.order(cursor_dict['order'])
+        query.limit(cursor_dict['limit'])
+
+        # check if last doc key is available or not
+        if 'last_doc_key' in cursor_dict:
+            last_doc = db.conn.collection(cursor_dict['last_doc_key']).get()
