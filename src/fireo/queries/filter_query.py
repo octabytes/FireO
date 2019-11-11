@@ -62,6 +62,7 @@ class FilterQuery(BaseQuery):
         self.n_limit = None
         self.order_by = []
         self.parent = parent
+        self.cursor_dict = {}
         if parent:
             super().set_collection_path(path=parent)
 
@@ -74,6 +75,13 @@ class FilterQuery(BaseQuery):
         filters = []
         for w in self.select_query:
             name, op, val = w
+            # save the filter in cursor for next fetch
+            f = name + ' ' + op + ' ' + val
+            if 'where' in self.cursor_dict:
+                self.cursor_dict['where'] = self.cursor_dict['where'] + ',' + f
+            else:
+                self.cursor_dict['where'] = f
+
             f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
         return filters
@@ -115,6 +123,9 @@ class FilterQuery(BaseQuery):
         return self
 
     def limit(self, limit):
+        # save the Limit in cursor for next fetch
+        self.cursor_dict['limit'] = limit
+
         if limit:
             self.n_limit = limit
         return self
@@ -138,6 +149,12 @@ class FilterQuery(BaseQuery):
         -------
             Self object
         """
+        # Save order in cursor dict for next fetch
+        if 'order' in self.cursor_dict:
+            self.cursor_dict['order'] = self.cursor_dict['order'] + ',' + field_name
+        else:
+            self.cursor_dict['order'] = field_name
+
         order_direction = 'Asc'
         name = field_name
 
@@ -157,6 +174,9 @@ class FilterQuery(BaseQuery):
         limit : optional
             Apply limit to firestore documents, how much documents you want to retrieve
         """
+        # save the Limit in cursor for next fetch
+        self.cursor_dict['limit'] = limit
+
         if limit:
             self.n_limit = limit
         return QueryIterator(self)

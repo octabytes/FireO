@@ -1,3 +1,4 @@
+import base64
 import itertools
 from fireo.queries import query_wrapper
 
@@ -19,6 +20,7 @@ class QueryIterator:
         self.docs = query.query().stream()
         # Get offset for next fetch
         self.offset = query.n_limit
+        query.cursor_dict['offset'] = query.n_limit
         # Hold the last doc for next fetch
         self.last_doc = None
         self.fetch_end = False
@@ -33,6 +35,8 @@ class QueryIterator:
             self.last_doc = doc
             m = query_wrapper.ModelWrapper.from_query_result(self.query.model, doc)
             m.update_doc = self.query._update_doc_key(m)
+            # Save last model key in cursor
+            self.query.cursor_dict['last_doc_key'] = m.key
             return m
         self.fetch_end = True
         raise StopIteration
@@ -56,4 +60,11 @@ class QueryIterator:
             else:
                 self.offset += self.query.n_limit
 
+            # Update offset in cursor
+            self.query.cursor_dict['offset'] = self.offset
+
             self.docs = itertools.chain(self.docs, q.stream())
+
+    @property
+    def cursor(self):
+        return base64.b64encode(bytes(str(self.query.cursor_dict), 'utf-8'))
