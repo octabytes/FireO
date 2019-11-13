@@ -81,6 +81,9 @@ class Manager:
 
     cursor(c):
         Start query from specific point
+
+    start_after(key, **kwargs):
+        Start document after this key or after that matching fields
     """
     def __init__(self):
         self.model_cls = None
@@ -206,3 +209,7 @@ class Manager:
             query.offset(cursor_dict['offset'])
 
         return query
+
+    def start_after(self, key, **kwargs):
+        """Start document after this key or after that matching fields"""
+        return self.queryset.filter(self.parent_key)

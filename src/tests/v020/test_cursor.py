@@ -28,7 +28,6 @@ def test_simple_cursor():
     page_list1 = ['page1', 'page2', 'page3', 'page4']
 
     for page in pages:
-        print(page.order, page.name)
         assert page.name in page_list1
 
     c = pages.cursor
