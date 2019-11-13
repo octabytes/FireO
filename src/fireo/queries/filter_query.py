@@ -1,3 +1,4 @@
+from fireo.database import db
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
@@ -33,6 +34,15 @@ class FilterQuery(BaseQuery):
     query()
         Make a query that perform operation in firestore
 
+    _fields_by_column_name():
+        Change the field name according to their db column name
+
+    _firestore_doc():
+        Get document from firestore based on key
+
+    start_after(model):
+        Start fetching document after the specific model(document)
+
     filter(args):
         Apply filter for querying document
 
@@ -63,6 +73,7 @@ class FilterQuery(BaseQuery):
         self.order_by = []
         self.parent = parent
         self.cursor_dict = {}
+        self._start_after = None
         if parent:
             super().set_collection_path(path=parent)
 
@@ -102,7 +113,29 @@ class FilterQuery(BaseQuery):
                 ref = ref.order_by(name, direction=firestore.Query.DESCENDING)
             else:
                 ref = ref.order_by(name)
+
+        if self._start_after:
+            ref = ref.start_after(self._start_after)
         return ref
+
+    def _fields_by_column_name(self, **kwargs):
+        """Change the field name according to their db column name"""
+        return {
+            self.model_cls._meta.get_field(k).db_column_name: v
+            for k,v in kwargs.items()
+        }
+
+    def _firestore_doc(self, key):
+        """Get document from firestore based on key"""
+        return db.conn.collection(utils.get_parent(key)).document(utils.get_id(key)).get()
+
+    def start_after(self, key=None, **kwargs):
+        """Start document after this"""
+        if key:
+            self._start_after = self._firestore_doc(key)
+        else:
+            self._start_after = self._fields_by_column_name(**kwargs)
+        return self
 
     def filter(self, *args):
         """Apply filter for querying document
