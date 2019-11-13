@@ -23,6 +23,7 @@ class QueryIterator:
         query.cursor_dict['offset'] = query.n_limit
         # Hold the last doc for next fetch
         self.last_doc = None
+        self.last_doc_key = None
         self.fetch_end = False
 
     def __iter__(self):
@@ -30,18 +31,17 @@ class QueryIterator:
 
     def __next__(self):
         doc = next(self.docs, None)
-        last_doc_key = None
         if doc:
             # Suppose this is the last doc
             self.last_doc = doc
             m = query_wrapper.ModelWrapper.from_query_result(self.query.model, doc)
             m.update_doc = self.query._update_doc_key(m)
             # Suppose this is last doc
-            last_doc_key = m.key
+            self.last_doc_key = m.key
             return m
         self.fetch_end = True
         # Save last doc key in cursor
-        self.query.cursor_dict['last_doc_key'] = last_doc_key
+        self.query.cursor_dict['last_doc_key'] = self.last_doc_key
         raise StopIteration
 
     def next_fetch(self, limit=None):

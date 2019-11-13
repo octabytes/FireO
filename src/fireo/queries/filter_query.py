@@ -49,6 +49,9 @@ class FilterQuery(BaseQuery):
     limit(n):
         Apply limit on number of documents
 
+    offset(n):
+        Define query offset
+
     order(field_name):
         Order document by field name
 
@@ -70,6 +73,7 @@ class FilterQuery(BaseQuery):
         self.model = model_cls()
         self.select_query = [args] if args else []
         self.n_limit = None
+        self._offset = None
         self.order_by = []
         self.parent = parent
         self.cursor_dict = {}
@@ -87,11 +91,10 @@ class FilterQuery(BaseQuery):
         for w in self.select_query:
             name, op, val = w
             # save the filter in cursor for next fetch
-            f = name + ' ' + op + ' ' + val
-            if 'filter' in self.cursor_dict:
-                self.cursor_dict['filter'] = self.cursor_dict['filter'] + ',' + f
+            if 'filters' in self.cursor_dict:
+                self.cursor_dict['filters'].append(w)
             else:
-                self.cursor_dict['filter'] = f
+                self.cursor_dict['filters'] = [w]
 
             f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
@@ -106,6 +109,9 @@ class FilterQuery(BaseQuery):
         # Apply limit
         if self.n_limit:
             ref = ref.limit(self.n_limit)
+        # Apply offset
+        if self._offset:
+            ref = ref.offset(self._offset)
         # order the documents
         for o in self.order_by:
             name, direction = o
@@ -156,11 +162,17 @@ class FilterQuery(BaseQuery):
         return self
 
     def limit(self, limit):
+        """Apply limit for query"""
         # save the Limit in cursor for next fetch
         self.cursor_dict['limit'] = limit
 
         if limit:
             self.n_limit = limit
+        return self
+
+    def offset(self, offset):
+        """Offset for query"""
+        self._offset = offset
         return self
 
     def order(self, field_name):

@@ -78,6 +78,9 @@ class Manager:
 
     delete(key)
         Delete document from firestore, key is optional
+
+    cursor(c):
+        Start query from specific point
     """
     def __init__(self):
         self.model_cls = None
@@ -184,16 +187,22 @@ class Manager:
             self.queryset.filter(self.parent_key).delete()
 
     def cursor(self, cursor):
-        cursor_dict = eval(base64.b64encode(cursor))
-        filters = cursor_dict['filter'].split(',')
+        """Start query from specific point
+
+        Cursor define where to start the query
+        """
         query = self.queryset.filter(self.parent_key)
-        print(filters)
-        for filter in filters:
-            name, op, val = filter.split(' ')
-            query.filter(name, op, val)
+        cursor_dict = eval(base64.b64decode(cursor))
+        if 'filters' in cursor_dict:
+            for filter in cursor_dict['filters']:
+                query.filter(*filter)
         query.order(cursor_dict['order'])
         query.limit(cursor_dict['limit'])
 
         # check if last doc key is available or not
         if 'last_doc_key' in cursor_dict:
-            last_doc = db.conn.collection(cursor_dict['last_doc_key']).get()
+            query.start_after(key=cursor_dict['last_doc_key'])
+        else:
+            query.offset(cursor_dict['offset'])
+
+        return query
