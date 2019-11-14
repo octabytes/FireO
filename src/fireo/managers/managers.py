@@ -73,6 +73,12 @@ class Manager:
     fetch(limit) : generator
         Fetch document from firestore, limit is optional here
 
+    limit(num):
+        Set limit for query
+
+    offset(num)
+        Set offset for query
+
     order(field_name):
         Order document by field_name
 
@@ -174,13 +180,17 @@ class Manager:
         """Fetch document from collection"""
         return self.queryset.filter(self._parent_key).fetch(limit)
 
-    def order(self, field_name):
-        """Order the document by field name"""
-        return self.queryset.filter(self._parent_key).order(field_name)
-
     def limit(self, number):
         """Limit the document"""
         return self.queryset.filter(self._parent_key).limit(number)
+
+    def offset(self, number):
+        """Set offset for query"""
+        return self.queryset.filter(self._parent_key).offset(number)
+
+    def order(self, field_name):
+        """Order the document by field name"""
+        return self.queryset.filter(self._parent_key).order(field_name)
 
     def delete(self, key=None):
         """Delete document from firestore"""
