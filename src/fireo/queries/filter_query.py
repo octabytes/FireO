@@ -43,6 +43,15 @@ class FilterQuery(BaseQuery):
     start_after(model):
         Start fetching document after the specific model(document)
 
+    start_at(model):
+        Start fetching document at the specific model(document)
+
+    end_before(model):
+        End fetching document before the specific model(document)
+
+    end_at(model):
+        End fetching document at the specific model(document)
+
     filter(args):
         Apply filter for querying document
 
@@ -78,6 +87,9 @@ class FilterQuery(BaseQuery):
         self.parent = parent
         self.cursor_dict = {}
         self._start_after = None
+        self._start_at = None
+        self._end_before = None
+        self._end_at = None
         if parent:
             super().set_collection_path(path=parent)
             # Add parent in cursor
@@ -124,6 +136,13 @@ class FilterQuery(BaseQuery):
 
         if self._start_after:
             ref = ref.start_after(self._start_after)
+        if self._start_at:
+            ref = ref.start_at(self._start_at)
+        if self._end_before:
+            ref = ref.end_before(self._end_before)
+        if self._end_at:
+            ref = ref.end_at(self._end_at)
+
         return ref
 
     def _fields_by_column_name(self, **kwargs):
@@ -143,6 +162,30 @@ class FilterQuery(BaseQuery):
             self._start_after = self._firestore_doc(key)
         else:
             self._start_after = self._fields_by_column_name(**kwargs)
+        return self
+
+    def start_at(self, key=None, **kwargs):
+        """Start document at this point"""
+        if key:
+            self._start_at = self._firestore_doc(key)
+        else:
+            self._start_at = self._fields_by_column_name(**kwargs)
+        return self
+
+    def end_before(self, key=None, **kwargs):
+        """End document before this point"""
+        if key:
+            self._end_before = self._firestore_doc(key)
+        else:
+            self._end_before = self._fields_by_column_name(**kwargs)
+        return self
+
+    def end_at(self, key=None, **kwargs):
+        """End document at this point"""
+        if key:
+            self._end_at = self._firestore_doc(key)
+        else:
+            self._end_at = self._fields_by_column_name(**kwargs)
         return self
 
     def filter(self, *args):

@@ -90,6 +90,15 @@ class Manager:
 
     start_after(key, **kwargs):
         Start document after this key or after that matching fields
+
+    start_at(key, **kwargs):
+        Start document at this key or at that matching fields
+
+    end_before(key, **kwargs):
+        End document after this key or before that matching fields
+
+    end_at(key, **kwargs):
+        End document at this key or at that matching fields
     """
     def __init__(self):
         self.model_cls = None
@@ -225,6 +234,18 @@ class Manager:
 
         return query
 
-    def start_after(self, key, **kwargs):
+    def start_after(self, key=None, **kwargs):
         """Start document after this key or after that matching fields"""
-        return self.queryset.filter(self._parent_key)
+        return self.queryset.filter(self._parent_key).start_after(key, **kwargs)
+
+    def start_at(self, key=None, **kwargs):
+        """Start document at this key or at that matching fields"""
+        return self.queryset.filter(self._parent_key).start_at(key, **kwargs)
+
+    def end_before(self, key=None, **kwargs):
+        """End document after this key or after that matching fields"""
+        return self.queryset.filter(self._parent_key).end_before(key, **kwargs)
+
+    def end_at(self, key=None, **kwargs):
+        """End document at this key or at that matching fields"""
+        return self.queryset.filter(self._parent_key).end_at(key, **kwargs)
