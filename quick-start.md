@@ -25,6 +25,9 @@ To run the client library, you must first set up [authentication](/authenticatio
 ## Add data
 
 ```python
+from fireo.models import Model
+from fireo.fields import TextField, NumberField
+
 class User(Model):
     name = TextField()
     age = NumberField()
