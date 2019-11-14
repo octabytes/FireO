@@ -41,7 +41,7 @@ class Manager:
     queryset:
         Read only property, provide operations related to firestore
 
-    parent_key:
+    _parent_key:
         Parent key if any
 
     name:
@@ -88,7 +88,7 @@ class Manager:
     def __init__(self):
         self.model_cls = None
         self.name = None
-        self.parent_key = None
+        self._parent_key = None
 
     def contribute_to_model(self, model_cls, name="collection"):
         """Attach manager to model class
@@ -163,44 +163,49 @@ class Manager:
 
     def parent(self, key):
         """Parent collection"""
-        self.parent_key = key
+        self._parent_key = key
         return self
 
     def filter(self, *args):
         """Get filter document from firestore"""
-        return self.queryset.filter(self.parent_key, *args)
+        return self.queryset.filter(self._parent_key, *args)
 
     def fetch(self, limit=None):
         """Fetch document from collection"""
-        return self.queryset.filter(self.parent_key).fetch(limit)
+        return self.queryset.filter(self._parent_key).fetch(limit)
 
     def order(self, field_name):
         """Order the document by field name"""
-        return self.queryset.filter(self.parent_key).order(field_name)
+        return self.queryset.filter(self._parent_key).order(field_name)
 
     def limit(self, number):
         """Limit the document"""
-        return self.queryset.filter(self.parent_key).limit(number)
+        return self.queryset.filter(self._parent_key).limit(number)
 
     def delete(self, key=None):
         """Delete document from firestore"""
         if key:
             self.queryset.delete(key)
         else:
-            self.queryset.filter(self.parent_key).delete()
+            self.queryset.filter(self._parent_key).delete()
 
     def cursor(self, cursor):
         """Start query from specific point
 
         Cursor define where to start the query
         """
-        query = self.queryset.filter(self.parent_key)
+        parent = self._parent_key
         cursor_dict = eval(base64.b64decode(cursor))
+        if 'parent' in cursor_dict:
+            parent = cursor_dict['parent']
+        query = self.queryset.filter(parent)
         if 'filters' in cursor_dict:
             for filter in cursor_dict['filters']:
                 query.filter(*filter)
-        query.order(cursor_dict['order'])
-        query.limit(cursor_dict['limit'])
+        if 'order' in cursor_dict:
+            query.order(cursor_dict['order'])
+        if 'limit' in cursor_dict:
+            query.limit(cursor_dict['limit'])
 
         # check if last doc key is available or not
         if 'last_doc_key' in cursor_dict:
@@ -212,4 +217,4 @@ class Manager:
 
     def start_after(self, key, **kwargs):
         """Start document after this key or after that matching fields"""
-        return self.queryset.filter(self.parent_key)
+        return self.queryset.filter(self._parent_key)

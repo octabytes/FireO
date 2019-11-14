@@ -80,6 +80,8 @@ class FilterQuery(BaseQuery):
         self._start_after = None
         if parent:
             super().set_collection_path(path=parent)
+            # Add parent in cursor
+            self.cursor_dict['parent'] = parent
 
     def parse_where(self):
         """Parse where filter
@@ -269,7 +271,7 @@ class FilterQuery(BaseQuery):
             Doc key for updating document
         """
         if self.parent:
-            update_doc_key = self.parent + '/' + utils.get_id(model.key)
+            update_doc_key = self.parent + '/' + model.collection_name + '/' + utils.get_id(model.key)
         else:
             update_doc_key = model.key
         return update_doc_key

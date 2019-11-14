@@ -30,19 +30,22 @@ class QueryIterator:
         return self
 
     def __next__(self):
-        doc = next(self.docs, None)
-        if doc:
-            # Suppose this is the last doc
-            self.last_doc = doc
-            m = query_wrapper.ModelWrapper.from_query_result(self.query.model, doc)
-            m.update_doc = self.query._update_doc_key(m)
-            # Suppose this is last doc
-            self.last_doc_key = m.key
-            return m
-        self.fetch_end = True
-        # Save last doc key in cursor
-        self.query.cursor_dict['last_doc_key'] = self.last_doc_key
-        raise StopIteration
+        try:
+            doc = next(self.docs, None)
+            if doc:
+                # Suppose this is the last doc
+                self.last_doc = doc
+                m = query_wrapper.ModelWrapper.from_query_result(self.query.model, doc)
+                m.update_doc = self.query._update_doc_key(m)
+                # Suppose this is last doc
+                self.last_doc_key = m.key
+                return m
+            self.fetch_end = True
+            # Save last doc key in cursor
+            self.query.cursor_dict['last_doc_key'] = self.last_doc_key
+            raise StopIteration
+        except Exception:
+            raise StopIteration
 
     def next_fetch(self, limit=None):
         """Fetch next results"""

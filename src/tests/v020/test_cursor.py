@@ -1,5 +1,6 @@
-from fireo.fields import TextField, NumberField
+from fireo.fields import TextField, NumberField, DateTime
 from fireo.models import Model
+from fireo.utils import utils
 
 
 class CursorPages(Model):
@@ -60,3 +61,37 @@ def test_cursor_with_filter():
 
     for page in pages:
         assert page.name != 'page1'
+
+
+class CursorParentFetch(Model):
+    name = TextField()
+
+
+class CursorChildFetch(Model):
+    age = NumberField()
+    created_on = DateTime(auto=True)
+
+
+def test_parent_cursor_fetch():
+    # Sample data
+    p = CursorParentFetch.collection.create(name='Some Name')
+    parent_key = p.key
+
+    for n in range(10):
+        ch = CursorChildFetch(parent=parent_key)
+        ch.age = n
+        ch.save()
+
+    childs = CursorChildFetch.collection.order('created_on').fetch(3)
+
+    for c in childs:
+        assert utils.get_parent_doc(c.key) == parent_key
+        assert c.age in [1,2,3]
+
+    c = childs.cursor
+
+    childs = CursorChildFetch.collection.cursor(c).fetch(3)
+
+    for c in childs:
+        assert utils.get_parent_doc(c.key) == parent_key
+        assert c.age in [4,5,6]
