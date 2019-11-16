@@ -15,7 +15,7 @@ Following list is reserved words by FireO. Don't use these words in Model or in 
 | Word            | Description                                                                      |
 |:----------------|:---------------------------------------------------------------------------------|
 | id              | Used to store model id, You can use it but only for [IDField](/fields/id-field)  |
-| key             | Store the model key, Don't use it                                                |
+| key, _key             | Store the model key, Don't use it                                                |
 | parent          | Save the parent model key                                                        |
 | update_doc      | Contain information for updating the model                                       |
 | collection_name | Name of the collection, don't override it manually, See [Meta class](/meta-class/#collection-name)|
@@ -23,3 +23,4 @@ Following list is reserved words by FireO. Don't use these words in Model or in 
 | field_list      | list of fields |
 | field_changed   | Changed fields when updating |
 | instance_modified | Model is modified after saving or updating |
+| _meta           | Store information about model |
