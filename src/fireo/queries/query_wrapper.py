@@ -1,14 +1,17 @@
 from fireo.fields import ReferenceField, NestedModel
 from fireo.queries import errors
+from fireo.utils import utils
 
 
 class ModelWrapper:
     """Convert query result into Model instance"""
     @classmethod
     def from_query_result(cls, model, doc, nested_doc=False):
+        parent_key = None
         if nested_doc:
             doc_dict = doc
         elif doc:
+            parent_key = utils.get_parent_doc(doc.reference.path)
             if doc.to_dict():
                 doc_dict = doc.to_dict()
             else:
@@ -38,6 +41,11 @@ class ModelWrapper:
             else:
                 val = field.field_value(v)
             setattr(model, field.name, val)
+
+        # If parent key is None but here is parent key from doc then set the parent for this model
+        # This is case when you filter the documents parent key not auto set just set it
+        if not model.parent and parent_key is not None:
+            model.parent = parent_key
 
         # If it is not nested model then set the id for this model
         if not nested_doc:

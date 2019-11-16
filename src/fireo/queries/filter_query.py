@@ -1,6 +1,8 @@
+from fireo.database import db
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
+from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
 from google.cloud import firestore
 
@@ -32,11 +34,32 @@ class FilterQuery(BaseQuery):
     query()
         Make a query that perform operation in firestore
 
+    _fields_by_column_name():
+        Change the field name according to their db column name
+
+    _firestore_doc():
+        Get document from firestore based on key
+
+    start_after(model):
+        Start fetching document after the specific model(document)
+
+    start_at(model):
+        Start fetching document at the specific model(document)
+
+    end_before(model):
+        End fetching document before the specific model(document)
+
+    end_at(model):
+        End fetching document at the specific model(document)
+
     filter(args):
         Apply filter for querying document
 
-    limit(n):
+    limit(count):
         Apply limit on number of documents
+
+    offset(num_to_skip):
+        Define query offset
 
     order(field_name):
         Order document by field name
@@ -59,10 +82,18 @@ class FilterQuery(BaseQuery):
         self.model = model_cls()
         self.select_query = [args] if args else []
         self.n_limit = None
+        self._offset = None
         self.order_by = []
         self.parent = parent
+        self.cursor_dict = {}
+        self._start_after = None
+        self._start_at = None
+        self._end_before = None
+        self._end_at = None
         if parent:
             super().set_collection_path(path=parent)
+            # Add parent in cursor
+            self.cursor_dict['parent'] = parent
 
     def parse_where(self):
         """Parse where filter
@@ -73,6 +104,12 @@ class FilterQuery(BaseQuery):
         filters = []
         for w in self.select_query:
             name, op, val = w
+            # save the filter in cursor for next fetch
+            if 'filters' in self.cursor_dict:
+                self.cursor_dict['filters'].append(w)
+            else:
+                self.cursor_dict['filters'] = [w]
+
             f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
         return filters
@@ -86,6 +123,9 @@ class FilterQuery(BaseQuery):
         # Apply limit
         if self.n_limit:
             ref = ref.limit(self.n_limit)
+        # Apply offset
+        if self._offset:
+            ref = ref.offset(self._offset)
         # order the documents
         for o in self.order_by:
             name, direction = o
@@ -93,7 +133,60 @@ class FilterQuery(BaseQuery):
                 ref = ref.order_by(name, direction=firestore.Query.DESCENDING)
             else:
                 ref = ref.order_by(name)
+
+        if self._start_after:
+            ref = ref.start_after(self._start_after)
+        if self._start_at:
+            ref = ref.start_at(self._start_at)
+        if self._end_before:
+            ref = ref.end_before(self._end_before)
+        if self._end_at:
+            ref = ref.end_at(self._end_at)
+
         return ref
+
+    def _fields_by_column_name(self, **kwargs):
+        """Change the field name according to their db column name"""
+        return {
+            self.model._meta.get_field(k).db_column_name: v
+            for k,v in kwargs.items()
+        }
+
+    def _firestore_doc(self, key):
+        """Get document from firestore based on key"""
+        return db.conn.collection(utils.get_parent(key)).document(utils.get_id(key)).get()
+
+    def start_after(self, key=None, **kwargs):
+        """Start document after this"""
+        if key:
+            self._start_after = self._firestore_doc(key)
+        else:
+            self._start_after = self._fields_by_column_name(**kwargs)
+        return self
+
+    def start_at(self, key=None, **kwargs):
+        """Start document at this point"""
+        if key:
+            self._start_at = self._firestore_doc(key)
+        else:
+            self._start_at = self._fields_by_column_name(**kwargs)
+        return self
+
+    def end_before(self, key=None, **kwargs):
+        """End document before this point"""
+        if key:
+            self._end_before = self._firestore_doc(key)
+        else:
+            self._end_before = self._fields_by_column_name(**kwargs)
+        return self
+
+    def end_at(self, key=None, **kwargs):
+        """End document at this point"""
+        if key:
+            self._end_at = self._firestore_doc(key)
+        else:
+            self._end_at = self._fields_by_column_name(**kwargs)
+        return self
 
     def filter(self, *args):
         """Apply filter for querying document
@@ -113,9 +206,18 @@ class FilterQuery(BaseQuery):
         self.select_query.append(args)
         return self
 
-    def limit(self, limit):
-        if limit:
-            self.n_limit = limit
+    def limit(self, count):
+        """Apply limit for query"""
+        # save the Limit in cursor for next fetch
+        self.cursor_dict['limit'] = count
+
+        if count:
+            self.n_limit = count
+        return self
+
+    def offset(self, num_to_skip):
+        """Offset for query"""
+        self._offset = num_to_skip
         return self
 
     def order(self, field_name):
@@ -137,6 +239,12 @@ class FilterQuery(BaseQuery):
         -------
             Self object
         """
+        # Save order in cursor dict for next fetch
+        if 'order' in self.cursor_dict:
+            self.cursor_dict['order'] = self.cursor_dict['order'] + ',' + field_name
+        else:
+            self.cursor_dict['order'] = field_name
+
         order_direction = 'Asc'
         name = field_name
 
@@ -156,13 +264,12 @@ class FilterQuery(BaseQuery):
         limit : optional
             Apply limit to firestore documents, how much documents you want to retrieve
         """
+        # save the Limit in cursor for next fetch
+        self.cursor_dict['limit'] = limit
+
         if limit:
             self.n_limit = limit
-        docs = self.query().stream()
-        for doc in docs:
-            m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
-            m.update_doc = self._update_doc_key(m)
-            yield m
+        return QueryIterator(self)
 
     def get(self):
         """Get the first matching document from firestore
@@ -182,7 +289,7 @@ class FilterQuery(BaseQuery):
     def delete(self):
         """Delete the filter documents"""
         q = self.query()
-        DeleteQuery(self.model_cls, query=q).exec()
+        DeleteQuery(self.model, query=q).exec()
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model
@@ -207,7 +314,7 @@ class FilterQuery(BaseQuery):
             Doc key for updating document
         """
         if self.parent:
-            update_doc_key = self.parent + '/' + utils.get_id(model.key)
+            update_doc_key = self.parent + '/' + model.collection_name + '/' + utils.get_id(model.key)
         else:
             update_doc_key = model.key
         return update_doc_key
