@@ -17,6 +17,7 @@ class QueryIterator:
 
     def __init__(self, query):
         self.query = query
+        self.model_cls = query.model.__class__
         self.docs = query.query().stream()
         # Get offset for next fetch
         self.offset = query.n_limit
@@ -35,7 +36,7 @@ class QueryIterator:
             if doc:
                 # Suppose this is the last doc
                 self.last_doc = doc
-                m = query_wrapper.ModelWrapper.from_query_result(self.query.model, doc)
+                m = query_wrapper.ModelWrapper.from_query_result(self.model_cls(), doc)
                 m.update_doc = self.query._update_doc_key(m)
                 # Suppose this is last doc
                 self.last_doc_key = m.key

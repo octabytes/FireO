@@ -55,10 +55,10 @@ class FilterQuery(BaseQuery):
     filter(args):
         Apply filter for querying document
 
-    limit(n):
+    limit(count):
         Apply limit on number of documents
 
-    offset(n):
+    offset(num_to_skip):
         Define query offset
 
     order(field_name):
@@ -148,7 +148,7 @@ class FilterQuery(BaseQuery):
     def _fields_by_column_name(self, **kwargs):
         """Change the field name according to their db column name"""
         return {
-            self.model_cls._meta.get_field(k).db_column_name: v
+            self.model._meta.get_field(k).db_column_name: v
             for k,v in kwargs.items()
         }
 
@@ -206,18 +206,18 @@ class FilterQuery(BaseQuery):
         self.select_query.append(args)
         return self
 
-    def limit(self, limit):
+    def limit(self, count):
         """Apply limit for query"""
         # save the Limit in cursor for next fetch
-        self.cursor_dict['limit'] = limit
+        self.cursor_dict['limit'] = count
 
-        if limit:
-            self.n_limit = limit
+        if count:
+            self.n_limit = count
         return self
 
-    def offset(self, offset):
+    def offset(self, num_to_skip):
         """Offset for query"""
-        self._offset = offset
+        self._offset = num_to_skip
         return self
 
     def order(self, field_name):
@@ -289,7 +289,7 @@ class FilterQuery(BaseQuery):
     def delete(self):
         """Delete the filter documents"""
         q = self.query()
-        DeleteQuery(self.model_cls, query=q).exec()
+        DeleteQuery(self.model, query=q).exec()
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model
