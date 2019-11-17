@@ -110,7 +110,16 @@ class FilterQuery(BaseQuery):
             else:
                 self.cursor_dict['filters'] = [w]
 
-            f_name = self.model._meta.get_field(name).db_column_name
+            # Check it is nested model field
+            if '.' in name:
+                m, f = name.split('.')
+                model_field = self.model._meta.get_field(m)
+                model_name = model_field.db_column_name
+                nested_model = model_field.nested_model
+                field_name = nested_model._meta.get_field(f).db_column_name
+                f_name = model_name + '.' + field_name
+            else:
+                f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
         return filters
 
