@@ -1,4 +1,5 @@
 from fireo.database import db
+from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
@@ -112,11 +113,27 @@ class FilterQuery(BaseQuery):
 
             # Check it is nested model field
             if '.' in name:
-                m, f = name.split('.')
-                model_field = self.model._meta.get_field(m)
-                model_name = model_field.db_column_name
-                nested_model = model_field.nested_model
-                field_name = nested_model._meta.get_field(f).db_column_name
+                # m, f = name.split('.')
+                # model_field = self.model._meta.get_field(m)
+                # model_name = model_field.db_column_name
+                # nested_model = model_field.nested_model
+                # field_name = nested_model._meta.get_field(f).db_column_name
+                # f_name = model_name + '.' + field_name
+                model_names = []
+                nested_model = None
+                *models, field = name.split('.')
+                for m in models:
+                    try:
+                        model_field = self.model._meta.get_field(m)
+                    except FieldNotFound:
+                        model_field = nested_model._meta.get_field(m)
+
+                    nested_model = model_field.nested_model
+                    name = model_field.db_column_name
+
+                    model_names.append(name)
+                model_name = '.'.join(model_names)
+                field_name = nested_model._meta.get_field(field).db_column_name
                 f_name = model_name + '.' + field_name
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
