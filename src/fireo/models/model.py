@@ -134,6 +134,12 @@ class Model(metaclass=ModelMeta):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+        # Create instance for nested model
+        # for direct assignment to nested model
+        for f in self._meta.field_list.values():
+            if isinstance(f, fields.NestedModel):
+                setattr(self, f.name, f.nested_model())
+
     # Get all the fields values from meta
     # which are attached with this mode
     # and convert them into corresponding db value

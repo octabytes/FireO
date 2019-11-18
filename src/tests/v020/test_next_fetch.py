@@ -98,3 +98,7 @@ def test_fetch_without_next():
         index += 1
 
     assert index == 6
+
+
+def test_delete_all_next_fetch():
+    NextFetchModel.collection.delete()

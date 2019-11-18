@@ -95,3 +95,9 @@ def test_parent_cursor_fetch():
     for c in childs:
         assert utils.get_parent_doc(c.key) == parent_key
         assert c.age in [4,5,6]
+
+
+def test_delete_all_cursor_fetch():
+    CursorPages.collection.delete()
+    CursorParentFetch.collection.delete()
+    CursorChildFetch.collection.delete()

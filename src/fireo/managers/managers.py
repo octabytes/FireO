@@ -156,6 +156,10 @@ class Manager:
                         field_list[f.name] = model_instance._get_fields()
                 else:
                     field_list[k] = v
+            # Create instance for nested model
+            for f in self.model_cls._meta.field_list.values():
+                if isinstance(f, NestedModel):
+                    field_list[f.name] = f.nested_model()._get_fields()
         else:
             field_list = kwargs
 

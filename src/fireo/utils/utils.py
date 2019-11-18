@@ -32,3 +32,11 @@ def get_id(key):
 
 def GeoPoint(latitude: float, longitude: float):
     return firestore.GeoPoint(latitude, longitude)
+
+
+def get_nested(dict, *args):
+    if args and dict:
+        element = args[0]
+        if element:
+            value = dict.get(element)
+            return value if len(args) == 1 else get_nested(value, *args[1:])

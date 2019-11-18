@@ -1,5 +1,7 @@
+from fireo.fields import NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
+from fireo.utils import utils
 
 
 class CreateQuery(BaseQuery):
@@ -84,10 +86,32 @@ class CreateQuery(BaseQuery):
         in this case it will be like this
         `{full_name: "Azeem", age=25}`
         """
-        return {
-            f.db_column_name: f.get_value(self.query.get(f.name))
-            for f in self.model._meta.field_list.values()
-        }
+        field_list = {}
+        for f in self.model._meta.field_list.values():
+            if isinstance(f, NestedModel):
+                self._nested_field_list(f, field_list, f.name)
+            else:
+                field_list[f.db_column_name] = f.get_value(self.query.get(f.name))
+        return field_list
+
+    def _nested_field_list(self, f, fl, *name):
+        """Get Nested Fields"""
+        required_nested_model = f.raw_attributes.get('required')
+        if required_nested_model is None or required_nested_model is False:
+            ignore_required = True
+        else:
+            ignore_required = False
+        nested_field_list = {}
+        for n_f in f.nested_model._meta.field_list.values():
+            if isinstance(n_f, NestedModel):
+                n = (*name, n_f.name)
+                self._nested_field_list(n_f, nested_field_list, *n)
+            else:
+                nested_field_list[n_f.db_column_name] = n_f.get_value(
+                    utils.get_nested(self.query, *name).get(n_f.name),
+                    ignore_required
+                )
+        fl[f.db_column_name] = nested_field_list
 
     def _raw_exec(self):
         """save model into firestore and return the document"""

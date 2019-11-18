@@ -1,6 +1,7 @@
 from fireo.fields import NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
+from fireo.utils import utils
 
 
 class UpdateQuery(BaseQuery):
@@ -51,24 +52,26 @@ class UpdateQuery(BaseQuery):
             # Check if it is nested model
             if isinstance(f, NestedModel):
                 # Get nested model field
-                for nested_f in f.nested_model._meta.field_list.values():
-                    v = nested_f.get_value(self.query.get(f.name+"."+nested_f.name), ignore_required=True)
-                    if v:
-                        # create the name with parent field name and child name
-                        # For example:
-                        #   class User(Model):
-                        #       address = TextField()
-                        #   class Student(Model):
-                        #       age = NumberField()
-                        #       user = NestedModel(User)
-                        #
-                        # Then the field name for nested model will be "user.address"
-                        field_dict[f.db_column_name+"."+nested_f.db_column_name] = v
+                self._nested_field_list(f, field_dict, f.name)
             else:
                 v = f.get_value(self.query.get(f.name), ignore_required=True)
                 if v:
                     field_dict[f.db_column_name] = v
         return field_dict
+
+    def _nested_field_list(self, f, fl, *name):
+        """Get Nested Fields"""
+        nested_field_list = {}
+        for n_f in f.nested_model._meta.field_list.values():
+            if isinstance(n_f, NestedModel):
+                n = (*name, n_f.name)
+                self._nested_field_list(n_f, nested_field_list, *n)
+            else:
+                nested_field_list[n_f.db_column_name] = n_f.get_value(
+                    utils.get_nested(self.query, *name).get(n_f.name),
+                    ignore_required=True
+                )
+        fl[f.db_column_name] = nested_field_list
 
     def _raw_exec(self):
         """Update document in firestore and return the document"""
