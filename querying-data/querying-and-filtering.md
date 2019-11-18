@@ -234,6 +234,37 @@ The following query returns all reviews which is posted by **Azeem**
 reviews = Review.collection.parent(post_key).filter('name', '==', 'Azeem').fetch()
 ```
 
+## Filter with nested Model
+You can `filter` models with `nested_models` fields using `dot(.)` notation.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class Level1(Model):
+    name = TextField()
+
+
+class Level2(Model):
+    name = TextField()
+    lev1 = NestedModel(Level1)
+
+
+class Level3(Model):
+    name = TextField()
+    lev2 = NestedModel(Level2)
+
+# Adding data
+l = Level3()
+l.name = 'level 1'
+l.lev2.name = 'level 2'
+l.lev2.lev1.name = 'level 3'
+l.save()
+
+# Filtering data 
+l = Level3.collection.filter('lev2.lev.name', '==', 'level 3').get()
+```
+
 ## Query limitations
 Cloud Firestore does not support the following types of queries:
 
