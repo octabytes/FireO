@@ -111,6 +111,10 @@ class FilterQuery(BaseQuery):
             else:
                 self.cursor_dict['filters'] = [w]
 
+            # check if user defined to set the value as lower case
+            if self.model._meta.to_lowercase and type(val) is str:
+                val = val.lower()
+
             # Check it is nested model field
             if '.' in name:
                 # m, f = name.split('.')
