@@ -146,9 +146,10 @@ class Field(metaclass=MetaField):
             val:
                 Modified value
         """
-        # check if user defined to set the value as lower case
-        if self.model_cls._meta.to_lowercase:
-            return val.lower() if type(val) is str else val
+        if self.model_cls:
+            # check if user defined to set the value as lower case
+            if self.model_cls._meta.to_lowercase:
+                return val.lower() if type(val) is str else val
         return val
 
     def field_value(self, val):
