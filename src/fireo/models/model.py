@@ -47,7 +47,7 @@ class Model(metaclass=ModelMeta):
         Model key which contain the model collection name and model id and parent if provided, Id can be user defined
         or generated from firestore
 
-    update_doc: str
+    _update_doc: str
         Update doc hold the key which is used to update the document
 
     parent: str
@@ -113,17 +113,17 @@ class Model(metaclass=ModelMeta):
 
     # Track which fields are changed or not
     # it is useful when updating document
-    field_list = []
-    field_changed = []
+    _field_list = []
+    _field_changed = []
 
     # check instance is modified or not
     # When you get the document from firestore or
     # save the document then the model instance changed
     # This also give the help to track update fields
-    instance_modified = False
+    _instance_modified = False
 
     # Update doc hold the key which is used to update the document
-    update_doc = None
+    _update_doc = None
 
     def __init__(self, *args, **kwargs):
         # check this is not abstract model otherwise stop creating instance of this model
@@ -332,14 +332,14 @@ class Model(metaclass=ModelMeta):
 
         # Check doc key is given or not
         if doc_key:
-            self.update_doc = doc_key
+            self._update_doc = doc_key
 
         # make sure update doc in not None
-        if self.update_doc:
+        if self._update_doc:
             # set parent doc from this updated document key
-            self.parent = utils.get_parent_doc(self.update_doc)
+            self.parent = utils.get_parent_doc(self._update_doc)
             # Get id from key and set it for model
-            setattr(self, '_id', utils.get_id(self.update_doc))
+            setattr(self, '_id', utils.get_id(self._update_doc))
             # Add the temp id field if user is not specified any
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', fields.IDField()))
@@ -349,14 +349,14 @@ class Model(metaclass=ModelMeta):
         # Get the updated fields
         updated_fields = {}
         for k, v in self._get_fields().items():
-            if k in self.field_changed:
+            if k in self._field_changed:
                 updated_fields[k] = v
             # Get nested fields if any
             # Nested model store as dict in firestore so check values type is dict
             if type(v) is dict:
                 # nested field name and value
                 for name, value in v.items():
-                    if name in self.field_changed:
+                    if name in self._field_changed:
                         # create the name with parent field name and child name
                         # For example:
                         #   class User(Model):
@@ -373,8 +373,8 @@ class Model(metaclass=ModelMeta):
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
-        if key in self.field_list or not self.instance_modified:
-            self.field_changed.append(key)
+        if key in self._field_list or not self._instance_modified:
+            self._field_changed.append(key)
         else:
-            self.field_list.append(key)
+            self._field_list.append(key)
         super(Model, self).__setattr__(key, value)

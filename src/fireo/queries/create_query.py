@@ -57,7 +57,7 @@ class CreateQuery(BaseQuery):
         #   u = User.collection.create(name="Azeem", age=25)
         #   u.name = "Updated Name"
         #   u.update()
-        self.model.update_doc = self.model.key
+        self.model._update_doc = self.model.key
 
         # Reset the field list and changed list
         # This is important to reset so we can

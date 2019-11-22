@@ -37,7 +37,7 @@ class QueryIterator:
                 # Suppose this is the last doc
                 self.last_doc = doc
                 m = query_wrapper.ModelWrapper.from_query_result(self.model_cls(), doc)
-                m.update_doc = self.query._update_doc_key(m)
+                m._update_doc = self.query._update_doc_key(m)
                 # Suppose this is last doc
                 self.last_doc_key = m.key
                 return m
