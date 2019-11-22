@@ -369,7 +369,7 @@ class Model(metaclass=ModelMeta):
                         updated_fields[k+"."+name] = value
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection.update(self, **updated_fields)
+        return self.__class__.collection._update(self, **updated_fields)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""

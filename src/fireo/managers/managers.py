@@ -58,7 +58,7 @@ class Manager:
     create(mutable_instance, kwargs): Model instance
         create new document in firestore collection
 
-    update(mutable_instance, kwargs): Model instance
+    _update(mutable_instance, kwargs): Model instance
         Update existing document in firestore collection
 
     get(key): Model instance
@@ -165,7 +165,7 @@ class Manager:
 
         return self.queryset.create(mutable_instance, **field_list)
 
-    def update(self, mutable_instance=None, **kwargs):
+    def _update(self, mutable_instance=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
