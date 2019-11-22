@@ -8,6 +8,7 @@ before_install:
   - npm install -g npm stable
   - npm install -g node
   - npm i -g firebase firebase-tools
+  - alias firebase="`npm config get prefix`/bin/firebase"
   - firebase setup:emulators:firestore
   - firebase emulators:start --only firestore &
 
