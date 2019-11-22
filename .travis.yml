@@ -5,7 +5,8 @@ python:
   - '3.6'
 
 before_install:
-  - npm install grpc@1.20.2
+  - npm install -g npm stable
+  - npm install -g node
   - npm i -g firebase firebase-tools
   - firebase setup:emulators:firestore
   - firebase emulators:start --only firestore &
