@@ -76,6 +76,9 @@ class Model(metaclass=ModelMeta):
     _get_fields() : dict
         Private method that return values of all attached fields.
 
+    get_merge_fields(): dict
+        Get those fields which are merged while getting data from Firestore
+
     save() : Model instance
         Save the model in firestore collection
 
@@ -180,6 +183,14 @@ class Model(metaclass=ModelMeta):
             else:
                 field_list[f.name] = getattr(self, f.name)
         return field_list
+
+    def get_merge_fields(self):
+        """Get those fields which are merged while getting data from Firestore
+
+        If some fields are not in model but in Firestore than you can use merge setting
+        for missing_fields it will add these fields as Base Field in model
+        """
+        return self._meta.merge_fields
 
     @property
     def _id(self):

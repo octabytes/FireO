@@ -83,6 +83,9 @@ class ModelMeta(type):
             field_list : dict
                 Contain all model field
 
+            merge_fields: dict
+                Contain those fields which are merged when setting for missing_field = merge
+
             id : str, optional
                 Model id if not specify then it return `None` and later create by firestore
                 and attach to model
@@ -133,6 +136,7 @@ class ModelMeta(type):
                 If any model is inherit from non abstract model
             """
             field_list = {}  # Hold all the model fields
+            merge_fields = {} # Hold only merge fields
             id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
 
             def __init__(self):
@@ -238,6 +242,7 @@ class ModelMeta(type):
                 if self.missing_field == 'merge':
                     f = fields.Field()
                     f.name = name
+                    self.merge_fields[f.name] = f
                     return f
                 if self.missing_field == 'ignore':
                     return None
