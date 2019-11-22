@@ -94,6 +94,10 @@ class ModelMeta(type):
                 Model config what to do with fields that are comming from firestore and not in model
                 possible values are (merge, ignore, raise_error) merge is default
 
+            to_lowercase: bool
+                Firestore is case sensitive convert all value in lowercase if set True. By default
+                it set False.
+
             collection : manager
                 Collection is class level attribute can be used to access the manager
 
@@ -138,6 +142,7 @@ class ModelMeta(type):
                 self.collection_name = utils.collection_name(cls.__name__)
                 self.abstract = False
                 self.missing_field = 'merge'
+                self.to_lowercase = False
 
             # Attached manager to model class
             # later on manager can be accessible via class `collection` attribute
@@ -266,7 +271,7 @@ class ModelMeta(type):
                     If option for missing_field is other than ignore, merge or raise_error
                 """
                 for name, val in user_meta.__dict__.items():
-                    supported_meta = ['collection_name', 'abstract', 'missing_field']
+                    supported_meta = ['collection_name', 'abstract', 'to_lowercase', 'missing_field']
 
                     # check if name is supported by meta and name is not
                     # any special name for example '__main__, __doc__'
@@ -278,6 +283,8 @@ class ModelMeta(type):
                         self.collection_name = val
                     if name == 'abstract':
                         self.abstract = val
+                    if name == 'to_lowercase':
+                        self.to_lowercase = val
                     if name == 'missing_field':
                         if val in ['merge', 'ignore', 'raise_error']:
                             self.missing_field = val
