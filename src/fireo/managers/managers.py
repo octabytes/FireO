@@ -73,6 +73,9 @@ class Manager:
     fetch(limit) : generator
         Fetch document from firestore, limit is optional here
 
+    group_fetch(limit) : generator
+        Use a collection group query to retrieve documents from a collection group
+
     limit(count):
         Set limit for query
 
@@ -192,6 +195,13 @@ class Manager:
     def fetch(self, limit=None):
         """Fetch document from collection"""
         return self.queryset.filter(self._parent_key).fetch(limit)
+
+    def group_fetch(self, limit=None):
+        """A collection group consists of all collections with the same ID.
+        By default, queries retrieve results from a single collection in your database.
+        Use a collection group query to retrieve documents from a collection group
+        instead of from a single collection."""
+        return self.queryset.filter(self._parent_key).group_fetch(limit)
 
     def limit(self, count):
         """Limit the document"""
