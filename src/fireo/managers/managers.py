@@ -16,6 +16,8 @@ class ManagerDescriptor:
         self.manager = manager
 
     def __get__(self, instance, owner):
+        # reset parent key
+        self.manager._parent_key = None
         if instance is not None:
             raise ManagerError(f'Manager "{self.manager.name}" can not accessible via {owner.__name__} instance')
         if owner._meta.abstract:
