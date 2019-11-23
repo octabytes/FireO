@@ -89,3 +89,28 @@ class User(Model):
     class Meta:
         missing_field = 'ignore'
 ```
+
+## Lower case
+Firestore is case sensitive if you save name as `Azeem` you can't filter it like `azeem` So it is best 
+practice to save data in lower case it help you to search easily. FirO allow to save data in lower case
+and search data without case sensitive.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class User(Model):
+    name = TExtField()
+    age = NumberField()
+
+    class Meta:
+        to_lowercase = True
+
+User.collection.create(name='Azeem', age=26)
+
+
+# Filter result All three are works and give same result
+User.collection.filter('name', '==', 'azeem').get()
+User.collection.filter('name', '==', 'Azeem').get()
+User.collection.filter('name', '==', 'AzEEm').get()
+```

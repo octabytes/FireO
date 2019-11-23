@@ -265,6 +265,48 @@ l.save()
 l = Level3.collection.filter('lev2.lev.name', '==', 'level 3').get()
 ```
 
+## Collection group queries
+A collection group consists of all collections with the same ID. By default, queries retrieve 
+results from a single collection in your database. Use a collection group query to retrieve 
+documents from a collection group instead of from a single collection.
+
+For example, you can create a `landmarks` collection group by adding a landmarks subcollection to each city:
+```python
+class City(Model):
+    state = TextField()
+
+
+class Landmarks(Model):
+    type = TextField()
+    name = TextField()
+
+
+c = City.collection.create(state='SF')
+Landmarks.collection.parent(c.key).create(type='bridge', name='Golden Gate Bridge')
+Landmarks.collection.parent(c.key).create(type='museum', name='Legion of Honor')
+
+c = City.collection.create(state='LA')
+Landmarks.collection.parent(c.key).create(type='park', name='Griffith Park')
+Landmarks.collection.parent(c.key).create(type='museum', name='The Getty')
+
+c = City.collection.create(state='DC')
+Landmarks.collection.parent(c.key).create(type='memorial', name='Lincoln Memorial')
+Landmarks.collection.parent(c.key).create(type='museum', name='National Air and Space Museum')
+```
+
+We can use the simple and compound query described earlier to query a single city's `landmarks` 
+subcollection, but you might also want to retrieve results from every city's `landmarks` subcollection at once.
+
+The `landmarks` collection group consists of all collections with the ID `landmarks`, and you 
+can query it using a collection group query. For example, this collection group query retrieves all `museum` 
+landmarks across all cities:
+
+```python
+museums = Landmarks.collection.filter('type', '==', 'museum').group_fetch()
+for museum in museums:
+    print(museum.name)
+```
+
 ## Query limitations
 Cloud Firestore does not support the following types of queries:
 
