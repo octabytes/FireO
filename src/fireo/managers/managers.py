@@ -16,6 +16,8 @@ class ManagerDescriptor:
         self.manager = manager
 
     def __get__(self, instance, owner):
+        # reset parent key
+        self.manager._parent_key = None
         if instance is not None:
             raise ManagerError(f'Manager "{self.manager.name}" can not accessible via {owner.__name__} instance')
         if owner._meta.abstract:
@@ -58,7 +60,7 @@ class Manager:
     create(mutable_instance, kwargs): Model instance
         create new document in firestore collection
 
-    update(mutable_instance, kwargs): Model instance
+    _update(mutable_instance, kwargs): Model instance
         Update existing document in firestore collection
 
     get(key): Model instance
@@ -72,6 +74,9 @@ class Manager:
 
     fetch(limit) : generator
         Fetch document from firestore, limit is optional here
+
+    group_fetch(limit) : generator
+        Use a collection group query to retrieve documents from a collection group
 
     limit(count):
         Set limit for query
@@ -165,7 +170,7 @@ class Manager:
 
         return self.queryset.create(mutable_instance, **field_list)
 
-    def update(self, mutable_instance=None, **kwargs):
+    def _update(self, mutable_instance=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
@@ -192,6 +197,13 @@ class Manager:
     def fetch(self, limit=None):
         """Fetch document from collection"""
         return self.queryset.filter(self._parent_key).fetch(limit)
+
+    def group_fetch(self, limit=None):
+        """A collection group consists of all collections with the same ID.
+        By default, queries retrieve results from a single collection in your database.
+        Use a collection group query to retrieve documents from a collection group
+        instead of from a single collection."""
+        return self.queryset.filter(self._parent_key).group_fetch(limit)
 
     def limit(self, count):
         """Limit the document"""

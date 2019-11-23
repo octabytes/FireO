@@ -301,6 +301,10 @@ class FilterQuery(BaseQuery):
             self.n_limit = limit
         return QueryIterator(self)
 
+    def group_fetch(self, limit=None):
+        super().set_group_collection(True)
+        return self.fetch(limit)
+
     def get(self):
         """Get the first matching document from firestore
 

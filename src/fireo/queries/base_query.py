@@ -16,6 +16,9 @@ class BaseQuery:
     get_ref():
         Provide firestore ref for model collection
 
+    set_group_collection():
+        setter method for group collection
+
     validate_key():
         Validate the key
     """
@@ -25,6 +28,8 @@ class BaseQuery:
         # if collection path and model key both are not available then
         # collection_name will be the base collection path
         self.collection_path = model_cls.collection_name
+        # Firestore allow to get documents from group collection
+        self.group_collection = False
 
     def set_collection_path(self, path=None, key=None):
         """Set collection path"""
@@ -40,8 +45,14 @@ class BaseQuery:
         #  Validate the key
         self.validate_key()
 
-        ref = db.conn.collection(self.collection_path)
-        return ref
+        if self.group_collection:
+            return db.conn.collection_group(self.collection_path)
+
+        return db.conn.collection(self.collection_path)
+
+    def set_group_collection(self, is_group):
+        """Set group collection"""
+        self.group_collection = is_group
 
     def validate_key(self):
         """Validate key, Key collection must be the same as the model collection name
