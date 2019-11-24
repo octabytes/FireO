@@ -27,8 +27,14 @@ class FilterQuery(BaseQuery):
     oderer_by: list
         Order the documents
 
+    transaction:
+        Firestore transaction
+
     Methods
     -------
+    transaction():
+        Set Firestore transaction
+
     parse_where():
         parse where filter
 
@@ -91,10 +97,15 @@ class FilterQuery(BaseQuery):
         self._start_at = None
         self._end_before = None
         self._end_at = None
+        self.query_transaction = None
         if parent:
             super().set_collection_path(path=parent)
             # Add parent in cursor
             self.cursor_dict['parent'] = parent
+
+    def transaction(self, t):
+        self.query_transaction = t
+        return self
 
     def parse_where(self):
         """Parse where filter
@@ -313,9 +324,9 @@ class FilterQuery(BaseQuery):
         return **model instance** and the `fetch()` method return the **generator**
         """
         self.n_limit = 1
-        doc = next(self.query().stream(), None)
+        doc = next(self.query().stream(self.query_transaction), None)
         if doc:
-            m = query_wrapper.ModelWrapper.from_query_result(self.model, next(self.query().stream()))
+            m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
             m._update_doc = self._update_doc_key(m)
             return m
         return None

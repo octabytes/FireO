@@ -49,11 +49,11 @@ class GetQuery(BaseQuery):
         self.model._update_doc = key
         self.id = utils.get_id(key)
 
-    def _raw_exec(self):
+    def _raw_exec(self, transaction=None):
         """Get firestore reference and then get document based on id"""
         ref = self.get_ref().document(self.id)
-        return ref.get()
+        return ref.get(transaction=transaction)
 
-    def exec(self):
+    def exec(self, transaction=None):
         """Wrap the query result into model instance"""
-        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())
+        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec(transaction))

@@ -78,6 +78,9 @@ class Manager:
     group_fetch(limit) : generator
         Use a collection group query to retrieve documents from a collection group
 
+    transaction:
+        Firestore transaction
+
     limit(count):
         Set limit for query
 
@@ -133,7 +136,7 @@ class Manager:
         """provide operations related to firestore"""
         return queries.QuerySet(self.model_cls)
 
-    def create(self, mutable_instance=None, **kwargs,):
+    def create(self, mutable_instance=None, transaction=None, **kwargs,):
         """create new document in firestore collection
 
         Parameters
@@ -141,6 +144,9 @@ class Manager:
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
+
+        transaction:
+            Firestore transaction
         """
         field_list = {}
         # if mutable instance is none this mean user is creating document directly from manager
@@ -168,9 +174,9 @@ class Manager:
         else:
             field_list = kwargs
 
-        return self.queryset.create(mutable_instance, **field_list)
+        return self.queryset.create(mutable_instance, transaction, **field_list)
 
-    def _update(self, mutable_instance=None, **kwargs):
+    def _update(self, mutable_instance=None, transaction=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
@@ -178,12 +184,15 @@ class Manager:
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
-        """
-        return self.queryset.update(mutable_instance, **kwargs)
 
-    def get(self, key):
+        transaction:
+            Firestore transaction
+        """
+        return self.queryset.update(mutable_instance, transaction, **kwargs)
+
+    def get(self, key, transaction=None):
         """Get document from firestore"""
-        return self.queryset.get(key)
+        return self.queryset.get(key, transaction)
 
     def parent(self, key):
         """Parent collection"""
@@ -205,6 +214,10 @@ class Manager:
         instead of from a single collection."""
         return self.queryset.filter(self._parent_key).group_fetch(limit)
 
+    def transaction(self, t):
+        """Firestore transaction"""
+        return self.queryset.filter(self._parent_key).transaction(t)
+
     def limit(self, count):
         """Limit the document"""
         return self.queryset.filter(self._parent_key).limit(count)
@@ -217,10 +230,10 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter(self._parent_key).order(field_name)
 
-    def delete(self, key=None):
+    def delete(self, key=None, transaction=None):
         """Delete document from firestore"""
         if key:
-            self.queryset.delete(key)
+            self.queryset.delete(key, transaction)
         else:
             self.queryset.filter(self._parent_key).delete()
 
