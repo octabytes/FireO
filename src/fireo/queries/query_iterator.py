@@ -18,7 +18,7 @@ class QueryIterator:
     def __init__(self, query):
         self.query = query
         self.model_cls = query.model.__class__
-        self.docs = query.query().stream()
+        self.docs = query.query().stream(query.query_transaction)
         # Get offset for next fetch
         self.offset = query.n_limit
         query.cursor_dict['offset'] = query.n_limit

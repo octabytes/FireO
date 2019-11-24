@@ -25,7 +25,7 @@ class QuerySet:
     def __init__(self, model_cls):
         self.model_cls = model_cls
 
-    def create(self, mutable_instance=None, **kwargs):
+    def create(self, mutable_instance=None, transaction=None, **kwargs):
         """Create new document in firestore collection
 
         Parameters
@@ -33,6 +33,9 @@ class QuerySet:
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
+
+        transaction:
+            Firestore transaction
 
         **kwargs:
             field name and value
@@ -42,9 +45,9 @@ class QuerySet:
         Model instance:
             modified instance or new instance if no mutable instance provided
         """
-        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec()
+        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction)
 
-    def update(self, mutable_instance=None, **kwargs):
+    def update(self, mutable_instance=None, transaction=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
@@ -55,6 +58,9 @@ class QuerySet:
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
 
+        transaction:
+            Firesotre transaction
+
         **kwargs:
             field name and value
 
@@ -63,9 +69,9 @@ class QuerySet:
         Model instance:
             updated modified instance
         """
-        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec()
+        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction)
 
-    def get(self, key):
+    def get(self, key, transaction=None):
         """Get document from firestore
 
         Parameters
@@ -73,12 +79,15 @@ class QuerySet:
         key : str
             key of the document
 
+        transaction:
+            Firestore transaction
+
         Returns
         -------
         Model instance:
             wrap query result into model instance
         """
-        return GetQuery(self.model_cls, key).exec()
+        return GetQuery(self.model_cls, key).exec(transaction)
 
     def filter(self, parent=None, *args):
         """Filter document from firestore
@@ -92,12 +101,15 @@ class QuerySet:
         """
         return FilterQuery(self.model_cls, parent, *args)
 
-    def delete(self, key):
+    def delete(self, key, transaction=None):
         """Delete document from firestore
 
         Parameters
         ----------
         key : str
             key of the document
+
+        transaction:
+            Firestore transaction
         """
-        DeleteQuery(self.model_cls, key).exec()
+        DeleteQuery(self.model_cls, key).exec(transaction)
