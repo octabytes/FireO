@@ -25,7 +25,7 @@ class QuerySet:
     def __init__(self, model_cls):
         self.model_cls = model_cls
 
-    def create(self, mutable_instance=None, transaction=None, **kwargs):
+    def create(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Create new document in firestore collection
 
         Parameters
@@ -37,6 +37,9 @@ class QuerySet:
         transaction:
             Firestore transaction
 
+        batch:
+            Firestore batch writes
+
         **kwargs:
             field name and value
 
@@ -45,9 +48,10 @@ class QuerySet:
         Model instance:
             modified instance or new instance if no mutable instance provided
         """
-        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction)
+        transaction_or_batch = transaction if transaction else batch
+        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch)
 
-    def update(self, mutable_instance=None, transaction=None, **kwargs):
+    def update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
@@ -61,6 +65,9 @@ class QuerySet:
         transaction:
             Firesotre transaction
 
+        batch:
+            Firestore batch writes
+
         **kwargs:
             field name and value
 
@@ -69,7 +76,8 @@ class QuerySet:
         Model instance:
             updated modified instance
         """
-        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction)
+        transaction_or_batch = transaction if transaction else batch
+        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch)
 
     def get(self, key, transaction=None):
         """Get document from firestore
@@ -101,7 +109,7 @@ class QuerySet:
         """
         return FilterQuery(self.model_cls, parent, *args)
 
-    def delete(self, key, transaction=None):
+    def delete(self, key, transaction=None, batch=None):
         """Delete document from firestore
 
         Parameters
@@ -111,5 +119,9 @@ class QuerySet:
 
         transaction:
             Firestore transaction
+
+        batch:
+            Firestore batch writes
         """
-        DeleteQuery(self.model_cls, key).exec(transaction)
+        transaction_or_batch = transaction if transaction else batch
+        DeleteQuery(self.model_cls, key).exec(transaction_or_batch)
