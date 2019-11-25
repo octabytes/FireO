@@ -1,6 +1,7 @@
 from fireo.fields import ReferenceField, NestedModel
 from fireo.queries import errors
 from fireo.utils import utils
+from google.cloud import firestore
 
 
 class ModelWrapper:
@@ -18,6 +19,9 @@ class ModelWrapper:
                 return None
         else:
             return None
+
+        # save the firestore reference doc so that further actions can be performed (i.e. collections())
+        model._meta.set_reference_doc(doc.reference)
 
         # instance values is changed according to firestore
         # so mark it modified this will help later for figuring
