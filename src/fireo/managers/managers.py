@@ -208,9 +208,9 @@ class Manager:
         self._parent_key = key
         return self
 
-    def filter(self, *args):
+    def filter(self, *args, **kwargs):
         """Get filter document from firestore"""
-        return self.queryset.filter(self._parent_key, *args)
+        return self.queryset.filter(self._parent_key, *args, **kwargs)
 
     def fetch(self, limit=None):
         """Fetch document from collection"""
