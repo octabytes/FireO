@@ -119,4 +119,37 @@ A failed transaction returns an error and does not write anything to the databas
 You do not need to roll back the transaction; Cloud Firestore does this automatically.
 
 ## Batched writes
-_Under development_
+If you do not need to read any documents in your operation set, you can execute multiple write operations 
+as a single batch that contains any combination of `create()`, `update()`, or `delete()` operations. 
+A batch of writes completes atomically and can write to multiple documents. 
+The following example shows how to build and commit a write batch:
+
+```python
+batch = fireo.batch()
+
+# Create the data for NYC
+city = City.collection.create(batch=batch, state='NYC', population=500000)
+
+# Update the population for SF
+city.population = 1000000
+city.update(batch=batch)
+
+# Delete LA
+City.collection.delete(key=city.key, batch=batch)
+
+# Commit the batch
+batch.commit()
+```
+
+Document can also `delete()` by `filter` operation
+
+```python
+City.collection.filter('state', '==', 'CA').batch(batch).delete()
+```
+
+A batched write can contain up to 500 operations. Each operation in the batch counts separately 
+towards your Cloud Firestore usage. Within a write operation, field transforms like `serverTimestamp`, 
+`ListUnion`, and `increment` each count as an additional operation.
+
+Like transactions, batched writes are atomic. Unlike transactions, batched writes do not need to ensure 
+that read documents remain un-modified which leads to fewer failure cases.
