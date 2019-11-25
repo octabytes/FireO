@@ -1,3 +1,5 @@
+from google.cloud.firestore_v1 import ArrayUnion, ArrayRemove
+
 from fireo.fields import Field, errors
 
 
@@ -15,7 +17,7 @@ class ListField(Field):
 
     # Override method
     def db_value(self, val):
-        if type(val) is list or val is None:
+        if type(val) in [list, ArrayUnion, ArrayRemove] or val is None:
             # check if user defined to set the value as lower case
             if self.model_cls._meta.to_lowercase:
                 return [v.lower() if type(v) is str else v for v in val]
