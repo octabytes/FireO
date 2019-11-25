@@ -20,6 +20,9 @@ class ModelWrapper:
         else:
             return None
 
+        # save the firestore reference doc so that further actions can be performed (i.e. collections())
+        model._meta.set_reference_doc(doc.reference)
+
         # instance values is changed according to firestore
         # so mark it modified this will help later for figuring
         # out the updated fields when need to update this document

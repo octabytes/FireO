@@ -87,6 +87,9 @@ class Manager:
     limit(count):
         Set limit for query
 
+    list_collections():
+        Returns a list of all collections
+
     offset(num_to_skip)
         Set offset for query
 
@@ -234,6 +237,10 @@ class Manager:
     def limit(self, count):
         """Limit the document"""
         return self.queryset.filter(self._parent_key).limit(count)
+
+    def list_collections(self):
+        """Returns a list of all collections"""
+        return [ c.id for c in db.conn.collections() ]
 
     def offset(self, num_to_skip):
         """Set offset for query"""
