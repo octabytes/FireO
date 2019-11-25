@@ -267,7 +267,7 @@ class Model(metaclass=ModelMeta):
         else:
             self._key = p
 
-    def save(self, transaction=None):
+    def save(self, transaction=None, batch=None):
         """Save Model in firestore collection
 
         Model classes can saved in firestore using this method
@@ -298,9 +298,9 @@ class Model(metaclass=ModelMeta):
         """
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection.create(self, transaction, **self._get_fields())
+        return self.__class__.collection.create(self, transaction, batch, **self._get_fields())
 
-    def update(self, key=None, transaction=None):
+    def update(self, key=None, transaction=None, batch=None):
         """Update the existing document
 
         Update document without overriding it. You can update selected fields.
@@ -331,6 +331,9 @@ class Model(metaclass=ModelMeta):
 
         transaction:
             Firestore transaction
+
+        batch:
+            Firestore batch writes
         """
 
         # Check doc key is given or not
@@ -338,7 +341,7 @@ class Model(metaclass=ModelMeta):
             self._update_doc = key
 
         # make sure update doc in not None
-        if self._update_doc:
+        if self._update_doc is not None and '@temp_doc_id' not in self._update_doc:
             # set parent doc from this updated document key
             self.parent = utils.get_parent_doc(self._update_doc)
             # Get id from key and set it for model
@@ -346,7 +349,7 @@ class Model(metaclass=ModelMeta):
             # Add the temp id field if user is not specified any
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', fields.IDField()))
-        else:
+        elif self._update_doc is None and '@temp_doc_id' in self.key:
             raise InvalidKey(f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
@@ -372,7 +375,7 @@ class Model(metaclass=ModelMeta):
                         updated_fields[k+"."+name] = value
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection._update(self, transaction=transaction, **updated_fields)
+        return self.__class__.collection._update(self, transaction=transaction, batch=batch, **updated_fields)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""

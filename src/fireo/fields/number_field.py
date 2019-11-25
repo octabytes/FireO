@@ -1,3 +1,5 @@
+from google.cloud.firestore_v1 import Increment
+
 from fireo.fields import errors
 from fireo.fields.base_field import Field
 
@@ -33,7 +35,7 @@ class NumberField(Field):
 
     # override method
     def db_value(self, val):
-        if type(val) is int or type(val) is float or val is None:
+        if type(val) in [int, float, Increment] or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {int} or {float}, '
                                       f'got {type(val)}')

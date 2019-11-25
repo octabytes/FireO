@@ -27,12 +27,18 @@ class FilterQuery(BaseQuery):
     oderer_by: list
         Order the documents
 
-    transaction:
+    query_transaction:
         Firestore transaction
+
+    query_batch:
+        Firestore batch writes
 
     Methods
     -------
-    transaction():
+    transaction(transaction):
+        Set Firestore transaction
+
+    batch(batch):
         Set Firestore transaction
 
     parse_where():
@@ -98,6 +104,7 @@ class FilterQuery(BaseQuery):
         self._end_before = None
         self._end_at = None
         self.query_transaction = None
+        self.query_batch = None
         if parent:
             super().set_collection_path(path=parent)
             # Add parent in cursor
@@ -105,6 +112,10 @@ class FilterQuery(BaseQuery):
 
     def transaction(self, t):
         self.query_transaction = t
+        return self
+
+    def batch(self, b):
+        self.query_batch = b
         return self
 
     def parse_where(self):
@@ -333,8 +344,9 @@ class FilterQuery(BaseQuery):
 
     def delete(self):
         """Delete the filter documents"""
+        transaction_or_batch = self.query_transaction if self.query_transaction else self.query_batch
         q = self.query()
-        DeleteQuery(self.model, query=q).exec()
+        DeleteQuery(self.model, query=q).exec(transaction_or_batch)
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model
