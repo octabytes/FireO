@@ -78,8 +78,11 @@ class Manager:
     group_fetch(limit) : generator
         Use a collection group query to retrieve documents from a collection group
 
-    transaction:
+    transaction():
         Firestore transaction
+
+    batch():
+        Firestore batch writes
 
     limit(count):
         Set limit for query
@@ -136,7 +139,7 @@ class Manager:
         """provide operations related to firestore"""
         return queries.QuerySet(self.model_cls)
 
-    def create(self, mutable_instance=None, transaction=None, **kwargs,):
+    def create(self, mutable_instance=None, transaction=None, batch=None, **kwargs,):
         """create new document in firestore collection
 
         Parameters
@@ -147,6 +150,9 @@ class Manager:
 
         transaction:
             Firestore transaction
+
+        batch:
+            Firestore batch
         """
         field_list = {}
         # if mutable instance is none this mean user is creating document directly from manager
@@ -174,9 +180,9 @@ class Manager:
         else:
             field_list = kwargs
 
-        return self.queryset.create(mutable_instance, transaction, **field_list)
+        return self.queryset.create(mutable_instance, transaction, batch, **field_list)
 
-    def _update(self, mutable_instance=None, transaction=None, **kwargs):
+    def _update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
@@ -187,8 +193,11 @@ class Manager:
 
         transaction:
             Firestore transaction
+
+        batch:
+            Firestore batch
         """
-        return self.queryset.update(mutable_instance, transaction, **kwargs)
+        return self.queryset.update(mutable_instance, transaction, batch, **kwargs)
 
     def get(self, key, transaction=None):
         """Get document from firestore"""
@@ -218,6 +227,10 @@ class Manager:
         """Firestore transaction"""
         return self.queryset.filter(self._parent_key).transaction(t)
 
+    def batch(self, b):
+        """Firestore batch"""
+        return self.queryset.filter(self._parent_key).batch(b)
+
     def limit(self, count):
         """Limit the document"""
         return self.queryset.filter(self._parent_key).limit(count)
@@ -230,10 +243,10 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter(self._parent_key).order(field_name)
 
-    def delete(self, key=None, transaction=None):
+    def delete(self, key=None, transaction=None, batch=None):
         """Delete document from firestore"""
         if key:
-            self.queryset.delete(key, transaction)
+            self.queryset.delete(key, transaction, batch)
         else:
             self.queryset.filter(self._parent_key).delete()
 

@@ -15,10 +15,10 @@ class UpdateQuery(BaseQuery):
     _parse_field():
         Get and return `db_value` from model `_meta`
 
-    _raw_exec():
+    _raw_exec(transaction_or_batch):
         Update document in firestore and return the document
 
-    exec():
+    exec(transaction_or_batch):
         return modified instance of model
     """
     def __init__(self, model_cls, mutable_instance=None, **kwargs):
@@ -73,17 +73,17 @@ class UpdateQuery(BaseQuery):
                 )
         fl[f.db_column_name] = nested_field_list
 
-    def _raw_exec(self, transaction=None):
+    def _raw_exec(self, transaction_or_batch=None):
         """Update document in firestore and return the document"""
         ref = self._doc_ref()
-        if transaction:
-            transaction.update(ref, self._parse_field())
+        if transaction_or_batch:
+            transaction_or_batch.update(ref, self._parse_field())
             return None
         ref.update(self._parse_field())
         return ref.get()
 
-    def exec(self, transaction=None):
+    def exec(self, transaction_or_batch=None):
         """return modified instance of model"""
-        if transaction:
-            return self._raw_exec(transaction)
+        if transaction_or_batch:
+            return self._raw_exec(transaction_or_batch)
         return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())

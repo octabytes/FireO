@@ -24,13 +24,13 @@ class DeleteQuery(BaseQuery):
     _delete_collection():
         private method for executing operation in firestore for deleting documents
 
-    exec(transaction):
+    exec(transaction_or_batch):
         execute the delete operation
     """
 
     def __init__(self, model_cls, key=None, query=None):
         super().__init__(model_cls)
-        self.transaction = None
+        self.transaction_or_batch = None
         self.query = query
         self.id = utils.get_id(key)
         if key:
@@ -38,8 +38,8 @@ class DeleteQuery(BaseQuery):
 
     def _delete_document(self):
         ref = self.get_ref().document(self.id)
-        if self.transaction:
-            self.transaction.delete(ref)
+        if self.transaction_or_batch:
+            self.transaction_or_batch.delete(ref)
         else:
             ref.delete()
         return self.id
@@ -50,8 +50,8 @@ class DeleteQuery(BaseQuery):
 
         for doc in docs:
             ref = doc.reference
-            if self.transaction:
-                self.transaction.delete(ref)
+            if self.transaction_or_batch:
+                self.transaction_or_batch.delete(ref)
             else:
                 ref.delete()
             deleted = deleted + 1
@@ -59,8 +59,8 @@ class DeleteQuery(BaseQuery):
         if deleted >= batch_size:
             return self._delete_collection(batch_size)
 
-    def exec(self, transaction=None):
-        self.transaction = transaction
+    def exec(self, transaction_or_batch=None):
+        self.transaction_or_batch = transaction_or_batch
         if self.id:
             self._delete_document()
         else:
