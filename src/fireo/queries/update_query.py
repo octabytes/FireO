@@ -29,7 +29,7 @@ class UpdateQuery(BaseQuery):
 
     def _doc_ref(self):
         """create document ref from firestore"""
-        return self.get_ref().document(self.model._id)
+        return self.get_ref().document(utils.get_id(self.model.key))
 
     def _parse_field(self):
         """Get and return `db_value` from model `_meta`

@@ -1,5 +1,6 @@
 from fireo.utils.utils import GeoPoint
 from fireo.database import connection, db
+from fireo.transaction import Transaction
 
 
 def transaction(**kwargs):
@@ -11,5 +12,4 @@ def batch():
 
 
 def transactional(to_wrap):
-    from fireo.transaction import Transaction
     return Transaction(to_wrap)

@@ -341,7 +341,7 @@ class Model(metaclass=ModelMeta):
             self._update_doc = key
 
         # make sure update doc in not None
-        if self._update_doc:
+        if self._update_doc is not None and '@temp_doc_id' not in self._update_doc:
             # set parent doc from this updated document key
             self.parent = utils.get_parent_doc(self._update_doc)
             # Get id from key and set it for model
@@ -349,7 +349,7 @@ class Model(metaclass=ModelMeta):
             # Add the temp id field if user is not specified any
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', fields.IDField()))
-        else:
+        elif self._update_doc is None and '@temp_doc_id' in self.key:
             raise InvalidKey(f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
