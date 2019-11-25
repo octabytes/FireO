@@ -20,4 +20,4 @@ aux_links:
     - "//github.com/octabytes/FireO/tree/gh-pages"
 
 # Footer content appears at the bottom of every page's main content
-footer_content: "Copyright &copy; 2019 All rights reserved. Powered by <a href=\"https://octabyte.io\">OctaByte</a>"
+footer_content: "Copyright &copy; 2019 <a href=\"https://github.com/octabytes/FireO\">FireO</a> All rights reserved. Powered by <a href=\"https://octabyte.io\">OctaByte</a>"
