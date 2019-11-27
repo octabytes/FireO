@@ -25,6 +25,9 @@ class Database:
     connect():
         create a connection with firestore
 
+    list_collections():
+        Returns a list of all collections
+
     Raises
     ------
     DBConnectionError:
@@ -50,4 +53,8 @@ class Database:
         if self._conn is None:
             self._conn = firestore.Client()
         return self._conn
+
+    def list_collections(self):
+        """Returns a list of all collections"""
+        return [ c.id for c in self.conn.collections() ]
 
