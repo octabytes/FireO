@@ -1,8 +1,7 @@
 from google.cloud import firestore
 
 from fireo.utils.utils import GeoPoint
-from fireo.database import connection, list_collections
-from fireo.database import connection, db
+from fireo.database import connection, db, list_collections
 from fireo.transaction import Transaction
 
 
