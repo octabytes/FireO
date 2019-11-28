@@ -1,7 +1,7 @@
 from google.cloud import firestore
 
 from fireo.utils.utils import GeoPoint
-from fireo.database import connection, db, list_collections
+from fireo.database import connection, db
 from fireo.transaction import Transaction
 
 
@@ -27,3 +27,7 @@ def ListRemove(values):
 
 def Increment(value):
     return firestore.Increment(value)
+
+def list_collections():
+    """Returns a list of all collections"""
+    return [ c.id for c in db.conn.collections() ]
