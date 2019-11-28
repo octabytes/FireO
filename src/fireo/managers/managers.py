@@ -99,6 +99,9 @@ class Manager:
     delete(key)
         Delete document from firestore, key is optional
 
+    delete_all(key_list, batch=None)
+        Delete all documents according to given keys
+
     cursor(c):
         Start query from specific point
 
@@ -257,6 +260,11 @@ class Manager:
             self.queryset.delete(key, transaction, batch)
         else:
             self.queryset.filter(self._parent_key).delete()
+
+    def delete_all(self, key_list, batch=None):
+        """Delete all documents according to given keys"""
+        for key in key_list:
+            self.queryset.delete(key, batch=batch)
 
     def cursor(self, cursor):
         """Start query from specific point
