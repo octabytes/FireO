@@ -66,6 +66,9 @@ class Manager:
     get(key): Model instance
         Get document from firestore
 
+    get_all(key_list): Model instance
+        Get All documents according to key list
+
     parent(key):
         Parent key if any
 
@@ -202,6 +205,11 @@ class Manager:
     def get(self, key, transaction=None):
         """Get document from firestore"""
         return self.queryset.get(key, transaction)
+
+    def get_all(self, key_list):
+        """Get All documents according to key list"""
+        for key in key_list:
+            yield self.queryset.get(key)
 
     def parent(self, key):
         """Parent collection"""
