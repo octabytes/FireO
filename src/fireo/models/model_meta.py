@@ -143,6 +143,7 @@ class ModelMeta(type):
                 self.abstract = False
                 self.missing_field = 'merge'
                 self.to_lowercase = False
+                self._referenceDoc = None
 
             # Attached manager to model class
             # later on manager can be accessible via class `collection` attribute
@@ -243,6 +244,10 @@ class ModelMeta(type):
                     return None
                 if self.missing_field == 'raise_error':
                     raise FieldNotFound(f'Field "{name}" not found in model "{cls.__name__}"')
+
+            def set_reference_doc(self, referenceDoc):
+                """save the firestore reference doc for further processing"""
+                self._referenceDoc = referenceDoc
 
             def set_user_defined_meta(self, user_meta):
                 """Set user defined meta attributes for model

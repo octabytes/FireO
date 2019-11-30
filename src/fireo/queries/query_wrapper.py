@@ -1,6 +1,7 @@
 from fireo.fields import ReferenceField, NestedModel
 from fireo.queries import errors
 from fireo.utils import utils
+from google.cloud import firestore
 
 
 class ModelWrapper:
@@ -50,6 +51,8 @@ class ModelWrapper:
         # If it is not nested model then set the id for this model
         if not nested_doc:
             setattr(model, '_id', doc.id)
+            # save the firestore reference doc so that further actions can be performed (i.e. collections())
+            model._meta.set_reference_doc(doc.reference)
         return model
 
 

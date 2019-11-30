@@ -50,4 +50,3 @@ class Database:
         if self._conn is None:
             self._conn = firestore.Client()
         return self._conn
-
