@@ -112,7 +112,7 @@ class QuerySet:
         """
         return FilterQuery(self.model_cls, parent, *args, **kwargs)
 
-    def delete(self, key, transaction=None, batch=None):
+    def delete(self, key, transaction=None, batch=None, child=False):
         """Delete document from firestore
 
         Parameters
@@ -127,4 +127,4 @@ class QuerySet:
             Firestore batch writes
         """
         transaction_or_batch = transaction if transaction else batch
-        DeleteQuery(self.model_cls, key).exec(transaction_or_batch)
+        DeleteQuery(self.model_cls, key, child=child).exec(transaction_or_batch)

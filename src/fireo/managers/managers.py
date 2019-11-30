@@ -96,10 +96,10 @@ class Manager:
     order(field_name):
         Order document by field_name
 
-    delete(key)
+    delete(key, child=False)
         Delete document from firestore, key is optional
 
-    delete_all(key_list, batch=None)
+    delete_all(key_list, batch=None, child=False)
         Delete all documents according to given keys
 
     cursor(c):
@@ -254,17 +254,20 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter(self._parent_key).order(field_name)
 
-    def delete(self, key=None, transaction=None, batch=None):
-        """Delete document from firestore"""
-        if key:
-            self.queryset.delete(key, transaction, batch)
-        else:
-            self.queryset.filter(self._parent_key).delete()
+    def delete(self, key=None, transaction=None, batch=None, child=False):
+        """Delete document from firestore
 
-    def delete_all(self, key_list, batch=None):
+        if child is True then delete child collection and documents also
+        """
+        if key:
+            self.queryset.delete(key, transaction, batch, child=child)
+        else:
+            self.queryset.filter(self._parent_key).delete(child=child)
+
+    def delete_all(self, key_list, batch=None, child=False):
         """Delete all documents according to given keys"""
         for key in key_list:
-            self.queryset.delete(key, batch=batch)
+            self.queryset.delete(key, batch=batch, child=child)
 
     def cursor(self, cursor):
         """Start query from specific point

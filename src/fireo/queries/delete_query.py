@@ -1,5 +1,6 @@
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
+from fireo.database import db
 
 
 class DeleteQuery(BaseQuery):
@@ -28,8 +29,9 @@ class DeleteQuery(BaseQuery):
         execute the delete operation
     """
 
-    def __init__(self, model_cls, key=None, query=None):
+    def __init__(self, model_cls, key=None, query=None, child=False):
         super().__init__(model_cls)
+        self.child = child
         self.transaction_or_batch = None
         self.query = query
         self.id = utils.get_id(key)
@@ -38,6 +40,11 @@ class DeleteQuery(BaseQuery):
 
     def _delete_document(self):
         ref = self.get_ref().document(self.id)
+
+        if self.child:
+            for c in ref.collections():
+                DeleteQuery(self.model_cls, query=c, child=True).exec(self.transaction_or_batch)
+
         if self.transaction_or_batch:
             self.transaction_or_batch.delete(ref)
         else:
@@ -50,6 +57,11 @@ class DeleteQuery(BaseQuery):
 
         for doc in docs:
             ref = doc.reference
+
+            if self.child:
+                for c in ref.collections():
+                    DeleteQuery(self.model_cls, query=c, child=True).exec(self.transaction_or_batch)
+
             if self.transaction_or_batch:
                 self.transaction_or_batch.delete(ref)
             else:

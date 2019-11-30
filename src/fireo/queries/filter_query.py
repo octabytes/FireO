@@ -361,11 +361,14 @@ class FilterQuery(BaseQuery):
             return m
         return None
 
-    def delete(self):
-        """Delete the filter documents"""
+    def delete(self, child=False):
+        """Delete the filter documents
+
+        if child is True then delete nested collection and documents also
+        """
         transaction_or_batch = self.query_transaction if self.query_transaction else self.query_batch
         q = self.query()
-        DeleteQuery(self.model, query=q).exec(transaction_or_batch)
+        DeleteQuery(self.model, query=q, child=child).exec(transaction_or_batch)
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model
