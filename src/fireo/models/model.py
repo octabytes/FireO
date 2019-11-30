@@ -267,6 +267,11 @@ class Model(metaclass=ModelMeta):
         else:
             self._key = p
 
+    def list_subcollections(self):
+        """return a list of any subcollections of the doc"""
+        if self._meta._referenceDoc is not None:
+            return [ c.id for c in self._meta._referenceDoc.collections() ]
+
     def save(self, transaction=None, batch=None):
         """Save Model in firestore collection
 
