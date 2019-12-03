@@ -267,6 +267,24 @@ class Model(metaclass=ModelMeta):
         else:
             self._key = p
 
+    def get_firestore_create_time(self):
+        """returns create time of document in Firestore
+
+        Returns:
+            :class:`google.api_core.datetime_helpers.DatetimeWithNanoseconds`,
+            :class:`datetime.datetime` or ``NoneType``:
+        """
+        return self._meta._firestore_create_time
+
+    def get_firestore_update_time(self):
+        """returns update time of document in Firestore
+
+        Returns:
+            :class:`google.api_core.datetime_helpers.DatetimeWithNanoseconds`,
+            :class:`datetime.datetime` or ``NoneType``:
+        """
+        return self._meta._firestore_update_time
+
     def list_subcollections(self):
         """return a list of any subcollections of the doc"""
         if self._meta._referenceDoc is not None:
