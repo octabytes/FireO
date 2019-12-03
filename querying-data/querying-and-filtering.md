@@ -71,6 +71,27 @@ The following query returns all the capital cities
 cities = City.collection.filter('capital', '==', True).fetch()
 ```
 
+For equality(`==`) operator you can direct assign value and this will work.  
+For example:
+```python
+City.collection.filter(state='CA') # Equal to 'state', '==', 'CA'
+``` 
+
+Multiple equality operator can also apply in same single `filter`
+
+```python
+City.collection.filter(state='CA', capital=True)
+```
+
+Direct assignment is only work with equality(`==`) operator for others user regular `filter`  
+For example:
+
+Get cities with state  `CA` and `population` is greater than `1000000`
+
+```python
+City.collection.filter(state='CA').filter('population', '>', 1000000)
+```
+
 ## Get First result
 After creating a query object, use the `get()` function to retrieve the first matching result.
 `fetch()` return `generator` for retrieve all mating result.
@@ -83,7 +104,7 @@ city = City.collection.filter('state', '==', 'CA').get()
 
 ## Query operators
 The `filter()` method takes three parameters: a field to filter on, a comparison operation, and a value. 
-The comparison can be `<`, `<=`, `==`, `>`, `>=`, or `array-contains`.
+The comparison can be `<`, `<=`, `==`, `>`, `>=`, `array-contains`, `in` and `array-contains-any`.
 
 Some example filters:
 ```python
@@ -100,6 +121,59 @@ query = City.collection.filter('regions', 'array_contains', 'west_coast')
 
 This query returns every **city** document where the **regions** field is an array that contains **west_coast**. 
 If the array has multiple instances of the value you query on, the document is included in the results only once.
+
+## in and array-contains-any
+Use the `in` operator to combine up to 10 equality (`==`) clauses on the same field with a logical `OR`. 
+An `in` query returns documents where the given field matches any of the comparison values. For example:
+
+```python
+query = City.filter('country', 'in', ['USA', 'Japan'])
+```
+
+This query returns every `city` document where the `country` field is set to `USA` or `Japan`. 
+From the example data, this includes the `SF`, `LA`, `DC`, and `TOK` documents.
+
+Similarly, use the `array-contains-any` operator to combine up to 10 `array-contains` clauses on the same field 
+with a logical `OR`. An `array-contains-any` query returns documents where the given field is an array that contains 
+one or more of the comparison values:
+
+```python
+query = City.filter(
+    'regions', 'array_contains_any', ['west_coast', 'east_coast']
+)
+```
+
+This query returns every city document where the `region` field is an array that contains `west_coast` or `east_coast`. 
+From the example data, this includes the `SF`, `LA`, and `DC` documents.
+
+Results from `array-contains-any` are de-duped. Even if a document's array field matches more than one of the 
+comparison values, the result set includes that document only once.
+
+`array-contains-any` always filters by the array data type. For example, the query above would not return a 
+city document where instead of an array, the `region` field is the string `west_coast`.
+
+You can use an array value as a comparison value for `in`, but unlike `array_contains_any`, 
+the clause matches for an exact match of array length, order, and values. For example:
+
+```python
+query = City.filter(
+    'regions', 'in', [['west_coast'], ['east_coast']]
+)
+```
+
+This query returns every city document where the `region` field is an array that contains 
+exactly one element of either `west_coast` or `east_coast`. From the example data, only the `DC` 
+document qualifies with its `region` field of `["east_coast"]`. The `SF` document, however, does 
+not match because its `region` field is `["west_coast", "norcal"]`.
+
+### Limitations
+{: .no_toc }
+Note the following limitations for `in` and `array-contains-any`:
+
+- `in` and `array-contains-any` support up to 10 comparison values.
+- You can use only one `in` or `array-contains-any` clause per query. You can't use both `in` and `array-contains-any` 
+in the same query.
+- You can combine `array-contains` with `in` but not with `array-contains-any`.
 
 ## Compound queries
 You can also chain multiple `filter()` methods to create more specific queries (logical `AND`). 
@@ -311,9 +385,10 @@ for museum in museums:
 Cloud Firestore does not support the following types of queries:
 
 - Queries with range filters on different fields, as described in the previous section.
-- Logical `OR` queries. In this case, you should create a separate query for each `OR` condition 
-and merge the query results in your app.
 - Queries with a `!=` clause. In this case, you should split the query into a greater-than query 
 and a less-than query. For example, although the query clause `filter("age", "!=", "30")` is not supported, 
 you can get the same result set by combining two queries, one with the clause `filter("age", "<", "30")` and 
 one with the clause `filter("age", ">", 30)`.
+- Cloud Firestore provides limited support for logical `OR` queries. The `in` and `array-contains-any` operators 
+support a logical `OR` of up to 10 equality (`==`) or `array-contains` conditions on a single field. For other cases, 
+create a separate query for each `OR` condition and merge the query results in your app.

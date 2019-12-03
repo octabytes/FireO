@@ -19,7 +19,7 @@ nav_order: 1
 Read documents from Google's Firestore
 
 ## Single Document
-Read singel document from collection
+Read single document from collection
 
 ### Example Usage
 {: .no_toc }
@@ -29,6 +29,13 @@ u = User.collection.get(user_key)
 
 print(u.name)
 print(u.key)
+```
+
+## Multiple documents
+Read multiple documents by providing **key list**
+
+```python
+User.collection.get_all(key_list)
 ```
 
 ## All Documents
@@ -57,4 +64,19 @@ users = User.collection.parent(parent_key).fetch()
 
 for user in users:
     print(user.id, user.name)
+```
+
+## Get Rote collections
+FireO allow you to get all root collections
+
+```python
+fireo.list_collections()
+```
+
+## Get Sub collections
+You can get `subcollection` of any `document`
+
+```python
+post = Post.collection.get(post_key)
+post.list_subcollections()
 ```
