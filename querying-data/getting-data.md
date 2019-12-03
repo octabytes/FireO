@@ -66,7 +66,7 @@ for user in users:
     print(user.id, user.name)
 ```
 
-## Get Rote collections
+## Get Root collections
 FireO allow you to get all root collections
 
 ```python
