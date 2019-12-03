@@ -97,7 +97,7 @@ class QuerySet:
         """
         return GetQuery(self.model_cls, key).exec(transaction)
 
-    def filter(self, parent=None, *args):
+    def filter(self, parent=None, *args, **kwargs):
         """Filter document from firestore
 
         Parameters
@@ -106,10 +106,13 @@ class QuerySet:
             Parent collection if any
         args:
             Where clauses document filter on the base of this
-        """
-        return FilterQuery(self.model_cls, parent, *args)
 
-    def delete(self, key, transaction=None, batch=None):
+        kwargs:
+            keyword args Direct assign for equal filter
+        """
+        return FilterQuery(self.model_cls, parent, *args, **kwargs)
+
+    def delete(self, key, transaction=None, batch=None, child=False):
         """Delete document from firestore
 
         Parameters
@@ -124,4 +127,4 @@ class QuerySet:
             Firestore batch writes
         """
         transaction_or_batch = transaction if transaction else batch
-        DeleteQuery(self.model_cls, key).exec(transaction_or_batch)
+        DeleteQuery(self.model_cls, key, child=child).exec(transaction_or_batch)

@@ -49,6 +49,7 @@ class CreateQuery(BaseQuery):
             parent = kwargs.get('parent')
             if parent:
                 self.model.parent = parent
+                super().set_collection_path(path=parent)
         # Attach key to this model for updating this model
         # Purpose of attaching this key is user can update
         # this model after getting it
@@ -63,8 +64,8 @@ class CreateQuery(BaseQuery):
         # This is important to reset so we can
         # find next time which fields are changed
         # when we are going to update it
-        self.model.field_list = []
-        self.model.field_changed = []
+        self.model._field_list = []
+        self.model._field_changed = []
 
     def _doc_ref(self):
         """create document ref from firestore"""

@@ -90,10 +90,10 @@ class FilterQuery(BaseQuery):
         Attach key to model for later updating the model
     """
 
-    def __init__(self, model_cls, parent=None, *args):
+    def __init__(self, model_cls, parent=None, *args, **kwargs):
         super().__init__(model_cls)
         self.model = model_cls()
-        self.select_query = [args] if args else []
+        self.select_query = self._where_filter(*args, **kwargs)
         self.n_limit = None
         self._offset = None
         self.order_by = []
@@ -109,6 +109,18 @@ class FilterQuery(BaseQuery):
             super().set_collection_path(path=parent)
             # Add parent in cursor
             self.cursor_dict['parent'] = parent
+
+    def _where_filter(self, *args, **kwargs):
+        """For Direct assign of filter when equality operator"""
+        if args:
+            return [args]
+        elif kwargs:
+            filter = []
+            for k, v in kwargs.items():
+                filter.append((k, '==', v))
+            return filter
+        else:
+            return []
 
     def transaction(self, t):
         self.query_transaction = t
@@ -240,7 +252,7 @@ class FilterQuery(BaseQuery):
             self._end_at = self._fields_by_column_name(**kwargs)
         return self
 
-    def filter(self, *args):
+    def filter(self, *args, **kwargs):
         """Apply filter for querying document
 
         Apply where filter as many as you want
@@ -250,12 +262,19 @@ class FilterQuery(BaseQuery):
         args: Tuple
             Contain three things 1- field name, 2-operation, 3-value
 
+        kwargs:
+            keyword args Direct assign for equal filter
+
         Returns
         -------
         self:
             Return self object
         """
-        self.select_query.append(args)
+        if args:
+            self.select_query.append(args)
+        elif kwargs:
+            for k, v in kwargs.items():
+                self.select_query.append((k, '==', v))
         return self
 
     def limit(self, count):
@@ -342,11 +361,14 @@ class FilterQuery(BaseQuery):
             return m
         return None
 
-    def delete(self):
-        """Delete the filter documents"""
+    def delete(self, child=False):
+        """Delete the filter documents
+
+        if child is True then delete nested collection and documents also
+        """
         transaction_or_batch = self.query_transaction if self.query_transaction else self.query_batch
         q = self.query()
-        DeleteQuery(self.model, query=q).exec(transaction_or_batch)
+        DeleteQuery(self.model, query=q, child=child).exec(transaction_or_batch)
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model

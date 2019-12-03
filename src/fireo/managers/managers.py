@@ -66,6 +66,9 @@ class Manager:
     get(key): Model instance
         Get document from firestore
 
+    get_all(key_list): Model instance
+        Get All documents according to key list
+
     parent(key):
         Parent key if any
 
@@ -93,8 +96,11 @@ class Manager:
     order(field_name):
         Order document by field_name
 
-    delete(key)
+    delete(key, child=False)
         Delete document from firestore, key is optional
+
+    delete_all(key_list, batch=None, child=False)
+        Delete all documents according to given keys
 
     cursor(c):
         Start query from specific point
@@ -203,14 +209,19 @@ class Manager:
         """Get document from firestore"""
         return self.queryset.get(key, transaction)
 
+    def get_all(self, key_list):
+        """Get All documents according to key list"""
+        for key in key_list:
+            yield self.queryset.get(key)
+
     def parent(self, key):
         """Parent collection"""
         self._parent_key = key
         return self
 
-    def filter(self, *args):
+    def filter(self, *args, **kwargs):
         """Get filter document from firestore"""
-        return self.queryset.filter(self._parent_key, *args)
+        return self.queryset.filter(self._parent_key, *args, **kwargs)
 
     def fetch(self, limit=None):
         """Fetch document from collection"""
@@ -243,12 +254,20 @@ class Manager:
         """Order the document by field name"""
         return self.queryset.filter(self._parent_key).order(field_name)
 
-    def delete(self, key=None, transaction=None, batch=None):
-        """Delete document from firestore"""
+    def delete(self, key=None, transaction=None, batch=None, child=False):
+        """Delete document from firestore
+
+        if child is True then delete child collection and documents also
+        """
         if key:
-            self.queryset.delete(key, transaction, batch)
+            self.queryset.delete(key, transaction, batch, child=child)
         else:
-            self.queryset.filter(self._parent_key).delete()
+            self.queryset.filter(self._parent_key).delete(child=child)
+
+    def delete_all(self, key_list, batch=None, child=False):
+        """Delete all documents according to given keys"""
+        for key in key_list:
+            self.queryset.delete(key, batch=batch, child=child)
 
     def cursor(self, cursor):
         """Start query from specific point
