@@ -20,7 +20,7 @@ This quickstart shows you how to set up Cloud Firestore, add, read, update and d
 
 ## Set up authentication
 
-To run the client library, you must first set up [authentication](/authentication)
+To run the client library, you must first set up [authentication](/FireO/authentication)
 
 ## Add data
 
