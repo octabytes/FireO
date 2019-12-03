@@ -51,8 +51,6 @@ for user in user_list:
     print(user.id, user.name)
 ```
 
-`fetch()` method return `generator`
-
 ## Sub Collection
 Get child documents from collection
 
