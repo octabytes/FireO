@@ -37,6 +37,7 @@ The following attributes supported by DateTime Field.
 4. [validator](#validator)
 5. [int_only](#int-only)
 6. [float_only](#float-only)
+7. [range](#range)
 
 - ### Default
 Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
@@ -80,4 +81,32 @@ class User(Model):
 
 u = User(salary=21.37)
 u.save()
+```
+
+- ### Range
+Allow number between the range. Syntax `range=(start, stop)`
+
+### Example Usage
+{: .no_toc }
+
+````python
+class User(Model):
+    salary = NumberField(range=(100, 20000))
+
+
+u = User(salary=1000)
+u.save()
+````
+
+If you want to allow only max value set the `start` as `None` in this
+case there is no minimum limit
+```python
+class User(Model):
+    salary = NumberField(range=(None, 20000))
+```
+
+To allow only minimum value set the `stop` as `None` or just put the `start` value only
+```python
+class User(Model):
+    salary = NumberField(range=(100, None))  # Equivalent to range=(100) 
 ```
