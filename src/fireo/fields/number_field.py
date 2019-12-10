@@ -9,7 +9,7 @@ class NumberField(Field):
 
     Define numbers for models integer, float etc
 
-    allowed_attributes = ['int_only', 'float_only']
+    allowed_attributes = ['int_only', 'float_only', range]
 
     Examples
     --------
@@ -17,7 +17,24 @@ class NumberField(Field):
             age = NumberField()
     """
 
-    allowed_attributes = ['int_only', 'float_only']
+    allowed_attributes = ['int_only', 'float_only', 'range']
+
+    def attr_range(self, attr_val, field_val):
+        """Method for attribute range"""
+        try:
+            start, stop = attr_val
+        except TypeError:
+            start = attr_val
+            stop = None
+
+        if start and field_val < start:
+            raise errors.NumberRangeError(f'Field "{self.name}" expect number must be grater or equal '
+                                          f'than {start}, given {field_val}')
+        if stop and field_val > stop:
+            raise errors.NumberRangeError(f'Field "{self.name}" expect number must be less than or equal '
+                                          f'to {stop}, given {field_val}')
+
+        return field_val
 
     def attr_int_only(self, attr_val, field_val):
         """Method for attribute int_only"""

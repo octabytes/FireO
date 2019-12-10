@@ -1,6 +1,10 @@
 """Field related errors"""
 
 
+class NumberRangeError(Exception):
+    pass
+
+
 class UnSupportedAttribute(Exception):
     pass
 
