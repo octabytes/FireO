@@ -1,5 +1,5 @@
 <p align="right">
-<a href="https://badge.fury.io/py/fireo"><img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version"></a>
+<a href="https://badge.fury.io/py/fireo"><a href="https://opencollective.com/FireO" alt="Financial Contributors on Open Collective"><img src="https://opencollective.com/FireO/all/badge.svg?label=financial+contributors" /></a> <img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version"></a>
 <a href="https://travis-ci.org/octabytes/FireO"><img src="https://travis-ci.org/octabytes/FireO.svg?branch=master" alt="Build Status"></a>
 </p>
 <p>
@@ -55,6 +55,36 @@ space for collaboration, and contributors are expected to adhere to the
 2. Checkout [Feature](https://github.com/octabytes/FireO/tree/feature) branch (latest working branch)
 3. Write tests for your functionality
 4. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you has done and how other can use it  
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/octabytes/FireO/graphs/contributors"><img src="https://opencollective.com/FireO/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/FireO/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/FireO"><img src="https://opencollective.com/FireO/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/FireO/contribute)]
+
+<a href="https://opencollective.com/FireO/organization/0/website"><img src="https://opencollective.com/FireO/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/1/website"><img src="https://opencollective.com/FireO/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/2/website"><img src="https://opencollective.com/FireO/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/3/website"><img src="https://opencollective.com/FireO/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/4/website"><img src="https://opencollective.com/FireO/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/5/website"><img src="https://opencollective.com/FireO/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/6/website"><img src="https://opencollective.com/FireO/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/7/website"><img src="https://opencollective.com/FireO/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/8/website"><img src="https://opencollective.com/FireO/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/FireO/organization/9/website"><img src="https://opencollective.com/FireO/organization/9/avatar.svg"></a>
 
 ## License
 
