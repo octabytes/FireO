@@ -138,7 +138,25 @@ class Model(metaclass=ModelMeta):
         # for direct assignment to nested model
         for f in self._meta.field_list.values():
             if isinstance(f, fields.NestedModel):
-                setattr(self, f.name, f.nested_model())
+                if f.name in kwargs:
+                    setattr(self, f.name, f.nested_model.from_dict(kwargs[f.name]))
+                else:
+                    setattr(self, f.name, f.nested_model())
+
+    @classmethod
+    def from_dict(cls, model_dict):
+        """Instantiate model from dict"""
+        return cls(**model_dict)
+
+    def to_dict(self):
+        """Convert model into dict"""
+        model_dict = self._get_fields()
+        id = 'id'
+        if self._meta.id is not None:
+            id, _ = self._meta.id
+        model_dict[id] = utils.get_id(self.key)
+        model_dict['key'] = self.key
+        return model_dict
 
     # Get all the fields values from meta
     # which are attached with this mode
