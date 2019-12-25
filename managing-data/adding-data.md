@@ -62,6 +62,20 @@ print(u.key)  # user/xaIkLAGEjkSON
 from `key` using [utils class](/utils).and useful when getting, updating or delete data. 
 `key` also used for creating sub collections.
 
+### Using From Dict
+Model can also create from `dict`
+
+#### Example Usage
+{: .no_toc }
+```python
+model_dict = {'name': 'Azeem', 'age': 26}
+u = User.from_dict(model_dict)
+u.save()
+
+print(u.id)  # xaIkLAGEjkSON
+print(u.key)  # user/xaIkLAGEjkSON
+```
+
 ### Custom id
 Custom id can also be specified by using [IDField](/fields/id-field)
 

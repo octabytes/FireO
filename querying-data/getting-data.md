@@ -31,6 +31,13 @@ print(u.name)
 print(u.key)
 ```
 
+Convert model into `dict`
+
+```python
+u = User.collection.get(user_key)
+print(u.to_dict())
+```
+
 ## Multiple documents
 Read multiple documents by providing **key list**
 
