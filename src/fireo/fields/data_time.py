@@ -3,6 +3,7 @@ from datetime import datetime
 from fireo.fields import Field, errors
 from google.cloud import firestore
 from google.cloud.firestore_v1.transforms import Sentinel
+from google.api_core.datetime_helpers import DatetimeWithNanoseconds
 
 
 class DateTime(Field):
@@ -29,7 +30,12 @@ class DateTime(Field):
 
     # Override method
     def db_value(self, val):
-        if type(val) is datetime or type(val) is Sentinel or val is None:
+        if any([
+            isinstance(val, DatetimeWithNanoseconds),
+            isinstance(val, datetime),
+            isinstance(val, Sentinel),
+            isinstance(val, type(None)),
+        ]):
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {datetime}, '
                                       f'got {type(val)}')
