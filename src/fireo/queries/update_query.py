@@ -55,7 +55,7 @@ class UpdateQuery(BaseQuery):
                 self._nested_field_list(f, field_dict, f.name)
             else:
                 v = f.get_value(self.query.get(f.name), ignore_required=True)
-                if v:
+                if v or type(v) is bool:
                     field_dict[f.db_column_name] = v
         return field_dict
 
