@@ -34,8 +34,9 @@ The following attributes supported by DateTime Field.
 1. [default](#default)
 2. [required](#required)
 3. [column_name](#column-name)
-4. [validator](#validator)
-5. [max_length](#max-length)
+5. [Lowercase](#lower-case)
+6. [validator](#validator)
+7. [max_length](#max-length)
 
 
 - ### Default
@@ -46,6 +47,9 @@ Set `True` if value is required for the field. This is base attribute that is av
 
 - ### Column Name
 Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/fields/field/#column-name)
+
+- ### Lower case
+Firestore is case sensitive FirO allow to save data in lower case and search data without case sensitive. [Read More](/fields/field/#to-lowercase)
 
 - ### Validator
 Validate given value of field. This is base attribute that is available in all fields [Read More](/fields/field/#validator)
