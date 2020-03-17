@@ -6,13 +6,15 @@ nav_order: 7
 ---
 
 # DateTime Field
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
@@ -38,24 +40,28 @@ The following attributes supported by DateTime Field.
 5. [auto](#auto)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
+
+  Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/fields/field/#required)
+
+  Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/fields/field/#column-name)
+
+  Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](/fields/field/#validator)
+
+  Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
 
 - ### Auto
 
 Set the auto date if no value is provided
 
 ### Example Usage
-{: .no_toc }
 
+{: .no_toc }
 
 ```python
 class User(Model):
@@ -65,4 +71,4 @@ class User(Model):
 u = User()
 u.save()
 print(u.created)
-```    
+```

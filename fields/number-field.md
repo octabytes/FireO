@@ -6,13 +6,15 @@ nav_order: 3
 ---
 
 # Number Field
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
@@ -40,22 +42,27 @@ The following attributes supported by DateTime Field.
 7. [range](#range)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
+
+  Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/fields/field/#required)
+
+  Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/fields/field/#column-name)
+
+  Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](/fields/field/#validator)
+
+  Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
 
 - ### Int Only
 
 Allow only integer numbers. Other than integer number it will raise error
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -72,6 +79,7 @@ u.save()
 Allow only float numbers. Other than float number it will raise error
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -84,29 +92,32 @@ u.save()
 ```
 
 - ### Range
-Allow number between the range. Syntax `range=(start, stop)`
+  Allow number between the range. Syntax `range=(start, stop)`
 
 ### Example Usage
+
 {: .no_toc }
 
-````python
+```python
 class User(Model):
     salary = NumberField(range=(100, 20000))
 
 
 u = User(salary=1000)
 u.save()
-````
+```
 
 If you want to allow only max value set the `start` as `None` in this
 case there is no minimum limit
+
 ```python
 class User(Model):
     salary = NumberField(range=(None, 20000))
 ```
 
 To allow only minimum value set the `stop` as `None` or just put the `start` value only
+
 ```python
 class User(Model):
-    salary = NumberField(range=(100, None))  # Equivalent to range=(100) 
+    salary = NumberField(range=(100, None))  # Equivalent to range=(100)
 ```

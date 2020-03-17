@@ -6,22 +6,26 @@ nav_order: 12
 ---
 
 # Custom Field
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
 Create your own custom fields, extend the class from base `Field` or you can extend any existing field also.
 
 ## Simple
+
 You can create simplest field just by extending base `Field`
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -37,9 +41,11 @@ u.save()
 ```
 
 ## Extend DB value
+
 Control how the value of field will be save in Firestore. Override method `db_value()` to change the value.
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -57,9 +63,11 @@ print(u.day)  # Mon
 ```
 
 ## Extend Field Value
+
 Control how value represent when coming for Firestore. Override method `field_value()` to control this behaviour.
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -84,16 +92,17 @@ print(user.day)  # 0
 ```
 
 ## Create attributes
-[Default](/fields/field/#default), [Required](/fields/field/#required) and [Column Name](/fields/field/#column-name) 
+
+[Default](fields/field/#default), [Required](fields/field/#required) and [Column Name](fields/field/#column-name)
 attributes are allowed in every field. But you can create more attributes for your field.
 
 ### Method to create field attributes
-Add filed attribute in the `aloowed_attributes` list and then create method for each attribute. Method name must 
+
+Add filed attribute in the `aloowed_attributes` list and then create method for each attribute. Method name must
 be start from `attr_` and then the name of the attribute. Method should return the value otherwise `None` value
 set for field
 
-*Attribute Method run in the same order as they are specify in `allowed_attributes`*
-
+_Attribute Method run in the same order as they are specify in `allowed_attributes`_
 
 ### Example Usage
 

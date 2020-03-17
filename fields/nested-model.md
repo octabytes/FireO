@@ -102,10 +102,10 @@ The following attributes supported by Nested Model.
 4. [validator](#validator)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
+Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/fields/field/#required)
+Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
 
 But this behave a little different in nested models. If you set `True` then it will check **required** fields inside
 nested model if there is any required field and no value is given then it will give error. 
@@ -143,7 +143,7 @@ s.save()  # Successfully saved the result without any error
 ```
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/fields/field/#column-name)
+Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](/fields/field/#validator)
+Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)

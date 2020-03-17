@@ -51,16 +51,16 @@ The following attributes supported by Reference Field.
 6. [on_load](#on-load)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](/fields/field/#default)
+Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/fields/field/#required)
+Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/fields/field/#column-name)
+Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](/fields/field/#validator)
+Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
 
 - ### Auto Load
 Load reference document automatically, by default it is `True` If you disable the `auto_load` then you can get 
