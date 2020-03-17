@@ -93,7 +93,7 @@ print(user.day)  # 0
 
 ## Create attributes
 
-[Default](fields/field/#default), [Required](fields/field/#required) and [Column Name](fields/field/#column-name)
+[Default](/FireO/fields/field#default), [Required](/FireO/fields/field#required) and [Column Name](/FireO/fields/field#column-name)
 attributes are allowed in every field. But you can create more attributes for your field.
 
 ### Method to create field attributes

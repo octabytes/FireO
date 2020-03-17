@@ -6,13 +6,15 @@ nav_order: 9
 ---
 
 # Nested Model
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
@@ -37,7 +39,7 @@ s.user = u
 s.save()
 ```
 
-You can also direct assign the `nested_model` without creating the object. 
+You can also direct assign the `nested_model` without creating the object.
 
 ```python
 s = Student()
@@ -47,9 +49,11 @@ s.save()
 ```
 
 ## Common mistake
+
 Don't save the `NestedModel` otherwise this model will save separately.
 
 **Invalid:** Don't save the `NestedModel`
+
 ```python
 u = User(name='Nested_Model')
 u.save()  # Don't save nested model
@@ -60,6 +64,7 @@ s.save()
 ```
 
 ## Deep Nested Model
+
 There is no limit how how deep you go with nested models. You can create `nested_model` inside another `nested_model`
 
 ```python
@@ -85,6 +90,7 @@ l.save()
 ```
 
 ### Filter Results
+
 {: .no_toc }
 You can `filter` models with `nested_models` fields using `dot(.)` notation.
 
@@ -102,15 +108,17 @@ The following attributes supported by Nested Model.
 4. [validator](#validator)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
+
+  Default value for field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
+  Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#required)
 
 But this behave a little different in nested models. If you set `True` then it will check **required** fields inside
-nested model if there is any required field and no value is given then it will give error. 
+nested model if there is any required field and no value is given then it will give error.
 
 ### Example
+
 {: .no_toc }
 
 ```python
@@ -143,7 +151,8 @@ s.save()  # Successfully saved the result without any error
 ```
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
+
+  Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
+  Validate given value of field. This is base attribute that is available in all fields [Read More](/FireO/fields/field#validator)

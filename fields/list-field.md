@@ -6,13 +6,15 @@ nav_order: 5
 ---
 
 # List Field
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
@@ -40,13 +42,16 @@ The following attributes supported by List Field.
 4. [validator](#validator)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
+
+  Default value for field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
+
+  Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#required)
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
+
+  Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
+  Validate given value of field. This is base attribute that is available in all fields [Read More](/FireO/fields/field#validator)

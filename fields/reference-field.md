@@ -6,17 +6,19 @@ nav_order: 10
 ---
 
 # Reference Field
+
 {: .no_toc }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
-A DocumentReference refers to a document location in a Firestore database and can be used to write, read, 
+A DocumentReference refers to a document location in a Firestore database and can be used to write, read,
 or listen to the location. The document at the referenced location may or may not exist.
 
 ## Example Usage
@@ -51,22 +53,27 @@ The following attributes supported by Reference Field.
 6. [on_load](#on-load)
 
 - ### Default
-Default value for field. This is base attribute that is available in all fields. [Read More](fields/field/#default)
+
+  Default value for field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#default)
 
 - ### Required
-Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](fields/field/#required)
+
+  Set `True` if value is required for the field. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#required)
 
 - ### Column Name
-Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](fields/field/#column-name)
+
+  Set different column name in Firestore instead of field name. This is base attribute that is available in all fields. [Read More](/FireO/fields/field#column-name)
 
 - ### Validator
-Validate given value of field. This is base attribute that is available in all fields [Read More](fields/field/#validator)
+
+  Validate given value of field. This is base attribute that is available in all fields [Read More](/FireO/fields/field#validator)
 
 - ### Auto Load
-Load reference document automatically, by default it is `True` If you disable the `auto_load` then you can get 
-document by `get()` method.
+  Load reference document automatically, by default it is `True` If you disable the `auto_load` then you can get
+  document by `get()` method.
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
@@ -84,9 +91,10 @@ print(com.name)
 ```
 
 - ### On Load
-Call user specify method when reference document load
+  Call user specify method when reference document load
 
 ### Example Usage
+
 {: .no_toc }
 
 ```python
