@@ -100,7 +100,7 @@ and search data without case sensitive.
 
 ```python
 class User(Model):
-    name = TExtField()
+    name = TextField()
     age = NumberField()
 
     class Meta:
