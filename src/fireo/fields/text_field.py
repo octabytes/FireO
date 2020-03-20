@@ -1,5 +1,6 @@
 from fireo.fields import errors
 from fireo.fields.base_field import Field
+import re
 
 
 class TextField(Field):
@@ -7,7 +8,7 @@ class TextField(Field):
 
     Define text for models
 
-    allowed_attributes = ['max_length']
+    allowed_attributes = ['max_length', 'to_lowercase']
 
 
 
@@ -17,11 +18,35 @@ class TextField(Field):
             age = TextField()
     """
 
-    allowed_attributes = ['max_length']
+    allowed_attributes = ['max_length', 'to_lowercase', 'format']
+
+    def attr_format(self, attr_val, field_val):
+        supported_types = ['title', 'upper', 'lower', 'capitalize']
+
+        if attr_val in supported_types:
+            if attr_val == 'title':
+                return self._titlecase(field_val)
+            if attr_val == 'upper':
+                return field_val.upper()
+            if attr_val == 'lower':
+                return field_val.lower()
+            if attr_val == 'capitalize':
+                return field_val.capitalize()
+        raise errors.AttributeTypeError(
+            f'Invalid attribute type. Inside Field "{self.name}", "format" type must be one of them "{supported_types}".')
 
     def attr_max_length(self, attr_val, field_val):
         """Method for attribute max_length"""
         return field_val[:attr_val]
+
+    def attr_to_lowercase(self, attr_val, field_val):
+        """Method for attribute to_lowercase
+
+            Convert text into lowercase
+        """
+        if attr_val:
+            return field_val.lower()
+        return field_val
 
     # override method
     def db_value(self, val):
@@ -32,3 +57,9 @@ class TextField(Field):
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {str}, '
                                       f'got {type(val)}')
+
+    def _titlecase(self, s):
+        return re.sub(r"[A-Za-z]+('[A-Za-z]+)?",
+                      lambda mo: mo.group(0)[0].upper() +
+                                 mo.group(0)[1:].lower(),
+                      s)

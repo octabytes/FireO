@@ -70,10 +70,6 @@ class FieldAttribute:
             if self.default is not None and value is None:
                 value = self.default
 
-            # check if lowercase is set for field to convert text into lowercase
-            if self.to_lowercase is not None and self.to_lowercase:
-                value = value.lower() if type(value) is str else value
-
             # check this field is required or not
             if self.required and value is None and not ignore_required:
                 raise RequiredField(f'"{self.field.__class__.__name__}" is required for model {self.field.model_cls} '
@@ -192,8 +188,3 @@ class FieldAttribute:
     def validator(self):
         """Custom validation for field specify by user"""
         return self.attributes.get("validator")
-
-    @property
-    def to_lowercase(self):
-        """Convert text into lowercase if set True"""
-        return self.attributes.get('to_lowercase')
