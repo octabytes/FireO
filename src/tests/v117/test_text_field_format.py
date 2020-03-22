@@ -11,7 +11,7 @@ def test_create_text_format():
     t = TextFieldFormat.collection.create(name='my name')
 
     assert t.name == 'MY NAME'
-    
+
 
 def test_simple_format():
     class TextFieldFormat(Model):
