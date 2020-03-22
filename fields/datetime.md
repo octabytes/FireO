@@ -14,7 +14,7 @@ nav_order: 7
 {: .no_toc .text-delta }
 
 1. TOC
-   {:toc}
+{:toc}
 
 ---
 
