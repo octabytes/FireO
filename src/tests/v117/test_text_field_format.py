@@ -4,6 +4,15 @@ from fireo.fields.errors import AttributeTypeError
 import pytest
 
 
+def test_create_text_format():
+    class TextFieldFormat(Model):
+        name = TextField(format='upper')
+
+    t = TextFieldFormat.collection.create(name='my name')
+
+    assert t.name == 'MY NAME'
+    
+
 def test_simple_format():
     class TextFieldFormat(Model):
         id = IDField()
