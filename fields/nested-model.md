@@ -6,11 +6,9 @@ nav_order: 9
 ---
 
 # Nested Model
-
 {: .no_toc }
 
 ## Table of contents
-
 {: .no_toc .text-delta }
 
 1. TOC

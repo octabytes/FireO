@@ -6,11 +6,9 @@ nav_order: 7
 ---
 
 # DateTime Field
-
 {: .no_toc }
 
 ## Table of contents
-
 {: .no_toc .text-delta }
 
 1. TOC
