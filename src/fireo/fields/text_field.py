@@ -20,20 +20,14 @@ class TextField(Field):
 
     allowed_attributes = ['max_length', 'to_lowercase', 'format']
 
-    def attr_format(self, attr_val, field_val):
-        supported_types = ['title', 'upper', 'lower', 'capitalize']
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.format_type = None
+        self.supported_types = ['title', 'upper', 'lower', 'capitalize']
 
-        if attr_val in supported_types:
-            if attr_val == 'title':
-                return self._titlecase(field_val)
-            if attr_val == 'upper':
-                return field_val.upper()
-            if attr_val == 'lower':
-                return field_val.lower()
-            if attr_val == 'capitalize':
-                return field_val.capitalize()
-        raise errors.AttributeTypeError(
-            f'Invalid attribute type. Inside Field "{self.name}", "format" type must be one of them "{supported_types}".')
+    def attr_format(self, attr_val, field_val):
+        self.format_type = attr_val
+        return field_val
 
     def attr_max_length(self, attr_val, field_val):
         """Method for attribute max_length"""
@@ -48,6 +42,12 @@ class TextField(Field):
             return field_val.lower()
         return field_val
 
+    def _titlecase(self, s):
+        return re.sub(r"[A-Za-z]+('[A-Za-z]+)?",
+                      lambda mo: mo.group(0)[0].upper() +
+                                 mo.group(0)[1:].lower(),
+                      s)
+
     # override method
     def db_value(self, val):
         if type(val) is str or val is None:
@@ -58,8 +58,20 @@ class TextField(Field):
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {str}, '
                                       f'got {type(val)}')
 
-    def _titlecase(self, s):
-        return re.sub(r"[A-Za-z]+('[A-Za-z]+)?",
-                      lambda mo: mo.group(0)[0].upper() +
-                                 mo.group(0)[1:].lower(),
-                      s)
+    # override method
+    def field_value(self, val):
+        self.field_attribute.parse(val, run_only=['format'])
+        if self.format_type:
+            if self.format_type in self.supported_types:
+                if self.format_type == 'title':
+                    return self._titlecase(val)
+                if self.format_type == 'upper':
+                    return val.upper()
+                if self.format_type == 'lower':
+                    return val.lower()
+                if self.format_type == 'capitalize':
+                    return val.capitalize()
+            raise errors.AttributeTypeError(
+                f'Invalid attribute type. Inside Field "{self.name}", '
+                f'"format" type must be one of them "{self.supported_types}".')
+        return val

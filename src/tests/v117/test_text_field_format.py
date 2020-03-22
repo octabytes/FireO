@@ -1,4 +1,4 @@
-from fireo.fields import TextField
+from fireo.fields import TextField, IDField
 from fireo.models import Model
 from fireo.fields.errors import AttributeTypeError
 import pytest
@@ -6,12 +6,14 @@ import pytest
 
 def test_simple_format():
     class TextFieldFormat(Model):
+        id = IDField()
         name_title = TextField(format='title')
         name_upper = TextField(format='upper')
         name_lower = TextField(format='lower')
         name_capitalize = TextField(format='capitalize')
 
     t = TextFieldFormat()
+    t.id = 'id-123'
     t.name_title = "they're bill's friends from the UK"
     t.name_upper = 'name upper'
     t.name_lower = 'Name LOWER'
@@ -28,9 +30,7 @@ def test_simple_format():
 
 def test_invalid_text_format_type():
     class TextFieldFormat(Model):
-        name = TextField(format='invalid type')
+        name_title = TextField(format='invalid type')
 
     with pytest.raises(AttributeTypeError):
-        t = TextFieldFormat()
-        t.name = 'name text'
-        t.save()
+        TextFieldFormat.collection.get('text_field_format/id-123')
