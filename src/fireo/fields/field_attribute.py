@@ -53,26 +53,30 @@ class FieldAttribute:
     AttributeMethodNotDefined:
         if any custom field not define the method for `allowed_attributes`
     """
-    allowed_attributes = ['default', 'required', 'column_name', 'validator', 'to_lowercase']
+    allowed_attributes = ['default', 'required', 'column_name', 'validator']
 
     def __init__(self, field, attributes):
         self.field = field
         self.attributes = attributes or {}
 
     # validate each field and it's attributes
-    def parse(self, value, ignore_required=False):
+    def parse(self, value, ignore_required=False, run_only=None):
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
             if attr not in self.field.allowed_attributes + FieldAttribute.allowed_attributes:
                 raise UnSupportedAttribute(f'"{self.field.__class__.__name__}" not support attribute {attr}')
 
+            if run_only is not None:
+                for attr in run_only:
+                    if self.field_attr(attr) is not None:
+                        value = self.call_attr_method(attr, value)
+
+                # return the value back
+                return value
+
             # check default value if set for field
             if self.default is not None and value is None:
                 value = self.default
-
-            # check if lowercase is set for field to convert text into lowercase
-            if self.to_lowercase is not None and self.to_lowercase:
-                value = value.lower() if type(value) is str else value
 
             # check this field is required or not
             if self.required and value is None and not ignore_required:
@@ -192,8 +196,3 @@ class FieldAttribute:
     def validator(self):
         """Custom validation for field specify by user"""
         return self.attributes.get("validator")
-
-    @property
-    def to_lowercase(self):
-        """Convert text into lowercase if set True"""
-        return self.attributes.get('to_lowercase')
