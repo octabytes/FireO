@@ -39,7 +39,7 @@ class TextField(Field):
             Convert text into lowercase
         """
         if attr_val:
-            return field_val.lower()
+            return field_val.lower() if field_val is not None else None
         return field_val
 
     def _titlecase(self, s):
@@ -53,7 +53,7 @@ class TextField(Field):
         if type(val) is str or val is None:
             # check if user defined to set the value as lower case
             if self.model_cls._meta.to_lowercase:
-                return val.lower()
+                return val.lower() if val is not None else None
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {str}, '
                                       f'got {type(val)}')
