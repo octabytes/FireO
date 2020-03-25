@@ -60,6 +60,12 @@ class TextField(Field):
 
     # override method
     def field_value(self, val):
+
+        # check if val is None then there is no need to run these functions
+        # just return back the None value
+        if val is None:
+            return val
+
         self.field_attribute.parse(val, run_only=['format'])
         if self.format_type:
             if self.format_type in self.supported_types:
