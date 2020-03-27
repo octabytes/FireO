@@ -60,7 +60,7 @@ class FieldAttribute:
         self.attributes = attributes or {}
 
     # validate each field and it's attributes
-    def parse(self, value, ignore_required=False, run_only=None):
+    def parse(self, value, ignore_required=False, ignore_default=False, run_only=None):
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
             if attr not in self.field.allowed_attributes + FieldAttribute.allowed_attributes:
@@ -75,7 +75,7 @@ class FieldAttribute:
                 return value
 
             # check default value if set for field
-            if self.default is not None and value is None:
+            if self.default is not None and value is None and not ignore_default:
                 value = self.default
 
             # check this field is required or not

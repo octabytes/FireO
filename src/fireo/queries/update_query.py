@@ -54,7 +54,7 @@ class UpdateQuery(BaseQuery):
                 # Get nested model field
                 self._nested_field_list(f, field_dict, f.name)
             else:
-                v = f.get_value(self.query.get(f.name), ignore_required=True)
+                v = f.get_value(self.query.get(f.name), ignore_required=True, ignore_default=True)
                 if v or type(v) is bool:
                     field_dict[f.db_column_name] = v
         return field_dict
@@ -79,8 +79,10 @@ class UpdateQuery(BaseQuery):
         if transaction_or_batch:
             transaction_or_batch.update(ref, self._parse_field())
             return None
-        ref.update(self._parse_field())
-        return ref.get()
+
+        if self._parse_field():
+            ref.update(self._parse_field())
+            return ref.get()
 
     def exec(self, transaction_or_batch=None):
         """return modified instance of model"""

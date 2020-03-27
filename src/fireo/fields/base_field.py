@@ -96,7 +96,7 @@ class Field(metaclass=MetaField):
         """
         return self.raw_attributes.get("column_name") or self.name
 
-    def get_value(self, val, ignore_required=False):
+    def get_value(self, val, ignore_required=False, ignore_default=False):
         """Get field value after validation
 
         Make validation and applying attribute function on it.
@@ -110,11 +110,14 @@ class Field(metaclass=MetaField):
         ignore_required : Bool
             Ignore required fields or not mostly ignore when updating the document
 
+        ignore_default : Bool
+            Ignore default fields or not mostly ignore when updating the document
+
         Returns
         -------
             DB value
         """
-        v = self.field_attribute.parse(val, ignore_required)
+        v = self.field_attribute.parse(val, ignore_required, ignore_default)
         return self.db_value(v)
 
     def db_value(self, val):
