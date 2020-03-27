@@ -87,6 +87,33 @@ user.update(user.key)  # This will not make it efficient and this is not recomme
 user.update()  # Recommended way
 ```
 
+But if you are using `NestedModel` then always first `get()` document then `update` otherwise it will create problem 
+with `default` values if you set to any field. Because FireO can not know what value you want to add in `updated` document
+a new `None` value or the `default` value for this field. So that's why always get `document` first then `update`
+
+### For Example
+{: .no_toc }
+
+```python
+class Child(Model):
+    amount = NumberField(default=7)
+
+class Parent(Model):
+    name = TextField()
+    child = NestedModel(Child)
+
+m = Parent()
+m.name = 'Any Name'
+m.child.amount = 10
+m.save()
+
+# updating document 
+# First get the document then update it without passing key in update method
+m = Parent.collectino.get(key)
+m.name = 'Updated Name'
+m.update()
+```
+
 ## Update elements in an array
 If your document contains an array field, you can use `ListUnion()` and `ListRemove()` to add and remove elements. 
 `ListUnion()` adds elements to an array but only elements not already present. `ListRemove()` removes all 
