@@ -87,6 +87,9 @@ user.update(user.key)  # This will not make it efficient and this is not recomme
 user.update()  # Recommended way
 ```
 
+### Update NestedModel
+{: .no_toc }
+
 But if you are using `NestedModel` then always first `get()` document then `update` otherwise it will create problem 
 with `default` values if you set to any field. Because FireO can not know what value you want to add in `updated` document
 a new `None` value or the `default` value for this field. So that's why always get `document` first then `update`
