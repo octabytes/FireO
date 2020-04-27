@@ -1,4 +1,5 @@
 from fireo.database import db
+from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
@@ -166,13 +167,17 @@ class FilterQuery(BaseQuery):
                     except FieldNotFound:
                         model_field = nested_model._meta.get_field(m)
 
-                    nested_model = model_field.nested_model
+                    if isinstance(model_field, NestedModel):
+                        nested_model = model_field.nested_model
                     name = model_field.db_column_name
 
                     model_names.append(name)
                 model_name = '.'.join(model_names)
-                field_name = nested_model._meta.get_field(field).db_column_name
-                f_name = model_name + '.' + field_name
+                if nested_models is not None:
+                    field_name = nested_model._meta.get_field(
+                        field).db_column_name
+                else:
+                    f_name = model_name + '.' + field_name
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
