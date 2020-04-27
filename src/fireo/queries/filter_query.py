@@ -177,7 +177,8 @@ class FilterQuery(BaseQuery):
                     field_name = nested_model._meta.get_field(
                         field).db_column_name
                 else:
-                    f_name = model_name + '.' + field_name
+                    field_name = field
+                f_name = model_name + '.' + field_name
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
