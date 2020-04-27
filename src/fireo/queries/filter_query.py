@@ -173,7 +173,7 @@ class FilterQuery(BaseQuery):
 
                     model_names.append(name)
                 model_name = '.'.join(model_names)
-                if nested_models is not None:
+                if nested_model is not None:
                     field_name = nested_model._meta.get_field(
                         field).db_column_name
                 else:
