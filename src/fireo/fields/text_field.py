@@ -31,6 +31,9 @@ class TextField(Field):
 
     def attr_max_length(self, attr_val, field_val):
         """Method for attribute max_length"""
+        if field_val is None:
+            return field_val
+            
         return field_val[:attr_val]
 
     def attr_to_lowercase(self, attr_val, field_val):
