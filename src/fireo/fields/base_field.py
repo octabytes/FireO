@@ -117,7 +117,7 @@ class Field(metaclass=MetaField):
         -------
             DB value
         """
-        if val is not None or not ignore_required:
+        if val is not None or not ignore_required or self.field_attribute.default:
             val = self.field_attribute.parse(val, ignore_required, ignore_default)
         return self.db_value(val)
 
