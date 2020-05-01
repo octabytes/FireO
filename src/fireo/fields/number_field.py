@@ -38,14 +38,14 @@ class NumberField(Field):
 
     def attr_int_only(self, attr_val, field_val):
         """Method for attribute int_only"""
-        if attr_val and field_val is not None and type(field_val) is not int:
+        if attr_val and type(field_val) is not int:
             raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {int} type, '
                                           f'got {type(field_val)}')
         return field_val
 
     def attr_float_only(self, attr_val, field_val):
         """Method for attribute float_only"""
-        if attr_val and field_val is not None and type(field_val) is not float:
+        if attr_val and type(field_val) is not float:
             raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {float} type, '
                                           f'got {type(field_val)}')
         return field_val

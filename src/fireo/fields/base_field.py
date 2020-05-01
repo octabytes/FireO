@@ -117,8 +117,9 @@ class Field(metaclass=MetaField):
         -------
             DB value
         """
-        v = self.field_attribute.parse(val, ignore_required, ignore_default)
-        return self.db_value(v)
+        if val is not None or not ignore_required or self.field_attribute.default:
+            val = self.field_attribute.parse(val, ignore_required, ignore_default)
+        return self.db_value(val)
 
     def db_value(self, val):
         """How the value is going to save in firestore
