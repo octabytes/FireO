@@ -1,4 +1,4 @@
-from fireo.fields import ReferenceField, NestedModel
+from fireo.fields import ReferenceField, NestedModel, IDField
 from fireo.queries import errors
 from fireo.utils import utils
 from google.cloud import firestore
@@ -50,6 +50,12 @@ class ModelWrapper:
 
         # If it is not nested model then set the id for this model
         if not nested_doc:
+            # When getting document attach the IDField if there is no user specify 
+            # it will prevent to generate new id everytime when document save
+            # For more information see issue #45 https://github.com/octabytes/FireO/issues/45
+            if model._meta.id is None:
+                model._meta.id = ('id', IDField())
+                
             setattr(model, '_id', doc.id)
             # save the firestore reference doc so that further actions can be performed (i.e. collections())
             model._meta.set_reference_doc(doc.reference)

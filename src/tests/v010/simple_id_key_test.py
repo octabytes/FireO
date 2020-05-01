@@ -79,14 +79,17 @@ def test_without_id_field():
 
 
 def test_without_id_field_but_giving_id():
-    e1 = Employee()
+    class EmployeeIDField(mdl.Model):
+        name = mdl.TextField()
+
+    e1 = EmployeeIDField()
     e1.id = 'test_without_id_but_giving_id'
     e1.name = 'test_without_id_but_give_some_id'
     e1.save()
 
     assert e1.id != 'test_without_id_but_giving_id'
 
-    e2 = Employee.collection.get(e1.key)
+    e2 = EmployeeIDField.collection.get(e1.key)
     assert e2.id != 'test_without_id_but_giving_id'
     assert e1.name == e2.name
     assert e1.key == e2.key
