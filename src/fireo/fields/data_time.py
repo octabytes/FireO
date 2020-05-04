@@ -30,7 +30,12 @@ class DateTime(Field):
 
     # Override method
     def db_value(self, val):
-        if isinstance(val, (DatetimeWithNanoseconds, datetime, Sentinel, type(None))):
+        if any([
+            isinstance(val, DatetimeWithNanoseconds),
+            isinstance(val, datetime),
+            isinstance(val, Sentinel),
+            isinstance(val, type(None)),
+        ]):
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {datetime}, '
                                       f'got {type(val)}')
