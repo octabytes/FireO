@@ -63,6 +63,8 @@ class Field(metaclass=MetaField):
     """
     allowed_attributes = []
 
+    empty_value_attributes = []
+
     def __init__(self, *args, **kwargs):
         self.raw_attributes = kwargs
         self.name = None
@@ -117,8 +119,7 @@ class Field(metaclass=MetaField):
         -------
             DB value
         """
-        if val is not None or not ignore_required or self.field_attribute.default:
-            val = self.field_attribute.parse(val, ignore_required, ignore_default)
+        val = self.field_attribute.parse(val, ignore_required, ignore_default)
         return self.db_value(val)
 
     def db_value(self, val):

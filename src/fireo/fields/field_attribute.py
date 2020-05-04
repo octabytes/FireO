@@ -63,7 +63,7 @@ class FieldAttribute:
     def parse(self, value, ignore_required=False, ignore_default=False, run_only=None):
         """validate the value and perform action according to attribute"""
         for attr in self.attributes:
-            if attr not in self.field.allowed_attributes + FieldAttribute.allowed_attributes:
+            if attr not in self.field.allowed_attributes + self.allowed_attributes:
                 raise UnSupportedAttribute(f'"{self.field.__class__.__name__}" not support attribute {attr}')
 
             if run_only is not None:
@@ -107,7 +107,7 @@ class FieldAttribute:
         # call those attributes method which are defined in this specific field
         # each field can specify any additional attributes
         for attr in self.field.allowed_attributes:
-            if self.field_attr(attr) is not None:
+            if self.field_attr(attr) is not None and (value is not None or attr in self.field.empty_value_attributes):
                 value = self.call_attr_method(attr, value)
 
         # return the value back

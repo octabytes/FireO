@@ -42,6 +42,8 @@ class ReferenceField(Field):
 
     allowed_attributes = ['auto_load', 'on_load']
 
+    empty_value_attributes = allowed_attributes
+
     def __init__(self, model_ref, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Check model ref class is subclass for Model

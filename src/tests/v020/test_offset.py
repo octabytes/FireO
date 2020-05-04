@@ -15,4 +15,4 @@ def test_simple_offset():
     docs = OffsetModel.collection.order('created_on').offset(3).fetch(3)
 
     for doc in docs:
-        assert doc.num in [3,4,5]
+        assert doc.num in (3, 4, 5)
