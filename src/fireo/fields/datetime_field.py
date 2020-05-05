@@ -22,6 +22,8 @@ class DateTime(Field):
 
     allowed_attributes = ['auto']
 
+    empty_value_attributes = allowed_attributes
+
     def attr_auto(self, attr_val, field_val):
         """Method for attribute auto"""
         if field_val is None and attr_val:
