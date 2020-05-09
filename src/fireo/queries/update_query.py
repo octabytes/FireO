@@ -1,4 +1,4 @@
-from fireo.fields import NestedModel
+from fireo.fields import DateTime, NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
@@ -56,6 +56,8 @@ class UpdateQuery(BaseQuery):
             else:
                 v = f.get_value(self.query.get(f.name), ignore_required=True, ignore_default=True)
                 if v is not None or type(v) is bool:
+                    field_dict[f.db_column_name] = v
+                if v is None and isinstance(f, DateTime):
                     field_dict[f.db_column_name] = v
         return field_dict
 
