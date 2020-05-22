@@ -1,4 +1,5 @@
 import base64
+import json
 import itertools
 from fireo.queries import query_wrapper
 
@@ -74,4 +75,4 @@ class QueryIterator:
 
     @property
     def cursor(self):
-        return base64.b64encode(bytes(str(self.query.cursor_dict), 'utf-8'))
+        return base64.b64encode(json.dumps(self.query.cursor_dict).encode('utf-8'))

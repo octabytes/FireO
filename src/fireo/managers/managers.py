@@ -1,6 +1,6 @@
 import base64
+import json
 
-from fireo.database import db
 from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
@@ -275,7 +275,7 @@ class Manager:
         Cursor define where to start the query
         """
         parent = self._parent_key
-        cursor_dict = eval(base64.b64decode(cursor))
+        cursor_dict = json.loads(base64.b64decode(cursor))
         if 'parent' in cursor_dict:
             parent = cursor_dict['parent']
         query = self.queryset.filter(parent)
