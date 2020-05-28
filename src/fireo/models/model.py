@@ -146,6 +146,8 @@ class Model(metaclass=ModelMeta):
     @classmethod
     def from_dict(cls, model_dict):
         """Instantiate model from dict"""
+        if model_dict is None:
+            return None
         return cls(**model_dict)
 
     def to_dict(self):
