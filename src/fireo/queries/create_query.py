@@ -108,8 +108,12 @@ class CreateQuery(BaseQuery):
                 n = (*name, n_f.name)
                 self._nested_field_list(n_f, nested_field_list, *n)
             else:
+                nv = None
+                if utils.get_nested(self.query, *name) is not None:
+                    nv = utils.get_nested(self.query, *name).get(n_f.name)
+                    
                 nested_field_list[n_f.db_column_name] = n_f.get_value(
-                    utils.get_nested(self.query, *name).get(n_f.name),
+                    nv,
                     ignore_required
                 )
         fl[f.db_column_name] = nested_field_list
