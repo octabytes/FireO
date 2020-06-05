@@ -49,16 +49,17 @@ class UpdateQuery(BaseQuery):
         """
         field_dict = {}
         for f in self.model._meta.field_list.values():
-            # Check if it is nested model
-            if isinstance(f, NestedModel):
-                # Get nested model field
-                self._nested_field_list(f, field_dict, f.name)
-            else:
-                v = f.get_value(self.query.get(f.name), ignore_required=True, ignore_default=True)
-                if v is not None or type(v) is bool:
-                    field_dict[f.db_column_name] = v
-                if v is None and isinstance(f, DateTime):
-                    field_dict[f.db_column_name] = v
+            if f.name in self.query:
+                # Check if it is nested model
+                if isinstance(f, NestedModel):
+                    # Get nested model field
+                    self._nested_field_list(f, field_dict, f.name)
+                else:
+                    v = f.get_value(self.query.get(f.name), ignore_required=True, ignore_default=True)
+                    if v is not None or type(v) is bool:
+                        field_dict[f.db_column_name] = v
+                    if v is None and isinstance(f, DateTime):
+                        field_dict[f.db_column_name] = v
         return field_dict
 
     def _nested_field_list(self, f, fl, *name):
