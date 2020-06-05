@@ -40,3 +40,6 @@ def get_nested(dict, *args):
         if element:
             value = dict.get(element)
             return value if len(args) == 1 else get_nested(value, *args[1:])
+
+def generateKeyFromId(model, id):
+    return model.collection_name + "/" + id
