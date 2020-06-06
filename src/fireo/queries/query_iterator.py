@@ -75,4 +75,5 @@ class QueryIterator:
 
     @property
     def cursor(self):
-        return base64.b64encode(json.dumps(self.query.cursor_dict).encode('utf-8'))
+        encodedCursor = base64.b64encode(json.dumps(self.query.cursor_dict).encode('utf-8'))
+        return str(encodedCursor, 'utf-8')

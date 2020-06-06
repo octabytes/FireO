@@ -83,8 +83,9 @@ class UpdateQuery(BaseQuery):
             transaction_or_batch.update(ref, self._parse_field())
             return None
 
-        if self._parse_field():
-            ref.update(self._parse_field())
+        parse_field = self._parse_field()
+        if parse_field:
+            ref.update(parse_field)
             return ref.get()
 
     def exec(self, transaction_or_batch=None):
