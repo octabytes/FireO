@@ -1,7 +1,6 @@
 from fireo.database.errors import DBConnectionError
 from google.cloud import firestore
 
-
 class Database:
     """Create connection with google cloud firestore
 
@@ -34,12 +33,14 @@ class Database:
     def __init__(self):
         self._conn = None
 
-    def connect(self,credentials=None, from_file=None):
+    def connect(self,credentials=None, from_file=None, client=None):
         try:
             if credentials:
                 self._conn = firestore.Client(credentials=credentials)
             elif from_file:
                 self._conn = firestore.Client.from_service_account_json(from_file)
+            elif client:
+                self._conn = client
             else:
                 raise DBConnectionError("Credentials or service account json file required to connect with firestore")
         except Exception as e:
