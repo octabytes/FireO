@@ -46,7 +46,7 @@ class QueryIterator:
             # Save last doc key in cursor
             self.query.cursor_dict['last_doc_key'] = self.last_doc_key
             raise StopIteration
-        except Exception:
+        except StopIteration:
             raise StopIteration
 
     def next_fetch(self, limit=None):
