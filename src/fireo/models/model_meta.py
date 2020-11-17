@@ -142,6 +142,7 @@ class ModelMeta(type):
                 self.collection_name = utils.collection_name(cls.__name__)
                 self.abstract = False
                 self.missing_field = 'merge'
+                self.ignore_none_field = True
                 self.to_lowercase = False
                 self._referenceDoc = None
                 self._firestore_create_time = None
@@ -278,7 +279,7 @@ class ModelMeta(type):
                     If option for missing_field is other than ignore, merge or raise_error
                 """
                 for name, val in user_meta.__dict__.items():
-                    supported_meta = ['collection_name', 'abstract', 'to_lowercase', 'missing_field']
+                    supported_meta = ['collection_name', 'abstract', 'to_lowercase', 'missing_field', 'ignore_none_field']
 
                     # check if name is supported by meta and name is not
                     # any special name for example '__main__, __doc__'
@@ -292,6 +293,8 @@ class ModelMeta(type):
                         self.abstract = val
                     if name == 'to_lowercase':
                         self.to_lowercase = val
+                    if name == 'ignore_none_field':
+                        self.ignore_none_field = val
                     if name == 'missing_field':
                         if val in ['merge', 'ignore', 'raise_error']:
                             self.missing_field = val

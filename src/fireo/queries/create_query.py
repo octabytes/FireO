@@ -21,6 +21,7 @@ class CreateQuery(BaseQuery):
     exec():
         return modified or new instance of model
     """
+
     def __init__(self, model_cls, mutable_instance=None, **kwargs):
         super().__init__(model_cls)
         self.query = kwargs
@@ -92,7 +93,12 @@ class CreateQuery(BaseQuery):
             if isinstance(f, NestedModel):
                 self._nested_field_list(f, field_list, f.name)
             else:
-                field_list[f.db_column_name] = f.get_value(self.query.get(f.name))
+                fv = f.get_value(self.query.get(f.name))
+                if self.model._meta.ignore_none_field:
+                    if fv is not None:
+                        field_list[f.db_column_name] = fv
+                else:
+                    field_list[f.db_column_name] = fv
         return field_list
 
     def _nested_field_list(self, f, fl, *name):
@@ -111,11 +117,14 @@ class CreateQuery(BaseQuery):
                 nv = None
                 if utils.get_nested(self.query, *name) is not None:
                     nv = utils.get_nested(self.query, *name).get(n_f.name)
-                    
-                nested_field_list[n_f.db_column_name] = n_f.get_value(
-                    nv,
-                    ignore_required
-                )
+
+                nfv = n_f.get_value(nv, ignore_required)
+                if f.nested_model._meta.ignore_none_field:
+                    if nfv is not None:
+                        nested_field_list[n_f.db_column_name] = nfv
+                else:
+                    nested_field_list[n_f.db_column_name] = nfv
+
         fl[f.db_column_name] = nested_field_list
 
     def _raw_exec(self, transaction_or_batch=None):
