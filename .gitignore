@@ -22,3 +22,6 @@ Gemfile.lock
 #-----------------
 .sass-cache
 _site
+
+main.py
+service-account.json

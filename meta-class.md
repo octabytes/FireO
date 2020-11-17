@@ -17,10 +17,6 @@ nav_order: 6
 
 Meta class is used for `Model` configuration. Here are some common configuration for `Model`
 
-1. [Abstract Model](#abstract-model)
-2. [Collection Name](#collection-name)
-3. [Missing Field](#missing-fields)
-
 ## Abstract Model
 Abstract model is used to create some common fields into a number of other models.
 
@@ -113,4 +109,28 @@ User.collection.create(name='Azeem', age=26)
 User.collection.filter('name', '==', 'azeem').get()
 User.collection.filter('name', '==', 'Azeem').get()
 User.collection.filter('name', '==', 'AzEEm').get()
+```
+
+## Ignore None Field (v1.3.5)
+By default `None` fields are ignore in Firestore. You can change setting in `Meta` class by
+defining option `ingore_none_field` possible values are `True` or `False`. Default value is
+`True`
+
+### Example Usage
+{: .no_toc }
+
+```python
+class User(Model):
+    name = TextField()
+    address = TextField()
+
+    class Meta:
+        ignore_none_field = False
+
+user = User()
+user.name = "Azeem"
+user.save()
+
+# If you check Firestore you will see null value in front of address field
+# To ignore null values in Firestore set ignore_none_field = True
 ```
