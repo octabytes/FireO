@@ -18,7 +18,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='1.3.5',
 
-    description="FireO ORM is specifically designed for the Google's Firestore",
+    description="FireO ORM is specifically designed for the Google's Firestore.",
     long_description=long_description,
     long_description_content_type="text/markdown",
 
