@@ -2,12 +2,12 @@ language: python
 sudo: false
 
 python:
-  - '3.6'
+  - "3.7"
 
 before_install:
-    - npm i -g firebase firebase-tools@7.6.1
-    - firebase setup:emulators:firestore
-    - firebase emulators:start --only firestore &
+  - npm i -g firebase firebase-tools@7.6.1
+  - firebase setup:emulators:firestore
+  - firebase emulators:start --only firestore &
 
 install:
   - pip install tox
