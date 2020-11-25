@@ -1,5 +1,5 @@
 from fireo.database import db
-from fireo.fields import NestedModel
+from fireo.fields import NestedModel, DateTime
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
@@ -7,6 +7,7 @@ from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
 from google.cloud import firestore
+from datetime import datetime
 
 
 class FilterQuery(BaseQuery):
@@ -140,11 +141,26 @@ class FilterQuery(BaseQuery):
         filters = []
         for w in self.select_query:
             name, op, val = w
+
             # save the filter in cursor for next fetch
+            #
+            # ISSUE # 77
+            # if filter value type is datetime then it need to first
+            # convert into string then JSON serialize
+            cf = w
+            if type(val) is datetime:
+                    cf = (name, op, val.isoformat())
+
             if 'filters' in self.cursor_dict:
-                self.cursor_dict['filters'].append(w)
+                self.cursor_dict['filters'].append(cf)
             else:
-                self.cursor_dict['filters'] = [w]
+                self.cursor_dict['filters'] = [cf]
+
+            # ISSUE # 77
+            # if field is datetime and type is str (which is usually come from cursor)
+            # then convert this string into datetime format
+            if isinstance(self.model._meta.get_field(name), DateTime) and type(val) is str:
+                val = datetime.fromisoformat(val)
 
             # check if user defined to set the value as lower case
             if self.model._meta.to_lowercase and type(val) is str:
