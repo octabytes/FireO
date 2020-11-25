@@ -1,5 +1,5 @@
 from fireo.database import db
-from fireo.fields import NestedModel, DateTime
+from fireo.fields import NestedModel, DateTime, ReferenceField
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
@@ -161,6 +161,14 @@ class FilterQuery(BaseQuery):
             # then convert this string into datetime format
             if isinstance(self.model._meta.get_field(name), DateTime) and type(val) is str:
                 val = datetime.fromisoformat(val)
+
+            # ISSUE # 78
+            # check if field is ReferenceField then to query this field we have to
+            # convert this value into document reference then filter it
+            if isinstance(self.model._meta.get_field(name), ReferenceField):
+                refField = self.model._meta.get_field(name)
+                refModelCollection = refField.model_ref._meta.collection_name
+                val = db.conn.collection(refModelCollection).document(val)
 
             # check if user defined to set the value as lower case
             if self.model._meta.to_lowercase and type(val) is str:
