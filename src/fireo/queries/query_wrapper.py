@@ -48,13 +48,16 @@ class ModelWrapper:
         if not model.parent and parent_key is not None:
             model.parent = parent_key
 
-        # If it is not nested model then set the id for this model
+        # If it is not nested model then set the id and _reference for this model
         if not nested_doc:
             # When getting document attach the IDField if there is no user specify 
             # it will prevent to generate new id everytime when document save
             # For more information see issue #45 https://github.com/octabytes/FireO/issues/45
             if model._meta.id is None:
                 model._meta.id = ('id', IDField())
+            
+            # reference is needed to query `Reference` type field
+            setattr(model, '_reference', doc.reference)
                 
             setattr(model, '_id', doc.id)
             # save the firestore reference doc so that further actions can be performed (i.e. collections())
