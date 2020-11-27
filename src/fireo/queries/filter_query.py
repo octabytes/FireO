@@ -156,19 +156,23 @@ class FilterQuery(BaseQuery):
             else:
                 self.cursor_dict['filters'] = [cf]
 
-            # ISSUE # 77
-            # if field is datetime and type is str (which is usually come from cursor)
-            # then convert this string into datetime format
-            if isinstance(self.model._meta.get_field(name), DateTime) and type(val) is str:
-                val = datetime.fromisoformat(val)
+            try:
+                # ISSUE # 77
+                # if field is datetime and type is str (which is usually come from cursor)
+                # then convert this string into datetime format
+                if isinstance(self.model._meta.get_field(name), DateTime) and type(val) is str:
+                    val = datetime.fromisoformat(val)
 
-            # ISSUE # 78
-            # check if field is ReferenceField then to query this field we have to
-            # convert this value into document reference then filter it
-            if isinstance(self.model._meta.get_field(name), ReferenceField):
-                refField = self.model._meta.get_field(name)
-                refModelCollection = refField.model_ref._meta.collection_name
-                val = db.conn.collection(refModelCollection).document(val)
+                # ISSUE # 78
+                # check if field is ReferenceField then to query this field we have to
+                # convert this value into document reference then filter it
+                if isinstance(self.model._meta.get_field(name), ReferenceField):
+                    val = db.conn.document(val)
+            except FieldNotFound:
+                # Filter with nested model not able to find the field (e.g user.name)
+                # it require to loop the nested model first to find the field
+                # so just ignore it 
+                pass
 
             # check if user defined to set the value as lower case
             if self.model._meta.to_lowercase and type(val) is str:
