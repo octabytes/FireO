@@ -339,6 +339,34 @@ l.save()
 l = Level3.collection.filter('lev2.lev.name', '==', 'level 3').get()
 ```
 
+## Filter with Reference Model
+You can `filter` models with reference model `key`.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class Company(Model):
+    name = TextField()
+
+
+class Employee(Model):
+    name = TextField()
+    company = ReferenceField(Company, auto_load=False)
+
+# Adding data
+c = Company(name="Abc_company")
+c.save()
+
+e = Employee()
+e.name = 'Employee Name'
+e.company = c
+e.save()
+
+# Filtering data 
+el = Employee.collection.filter(company=c.key).fetch()
+```
+
 ## Collection group queries
 A collection group consists of all collections with the same ID. By default, queries retrieve 
 results from a single collection in your database. Use a collection group query to retrieve 
