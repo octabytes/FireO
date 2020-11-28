@@ -9,6 +9,11 @@ from fireo.utils import utils
 from google.cloud import firestore
 from datetime import datetime
 
+# datetime.fromisoformat() is not available before python 3.7
+# this package allow to use fromisoformat() method
+from backports.datetime_fromisoformat import MonkeyPatch
+MonkeyPatch.patch_fromisoformat()
+
 
 class FilterQuery(BaseQuery):
     """Filter documents on the bases of where clauses

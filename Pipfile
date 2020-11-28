@@ -8,6 +8,7 @@ pytest = "*"
 
 [packages]
 fireo = {path = ".",editable = true}
+backports-datetime-fromisoformat = "*"
 
 [requires]
 python_version = "3.6"
