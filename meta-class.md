@@ -20,6 +20,8 @@ Meta class is used for `Model` configuration. Here are some common configuration
 ## Abstract Model
 Abstract model is used to create some common fields into a number of other models.
 
+**Note:** Abstract model does not support `IDField`
+
 ### Exmaple Usage
 {: .no_toc }
 
