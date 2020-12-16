@@ -5,8 +5,8 @@
 <p>
     <h1 align="center"><img src="fireo_logo.png" height="100" alt="FireO Logo"></h1>
     <p align="center">
-        A modern and simplest convenient ORM package in Python.
-        FireO is specifically designed for the Google's Firestore, it's more than just ORM.
+        A modern and simplest convenient ODM package in Python.
+        FireO is specifically designed for the Google's Firestore, it's more than just ODM.
         It implements validation, type checking, relational model logic and much more facilities.
     </p>
     <p align="center">
