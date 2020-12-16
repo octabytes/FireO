@@ -56,7 +56,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='Python Firestore Models ORM Google Cloud Firebase',
+    keywords='Python Firestore Models ODM Google Cloud Firebase',
 
     # Add all packages except tests
     packages=find_packages('src', exclude=['tests']),
