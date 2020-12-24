@@ -19,11 +19,13 @@ def test_default_value():
 
 
 class User2(Model):
+    address = TextField()
     name = TextField(required=True)
 
 
 def test_required_value():
     u = User2()
+    u.address = "City 123"
 
     with pytest.raises(RequiredField):
         u.save()

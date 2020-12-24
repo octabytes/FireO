@@ -1,6 +1,7 @@
 import base64
 import json
 
+from fireo.managers.errors import EmptyDocument
 from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
@@ -12,6 +13,7 @@ class ManagerError(Exception):
 
 class ManagerDescriptor:
     """Restrict user to get `Manager` from model instance and from abstract model"""
+
     def __init__(self, manager):
         self.manager = manager
 
@@ -19,9 +21,11 @@ class ManagerDescriptor:
         # reset parent key
         self.manager._parent_key = None
         if instance is not None:
-            raise ManagerError(f'Manager "{self.manager.name}" can not accessible via {owner.__name__} instance')
+            raise ManagerError(
+                f'Manager "{self.manager.name}" can not accessible via {owner.__name__} instance')
         if owner._meta.abstract:
-            raise ManagerError(f'Manager "{self.manager.name}" is not accessible via {owner.__name__} abstract model')
+            raise ManagerError(
+                f'Manager "{self.manager.name}" is not accessible via {owner.__name__} abstract model')
         return self.manager
 
 
@@ -117,6 +121,7 @@ class Manager:
     end_at(key, **kwargs):
         End document at this key or at that matching fields
     """
+
     def __init__(self):
         self.model_cls = None
         self.name = None
@@ -160,6 +165,28 @@ class Manager:
         batch:
             Firestore batch
         """
+        _EMPTY_DOC_EXCEPTION = "Empty document can not be save, Add at least one field value"
+        # Check if it empty document then don't save it
+        if not kwargs:
+            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
+
+        # Check if of the field value is not None
+        is_none_dict = True
+        for k, v in kwargs.items():
+            try:
+                f = self.model_cls._meta.get_field(k)
+                default_value = f.field_attribute.default
+                if v is not None or default_value is not None:
+                    is_none_dict = False
+                    break
+            except FieldNotFound:
+                if v is not None or default_value is not None:
+                    is_none_dict = False
+                    break
+
+        if is_none_dict:
+            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
+
         field_list = {}
         # if mutable instance is none this mean user is creating document directly from manager
         # For example User.collection.create(name="Azeem") in this case mutable instance will be None
@@ -185,6 +212,20 @@ class Manager:
                     field_list[f.name] = f.nested_model()._get_fields()
         else:
             field_list = kwargs
+
+        # If this model has custom IDField then
+        # Check if field list length is one(1) and field is IDField
+        # if this one field is IDField then this is also Empty Document
+        # which can not save
+        if self.model_cls._meta.id is not None:
+            if len(field_list) == 1:
+                # getting first key name from dict
+                first_key_name = next(iter(field_list))
+                id_name, _ = self.model_cls._meta.id
+
+                # Check first key is id
+                if first_key_name == id_name:
+                    raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
 
         return self.queryset.create(mutable_instance, transaction, batch, **field_list)
 
