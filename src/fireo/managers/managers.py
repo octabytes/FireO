@@ -1,6 +1,7 @@
 import base64
 import json
 
+from fireo.managers.errors import EmptyDocument
 from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
@@ -160,6 +161,21 @@ class Manager:
         batch:
             Firestore batch
         """
+        _EMPTY_DOC_EXCEPTION = "Empty document can not be save add at least one field value"
+        # Check if it empty document then don't save it
+        if not kwargs:
+            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
+
+        # Check if of the field value is not None
+        is_none_dict = True
+        for _, v in kwargs.items():
+            if v is not None:
+                is_none_dict = False
+                break
+            
+        if is_none_dict:
+            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
+
         field_list = {}
         # if mutable instance is none this mean user is creating document directly from manager
         # For example User.collection.create(name="Azeem") in this case mutable instance will be None
@@ -185,6 +201,17 @@ class Manager:
                     field_list[f.name] = f.nested_model()._get_fields()
         else:
             field_list = kwargs
+
+        # Check if field list length is one(1) and field is IDField
+        # if this one field is IDField then this is also Empty Document 
+        # which can not save
+        if len(field_list) == 1:
+            first_key_name = next(iter(field_list)) # getting first key name from dict
+            id_name, _ = self.model_cls._meta.id
+            
+            # Check first key is id
+            if first_key_name == id_name:
+                raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
 
         return self.queryset.create(mutable_instance, transaction, batch, **field_list)
 
