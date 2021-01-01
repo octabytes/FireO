@@ -150,7 +150,7 @@ class Manager:
         """provide operations related to firestore"""
         return queries.QuerySet(self.model_cls)
 
-    def create(self, mutable_instance=None, transaction=None, batch=None, **kwargs,):
+    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, **kwargs,):
         """create new document in firestore collection
 
         Parameters
@@ -227,7 +227,7 @@ class Manager:
                 if first_key_name == id_name:
                     raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
 
-        return self.queryset.create(mutable_instance, transaction, batch, **field_list)
+        return self.queryset.create(mutable_instance, transaction, batch, merge, **field_list)
 
     def _update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Update existing document in firestore collection

@@ -22,10 +22,11 @@ class QuerySet:
     delete(key)
         Delete document in firestore
     """
+
     def __init__(self, model_cls):
         self.model_cls = model_cls
 
-    def create(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
+    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, **kwargs):
         """Create new document in firestore collection
 
         Parameters
@@ -49,7 +50,7 @@ class QuerySet:
             modified instance or new instance if no mutable instance provided
         """
         transaction_or_batch = transaction if transaction else batch
-        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch)
+        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch, merge)
 
     def update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Update existing document in firestore collection
@@ -127,4 +128,5 @@ class QuerySet:
             Firestore batch writes
         """
         transaction_or_batch = transaction if transaction else batch
-        DeleteQuery(self.model_cls, key, child=child).exec(transaction_or_batch)
+        DeleteQuery(self.model_cls, key, child=child).exec(
+            transaction_or_batch)

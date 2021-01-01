@@ -127,17 +127,25 @@ class CreateQuery(BaseQuery):
 
         fl[f.db_column_name] = nested_field_list
 
-    def _raw_exec(self, transaction_or_batch=None):
+    def _raw_exec(self, transaction_or_batch=None, merge=None):
         """save model into firestore and return the document"""
         ref = self._doc_ref()
         if transaction_or_batch:
-            transaction_or_batch.set(ref, self._parse_field())
+            if merge:
+                transaction_or_batch.set(
+                    ref, self._parse_field(), merge=merge)
+            else:
+                transaction_or_batch.set(ref, self._parse_field())
             return None
-        ref.set(self._parse_field())
+
+        if merge:
+            ref.set(self._parse_field(), merge=merge)
+        else:
+            ref.set(self._parse_field())
         return ref.get()
 
-    def exec(self, transaction_or_batch=None):
+    def exec(self, transaction_or_batch=None, merge=None):
         """return modified or new instance of model"""
         if transaction_or_batch:
-            return self._raw_exec(transaction_or_batch)
-        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())
+            return self._raw_exec(transaction_or_batch, merge)
+        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec(merge=merge))
