@@ -128,7 +128,8 @@ class Model(metaclass=ModelMeta):
     def __init__(self, *args, **kwargs):
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
-            raise AbstractNotInstantiate(f'Can not instantiate abstract model "{self.__class__.__name__}"')
+            raise AbstractNotInstantiate(
+                f'Can not instantiate abstract model "{self.__class__.__name__}"')
 
         # Allow users to set fields values direct from the constructor method
         for k, v in kwargs.items():
@@ -139,7 +140,8 @@ class Model(metaclass=ModelMeta):
         for f in self._meta.field_list.values():
             if isinstance(f, fields.NestedModel):
                 if f.name in kwargs:
-                    setattr(self, f.name, f.nested_model.from_dict(kwargs[f.name]))
+                    setattr(self, f.name, f.nested_model.from_dict(
+                        kwargs[f.name]))
                 else:
                     setattr(self, f.name, f.nested_model())
 
@@ -308,9 +310,9 @@ class Model(metaclass=ModelMeta):
     def list_subcollections(self):
         """return a list of any subcollections of the doc"""
         if self._meta._referenceDoc is not None:
-            return [ c.id for c in self._meta._referenceDoc.collections() ]
+            return [c.id for c in self._meta._referenceDoc.collections()]
 
-    def save(self, transaction=None, batch=None):
+    def save(self, transaction=None, batch=None, merge=None):
         """Save Model in firestore collection
 
         Model classes can saved in firestore using this method
@@ -341,7 +343,13 @@ class Model(metaclass=ModelMeta):
         """
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection.create(self, transaction, batch, **self._get_fields())
+        return self.__class__.collection.create(self, transaction, batch, merge, **self._get_fields())
+
+    def upsert(self, transaction=None, batch=None):
+        """If the document does not exist, it will be created. 
+        If the document does exist it should be merged into the existing document.
+        """
+        return self.save(transaction=transaction, batch=batch, merge=True)
 
     def update(self, key=None, transaction=None, batch=None):
         """Update the existing document
@@ -393,7 +401,8 @@ class Model(metaclass=ModelMeta):
             if self._id is None and self.id:
                 setattr(self._meta, 'id', ('id', fields.IDField()))
         elif self._update_doc is None and '@temp_doc_id' in self.key:
-            raise InvalidKey(f'Invalid key to update model "{self.__class__.__name__}" ')
+            raise InvalidKey(
+                f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
         updated_fields = {}
