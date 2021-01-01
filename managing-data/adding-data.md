@@ -121,6 +121,23 @@ print(u.id)  # None
 
 You can choose any name for id field it can be **id** itself
 
+## Upsert (Merge fields)
+If the document does not exist, it will be created. If the document does exist, its data should be **merged** into the existing document, as follows
+
+### Example Usage
+```python
+u = User()
+u.id = "custom-id"
+u.name = "Azeem"
+u.save(merge=True)
+# OR
+u.upsert()
+
+# Both upsert() and save(merge=True) is same thing
+```
+If you're not sure whether the document exists, pass the option to merge the new data with any existing document to avoid overwriting entire documents.
+
+
 ## Using Manager
 Data can be saved by using manger without create model object. Manager return model object after saving data.
 `collection` is default manager for models.
