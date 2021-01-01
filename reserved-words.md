@@ -15,11 +15,11 @@ These words can be used in Firestore but not in Model as instance variable to cl
 
 | Word            | Description                                                                      |
 |:----------------|:---------------------------------------------------------------------------------|
-| id              | Used to store model id, You can use it but only for [IDField](/fields/id-field)  |
+| id              | Used to store model id, You can use it but only for [IDField](/FireO/fields/id-field)  |
 | key, _key             | Store the model key, Don't use it                                                |
 | parent          | Save the parent model key                                                        |
 | _update_doc      | Contain information for updating the model                                       |
-| collection_name | Name of the collection, don't override it manually, See [Meta class](/meta-class/#collection-name)|
+| collection_name | Name of the collection, don't override it manually, See [Meta class](/FireO/meta-class/#collection-name)|
 | collection      | Default Manager to operate Firestore operation                                   |
 | _field_list      | list of fields |
 | _field_changed   | Changed fields when updating |
