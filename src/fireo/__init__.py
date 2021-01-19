@@ -28,6 +28,7 @@ def ListRemove(values):
 def Increment(value):
     return firestore.Increment(value)
 
+
 def list_collections():
     """Returns a list of all collections"""
-    return [ c.id for c in db.conn.collections() ]
+    return [c.id for c in db.conn.collections()]
