@@ -128,9 +128,10 @@ The following example shows how to build and commit a write batch:
 batch = fireo.batch()
 
 # Create the data for NYC
-city = City.collection.create(batch=batch, state='NYC', population=500000)
+City.collection.create(batch=batch, state='NYC', population=500000)
 
 # Update the population for SF
+city = City()
 city.population = 1000000
 city.update(batch=batch)
 
