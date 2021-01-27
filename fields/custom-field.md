@@ -96,7 +96,7 @@ attributes are allowed in every field. But you can create more attributes for yo
 
 ### Method to create field attributes
 
-Add filed attribute in the `aloowed_attributes` list and then create method for each attribute. Method name must
+Add filed attribute in the `allowed_attributes` list and then create method for each attribute. Method name must
 be start from `attr_` and then the name of the attribute. Method should return the value otherwise `None` value
 set for field
 
