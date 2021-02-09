@@ -19,6 +19,10 @@ FireO is more than just ORM
 
 ---
 
+## Available in other language
+
+1. FireO is available also in `nodeJS` [FireO nodeJS](https://github.com/octabytes/fireo-nodejs)
+
 ## Getting started
 
 ### Installation
