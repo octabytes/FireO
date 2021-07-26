@@ -1,7 +1,5 @@
 from fireo import fields 
 from fireo.models import Model
-
-from unittest import mock
  
 class TestA(Model): 
     name = fields.TextField(required=True)
