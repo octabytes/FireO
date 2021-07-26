@@ -172,7 +172,11 @@ class FilterQuery(BaseQuery):
                 # check if field is ReferenceField then to query this field we have to
                 # convert this value into document reference then filter it
                 if isinstance(self.model._meta.get_field(name), ReferenceField):
-                    val = db.conn.document(val)
+                    # ISSUE # 116
+                    # ReferenceFields can be optional and None
+                    # in which case, do not update val to a doc that doesn't exist
+                    if val is not None:
+                        val = db.conn.document(val)
             except FieldNotFound:
                 # Filter with nested model not able to find the field (e.g user.name)
                 # it require to loop the nested model first to find the field
