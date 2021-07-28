@@ -2,7 +2,7 @@ language: python
 sudo: false
 
 python:
-  - "3.6"
+  - "3.7"
 
 before_install:
   - npm i -g firebase@8.0.0 firebase-tools@7.6.1
