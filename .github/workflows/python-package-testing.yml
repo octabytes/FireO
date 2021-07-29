@@ -37,12 +37,12 @@ jobs:
       - name: Start Firestore emulator
         run: |
           npm i -g firebase firebase-tools
+          npm ci
           firebase setup:emulators:firestore
           firebase emulators:start --only firestore &
 
       - name: Test with pytest
         run: |
-          npm ci
           pytest
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
