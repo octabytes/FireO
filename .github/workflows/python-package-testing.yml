@@ -37,7 +37,6 @@ jobs:
       - name: Start Firestore emulator
         run: |
           npm i -g firebase firebase-tools
-          npm ci
           firebase setup:emulators:firestore
           firebase emulators:start --only firestore &
 
