@@ -41,7 +41,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest
           python -m pip install -e .
+        env:
+          FIRESTORE_EMULATOR_HOST: localhost:8080
 
       - name: Test with pytest
         run: |
           pytest
+        env:
+          FIRESTORE_EMULATOR_HOST: localhost:8080
