@@ -25,13 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest
           python -m pip install -e .
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14.x"
-      - name: Start Firestore emulator
-        run: |
           npm i -g firebase@8.0.0 firebase-tools@7.6.1
           firebase setup:emulators:firestore
           firebase emulators:start --only firestore &
