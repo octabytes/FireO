@@ -10,7 +10,24 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  firestore:
+    name: Setup Firestore
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+      - name: Start Firestore emulator
+        run: |
+          npm i -g firebase firebase-tools
+          firebase setup:emulators:firestore
+          firebase emulators:start --only firestore &
+
+  fireo:
+    name: FireO Test
+    needs: firestore
     runs-on: ubuntu-latest
 
     steps:
@@ -26,19 +43,8 @@ jobs:
           python -m pip install pytest
           python -m pip install -e .
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14.x"
-      - name: Start Firestore emulator
-        run: |
-          npm i -g firebase firebase-tools
-          firebase setup:emulators:firestore
-          firebase emulators:start --only firestore &
-
       - name: Test with pytest
         run: |
-          export FIRESTORE_EMULATOR_HOST=localhost:8080
           pytest
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
