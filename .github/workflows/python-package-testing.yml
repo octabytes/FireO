@@ -42,6 +42,7 @@ jobs:
 
       - name: Test with pytest
         run: |
+          export FIRESTORE_EMULATOR_HOST=localhost:8080
           pytest
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
