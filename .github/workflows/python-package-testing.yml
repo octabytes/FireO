@@ -32,7 +32,7 @@ jobs:
           node-version: "14.x"
       - name: Start Firestore emulator
         run: |
-          npm i -g firebase firebase-tools
+          npm i -g firebase@8.0.0 firebase-tools@7.6.1
           firebase setup:emulators:firestore
           firebase emulators:start --only firestore &
 
