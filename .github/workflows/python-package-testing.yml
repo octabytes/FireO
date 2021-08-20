@@ -15,16 +15,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
           python-version: "3.7"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest
-          python -m pip install -e .
 
       - name: Setup NodeJS
         uses: actions/setup-node@v2
@@ -32,12 +27,15 @@ jobs:
           node-version: "14.x"
       - name: Start Firestore emulator
         run: |
-          npm i -g firebase firebase-tools
-          firebase setup:emulators:firestore
-          firebase emulators:start --project test-proj --only firestore &
+          - npm i -g firebase@8.0.0 firebase-tools@7.6.1
+          - firebase setup:emulators:firestore
+          - firebase emulators:start --only firestore &
 
-      - name: Test with pytest
+      - name: Install dependencies
         run: |
-          pytest
-        env:
-          FIRESTORE_EMULATOR_HOST: localhost:8080
+          python -m pip install --upgrade pip
+          python -m pip install tox
+
+      - name: Test with Tox
+        run: |
+          tox -v -e py
