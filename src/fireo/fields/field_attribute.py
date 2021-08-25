@@ -28,6 +28,9 @@ class FieldAttribute:
     validator:
         Custom validation for field specify by user
 
+    validator_kwargs:
+        Optional extra parameters for validation on the field.
+
     Methods
     -------
     validate(value):
@@ -53,7 +56,7 @@ class FieldAttribute:
     AttributeMethodNotDefined:
         if any custom field not define the method for `allowed_attributes`
     """
-    allowed_attributes = ['default', 'required', 'column_name', 'validator']
+    allowed_attributes = ['default', 'required', 'column_name', 'validator', 'validator_kwargs']
 
     def __init__(self, field, attributes):
         self.field = field
@@ -86,8 +89,18 @@ class FieldAttribute:
             # check if there any custom validation provided by user
             if self.validator is not None:
                 if callable(self.validator):
+
                     # get response back from user defined method
-                    validation_passed = self.validator(value)
+                    # validate with validator_kwargs if provided, check TypeError due to argument mismatch 
+                    if self.validator_kwargs is not None:
+                        try:
+                            validation_passed = self.validator(value, **self.validator_kwargs)
+                        except TypeError:
+                            raise FieldValidationFailed(f'"Validation failed due to argument mismatch with value "'
+                                                        f' {value} and validator_kwargs {self.validator_kwargs}')
+                    else:
+                        validation_passed = self.validator(value)
+
                     # check type of response
                     if isinstance(validation_passed, bool):
                         if not validation_passed:
@@ -196,3 +209,8 @@ class FieldAttribute:
     def validator(self):
         """Custom validation for field specify by user"""
         return self.attributes.get("validator")
+
+    @property
+    def validator_kwargs(self):
+        """Custom validator kwargs for field"""
+        return self.attributes.get("validator_kwargs")
