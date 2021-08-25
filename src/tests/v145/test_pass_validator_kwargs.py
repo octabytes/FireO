@@ -5,8 +5,7 @@ def validator_func_with_kwargs(a, **kwargs):
     if kwargs.get("some_key"):
         return True
 
-
-    return True
+    return False 
 
 
 class Test(Model): 
