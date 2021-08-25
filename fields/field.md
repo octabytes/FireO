@@ -122,6 +122,45 @@ u.save()
 
 If field not passed the validation then an error will raise. You can also define the custom error message
 
+You can also pass in a `dict` for custom kwargs as `validator_kwargs` when defining the field. 
+You'll also need to make you validator function take in `**kwargs` as an argument well. 
+This is useful for passing extra arguments or metadata to validator functions.
+
+#### Example Usage
+{: .no_toc }
+
+```python
+def check_email(field_val, **kwargs):
+    if kwargs.get("key"):
+        # some logic
+
+    if '@' in field_val:
+        return True
+    else:
+        return False
+
+
+class User(Model):
+    email = Field(validator=check_email, validator_kwargs={"key": "val"})
+
+    # If you want to programmatically add kwargs after object instantiation
+    def set_kwargs(self, kwargs)
+        modified_field = Field(validator=check_email, validator_kwargs=kwargs)
+        modified_field.contribute_to_model(User, "email")
+
+
+u = User()
+u.email = 'dev@octabyte.io'
+u.save()
+
+# Setting kwargs after object instantiation
+u = User()
+new_kwargs = {"key": "val_2"}
+u.set_kwargs(new_kwargs)
+u.save()
+```
+
+
 ```python
 def check_email(field_val):
     if '@' in field_val:
