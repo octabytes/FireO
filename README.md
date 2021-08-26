@@ -60,6 +60,7 @@ space for collaboration, and contributors are expected to adhere to the
 3. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you have done and how other can use it  
 
 To run the tests while developing on this package, you'll have to setup a Google service account and setup credentials with the following command:
+
 `export GOOGLE_APPLICATION_CREDENTIALS="KEY_PATH"`
 
 See the [Google Cloud documentation](https://cloud.google.com/docs/authentication/getting-started) for more details.
