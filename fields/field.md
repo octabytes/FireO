@@ -122,8 +122,16 @@ u.save()
 
 If field not passed the validation then an error will raise. You can also define the custom error message
 
+```python
+def check_email(field_val):
+    if '@' in field_val:
+        return True
+    else:
+        return (False, 'Email must contain @ sign')
+```
+
 You can also pass in a `dict` for custom kwargs as `validator_kwargs` when defining the field. 
-You'll also need to make you validator function take in `**kwargs` as an argument well. 
+You'll also need to make the validator function takes in `**kwargs` as an argument. 
 This is useful for passing extra arguments or metadata to validator functions.
 
 #### Example Usage
@@ -158,13 +166,4 @@ u = User()
 new_kwargs = {"key": "val_2"}
 u.set_kwargs(new_kwargs)
 u.save()
-```
-
-
-```python
-def check_email(field_val):
-    if '@' in field_val:
-        return True
-    else:
-        return (False, 'Email must contain @ sign')
 ```
