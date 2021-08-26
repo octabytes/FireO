@@ -129,3 +129,41 @@ def check_email(field_val):
     else:
         return (False, 'Email must contain @ sign')
 ```
+
+You can also pass in a `dict` for custom kwargs as `validator_kwargs` when defining the field. 
+You'll also need to make the validator function takes in `**kwargs` as an argument. 
+This is useful for passing extra arguments or metadata to validator functions.
+
+#### Example Usage
+{: .no_toc }
+
+```python
+def check_email(field_val, **kwargs):
+    if kwargs.get("key"):
+        # some logic
+
+    if '@' in field_val:
+        return True
+    else:
+        return False
+
+
+class User(Model):
+    email = Field(validator=check_email, validator_kwargs={"key": "val"})
+
+    # If you want to programmatically add kwargs after object instantiation
+    def set_kwargs(self, kwargs)
+        modified_field = Field(validator=check_email, validator_kwargs=kwargs)
+        modified_field.contribute_to_model(User, "email")
+
+
+u = User()
+u.email = 'dev@octabyte.io'
+u.save()
+
+# Setting kwargs after object instantiation
+u = User()
+new_kwargs = {"key": "val_2"}
+u.set_kwargs(new_kwargs)
+u.save()
+```
