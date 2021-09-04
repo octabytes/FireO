@@ -41,3 +41,4 @@ jobs:
           pytest
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
+          GCLOUD_PROJECT: "fake-project-id"
