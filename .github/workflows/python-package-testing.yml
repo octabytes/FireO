@@ -36,7 +36,7 @@ jobs:
           gcloud components list
           gcloud components install beta --quiet
           gcloud components install cloud-firestore-emulator --quiet
-          gcloud beta emulators firestore start --project test --host-port "localhost:8080"
+          gcloud beta emulators firestore start --project test --host-port "localhost:8080" &
 
       - name: Test with pytest
         run: |
