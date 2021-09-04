@@ -1,10 +1,13 @@
 from google.cloud import firestore
+from os import environ
 
 from fireo.utils.utils import GeoPoint
 from fireo.database import connection, db
 from fireo.transaction import Transaction
 
-
+if "GCLOUD_PROJECT" not in environ:
+    environ['GCLOUD_PROJECT'] = 'fake-project-id'
+    
 def transaction(**kwargs):
     return db.conn.transaction(**kwargs)
 
