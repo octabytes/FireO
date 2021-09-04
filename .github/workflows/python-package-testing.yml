@@ -34,7 +34,7 @@ jobs:
         run: |
           npm i -g firebase firebase-tools
           firebase setup:emulators:firestore
-          firebase emulators:start --only firestore &
+          firebase emulators:start --only firestore --project some-fake-id &
 
       - name: Test with pytest
         run: |
