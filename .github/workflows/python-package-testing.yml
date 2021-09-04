@@ -32,7 +32,7 @@ jobs:
           project_id: fake-project-id
 
       - name: Use gcloud CLI
-        run: gcloud beta emulators firestore start --project test --host-port "localhost:8080"
+        run: gcloud beta emulators firestore start --quiet --project test --host-port "localhost:8080"
 
       - name: Test with pytest
         run: |
