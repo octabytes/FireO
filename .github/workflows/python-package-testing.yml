@@ -26,15 +26,13 @@ jobs:
           python -m pip install pytest
           python -m pip install -e .
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
         with:
-          node-version: "14.x"
-      - name: Start Firestore emulator
-        run: |
-          npm i -g firebase firebase-tools
-          firebase setup:emulators:firestore
-          firebase emulators:start --only firestore --project some-fake-id &
+          project_id: fake-project-id
+
+      - name: Use gcloud CLI
+        run: gcloud beta emulators firestore start --project test --host-port "localhost:8080"
 
       - name: Test with pytest
         run: |
