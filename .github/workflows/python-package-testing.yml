@@ -5,7 +5,9 @@ name: Python package
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - gcloud
   pull_request:
     branches: [master]
 
