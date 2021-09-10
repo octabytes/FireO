@@ -1,6 +1,6 @@
 <p align="right">
 <a href="https://badge.fury.io/py/fireo"><a href="https://opencollective.com/FireO" alt="Financial Contributors on Open Collective"><img src="https://opencollective.com/FireO/all/badge.svg?label=financial+contributors" /></a> <img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version"></a>
-<a href="https://travis-ci.org/octabytes/FireO"><img src="https://travis-ci.org/octabytes/FireO.svg?branch=master" alt="Build Status"></a>
+![example workflow](https://github.com/octabytes/FireO/actions/workflows/python-package-testing.yml/badge.svg)
 </p>
 <p>
     <h1 align="center"><img src="fireo_logo.png" height="100" alt="FireO Logo"></h1>
