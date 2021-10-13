@@ -149,6 +149,18 @@ u = User.collection.create(name="Azeem", age=26)
 print(u.id)
 ```
 
+## Preventing get when creating new document
+By default when you create new document FireO get this document and return model object.
+But you can disable this behavior with `no_return` option
+
+### Example
+```python
+User.collection.create(no_return=False, name="Azeem", age=27) 
+# It will create new User but return None
+```
+
+You can also use it with model object `model.save(no_return=False)`
+
 ## Sub collection
 A subcollection is a collection associated with a specific document. In FireO world you can save one model
 inside another model parent child relation.

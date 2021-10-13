@@ -123,6 +123,7 @@ If you do not need to read any documents in your operation set, you can execute 
 as a single batch that contains any combination of `create()`, `update()`, or `delete()` operations. 
 A batch of writes completes atomically and can write to multiple documents. 
 The following example shows how to build and commit a write batch:
+**Create and Update batch return document reference**
 
 ```python
 batch = fireo.batch()
