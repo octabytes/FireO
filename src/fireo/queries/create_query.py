@@ -136,7 +136,7 @@ class CreateQuery(BaseQuery):
                     ref, self._parse_field(), merge=merge)
             else:
                 transaction_or_batch.set(ref, self._parse_field())
-            return None
+            return ref
 
         if merge:
             ref.set(self._parse_field(), merge=merge)

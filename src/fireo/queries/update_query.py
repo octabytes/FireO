@@ -81,7 +81,7 @@ class UpdateQuery(BaseQuery):
         ref = self._doc_ref()
         if transaction_or_batch:
             transaction_or_batch.update(ref, self._parse_field())
-            return None
+            return ref
 
         parse_field = self._parse_field()
         if parse_field:
