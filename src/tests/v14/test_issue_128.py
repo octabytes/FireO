@@ -4,7 +4,7 @@ from fireo.fields import TextField, NumberField
 from fireo.models import Model
 
 class City(Model):
-    name = TextField()
+    state = TextField()
     population = NumberField()
 
 def test_issue_128_in_document_creation():

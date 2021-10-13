@@ -312,7 +312,7 @@ class Model(metaclass=ModelMeta):
         if self._meta._referenceDoc is not None:
             return [c.id for c in self._meta._referenceDoc.collections()]
 
-    def save(self, transaction=None, batch=None, merge=None):
+    def save(self, transaction=None, batch=None, merge=None, no_return=False):
         """Save Model in firestore collection
 
         Model classes can saved in firestore using this method
@@ -343,7 +343,7 @@ class Model(metaclass=ModelMeta):
         """
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection.create(self, transaction, batch, merge, **self._get_fields())
+        return self.__class__.collection.create(self, transaction, batch, merge, no_return, **self._get_fields())
 
     def upsert(self, transaction=None, batch=None):
         """If the document does not exist, it will be created. 

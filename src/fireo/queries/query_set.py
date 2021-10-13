@@ -26,7 +26,7 @@ class QuerySet:
     def __init__(self, model_cls):
         self.model_cls = model_cls
 
-    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, **kwargs):
+    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, **kwargs):
         """Create new document in firestore collection
 
         Parameters
@@ -34,6 +34,9 @@ class QuerySet:
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
+
+        no_return: bool
+            If set True then return nothing otherwise return model object
 
         transaction:
             Firestore transaction
@@ -50,7 +53,7 @@ class QuerySet:
             modified instance or new instance if no mutable instance provided
         """
         transaction_or_batch = transaction if transaction else batch
-        return CreateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch, merge)
+        return CreateQuery(self.model_cls, mutable_instance, no_return, **kwargs).exec(transaction_or_batch, merge)
 
     def update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
         """Update existing document in firestore collection

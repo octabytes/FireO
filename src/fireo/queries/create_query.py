@@ -22,9 +22,10 @@ class CreateQuery(BaseQuery):
         return modified or new instance of model
     """
 
-    def __init__(self, model_cls, mutable_instance=None, **kwargs):
+    def __init__(self, model_cls, mutable_instance=None, no_return=False, **kwargs):
         super().__init__(model_cls)
         self.query = kwargs
+        self.no_return = no_return
         # If this is called from manager or mutable model is
         # not provided then this `model` will be a class not instance
         # then create new instance from this model class
@@ -142,7 +143,13 @@ class CreateQuery(BaseQuery):
             ref.set(self._parse_field(), merge=merge)
         else:
             ref.set(self._parse_field())
-        return ref.get()
+
+        # If no_return is True then return nothing otherwise 
+        # return object instance issue #126
+        if self.no_return:
+            return None
+        else:
+            return ref.get()
 
     def exec(self, transaction_or_batch=None, merge=None):
         """return modified or new instance of model"""
