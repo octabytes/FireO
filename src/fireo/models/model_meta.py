@@ -335,6 +335,8 @@ class ModelMeta(type):
         # Both Model user and student now contains the name field
         #
         for b in base:
+            if not hasattr(b, '_meta'):
+                continue
             if not b._meta.abstract:
                 from fireo.models import Model
                 if b != Model:
