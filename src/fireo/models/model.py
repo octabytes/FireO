@@ -125,6 +125,9 @@ class Model(metaclass=ModelMeta):
     # Update doc hold the key which is used to update the document
     _update_doc = None
 
+    _create_time = None
+    _update_time = None
+
     def __init__(self, *args, **kwargs):
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
@@ -296,7 +299,7 @@ class Model(metaclass=ModelMeta):
             :class:`google.api_core.datetime_helpers.DatetimeWithNanoseconds`,
             :class:`datetime.datetime` or ``NoneType``:
         """
-        return self._meta._firestore_create_time
+        return self._create_time
 
     def get_firestore_update_time(self):
         """returns update time of document in Firestore
@@ -305,7 +308,7 @@ class Model(metaclass=ModelMeta):
             :class:`google.api_core.datetime_helpers.DatetimeWithNanoseconds`,
             :class:`datetime.datetime` or ``NoneType``:
         """
-        return self._meta._firestore_update_time
+        return self._update_time
 
     def list_subcollections(self):
         """return a list of any subcollections of the doc"""
