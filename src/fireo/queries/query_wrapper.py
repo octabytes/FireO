@@ -61,8 +61,8 @@ class ModelWrapper:
             model._meta.set_reference_doc(doc.reference)
             # even though doc.reference currently points to self, there is no guarantee this will be true
             # in the future, therefore we should store the create time and update time separate.
-            model._meta._firestore_create_time = doc.create_time
-            model._meta._firestore_update_time = doc.update_time
+            model._create_time = doc.create_time
+            model._update_time = doc.update_time
         return model
 
 
