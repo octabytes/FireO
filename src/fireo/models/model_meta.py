@@ -145,8 +145,6 @@ class ModelMeta(type):
                 self.ignore_none_field = True
                 self.to_lowercase = False
                 self._referenceDoc = None
-                self._firestore_create_time = None
-                self._firestore_update_time = None
 
             # Attached manager to model class
             # later on manager can be accessible via class `collection` attribute
