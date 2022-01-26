@@ -174,8 +174,8 @@ class Post(Model):
 
 
 class Review(Model):
-    name = TextFile()
-    message = TextFile()
+    name = TextField()
+    message = TextField()
 
 
 p = Post(title="My First Post", content="Post content")
