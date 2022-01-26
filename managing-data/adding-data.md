@@ -59,7 +59,7 @@ print(u.key)  # user/xaIkLAGEjkSON
 ```
 
 `key` contain more information e.g **id, parent collection, parent document** these things can be get 
-from `key` using [utils class](/utils).and useful when getting, updating or delete data. 
+from `key` using [utils class](/FireO/utils).and useful when getting, updating or delete data. 
 `key` also used for creating sub collections.
 
 ### Using From Dict
@@ -77,7 +77,7 @@ print(u.key)  # user/xaIkLAGEjkSON
 ```
 
 ### Custom id
-Custom id can also be specified by using [IDField](/fields/id-field)
+Custom id can also be specified by using [IDField](/FireO/fields/id-field)
 
 ### Example Usage
 {: .no_toc }
@@ -102,7 +102,7 @@ u.save()
 print(u.user_id)  # custom_doc_id
 ```
 
-If you add [IDField](/fields/id-field) and not specify any id then id will be stored in this field.
+If you add [IDField](/FireO/fields/id-field) and not specify any id then id will be stored in this field.
 
 #### Example
 {: .no_toc }
