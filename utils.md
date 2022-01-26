@@ -35,3 +35,10 @@ Get `id` from `key`
 ```python
 id = utils.get_id(key)
 ```
+
+## Key from id and model
+Get `key` from `id` and `model`
+
+```python
+key = utils.generateKeyFromId(model, key)
+```
