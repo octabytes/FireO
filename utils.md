@@ -39,6 +39,8 @@ id = utils.get_id(key)
 ## Key from id and model
 Get `key` from `id` and `model`
 
+Simply concatenates `model.collection_name` and `id` so cannot derive the full `key` for models used in subcollections.
+
 ```python
 key = utils.generateKeyFromId(model, key)
 ```
