@@ -20,10 +20,6 @@ class ModelWrapper:
         else:
             return None
 
-        # instance values is changed according to firestore
-        # so mark it modified this will help later for figuring
-        # out the updated fields when need to update this document
-        setattr(model, '_instance_modified', True)
         for k, v in doc_dict.items():
             field = model._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
@@ -42,6 +38,11 @@ class ModelWrapper:
             else:
                 val = field.field_value(v)
             setattr(model, field.name, val)
+
+        # instance values is changed according to firestore
+        # so mark it modified this will help later for figuring
+        # out the updated fields when need to update this document
+        setattr(model, '_instance_modified', True)
 
         # If parent key is None but here is parent key from doc then set the parent for this model
         # This is case when you filter the documents parent key not auto set just set it

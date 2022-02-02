@@ -434,7 +434,7 @@ class Model(metaclass=ModelMeta):
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
-        if key in self._field_list or not self._instance_modified:
+        if self._instance_modified:
             self._field_changed.append(key)
         else:
             self._field_list.append(key)
