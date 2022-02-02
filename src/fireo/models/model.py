@@ -434,8 +434,11 @@ class Model(metaclass=ModelMeta):
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
-        if self._instance_modified:
-            self._field_changed.append(key)
-        else:
-            self._field_list.append(key)
+        self._field_changed.append(key)
+        self._field_list.append(key)
+        super(Model, self).__setattr__(key, value)
+
+    def _set_orig_attr(self, key, value):
+        """Keep track which filed values are changed"""
+        self._field_list.append(key)
         super(Model, self).__setattr__(key, value)
