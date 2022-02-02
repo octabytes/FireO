@@ -79,7 +79,7 @@ class UpdateQuery(BaseQuery):
     def _raw_exec(self, transaction_or_batch=None):
         """Update document in firestore and return the document"""
         ref = self._doc_ref()
-        if transaction_or_batch:
+        if transaction_or_batch is not None:
             transaction_or_batch.update(ref, self._parse_field())
             return ref
 
@@ -90,6 +90,6 @@ class UpdateQuery(BaseQuery):
 
     def exec(self, transaction_or_batch=None):
         """return modified instance of model"""
-        if transaction_or_batch:
+        if transaction_or_batch is not None:
             return self._raw_exec(transaction_or_batch)
         return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec())
