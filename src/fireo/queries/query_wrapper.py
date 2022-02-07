@@ -24,6 +24,7 @@ class ModelWrapper:
         # so mark it modified this will help later for figuring
         # out the updated fields when need to update this document
         setattr(model, '_instance_modified', True)
+
         for k, v in doc_dict.items():
             field = model._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
@@ -41,7 +42,8 @@ class ModelWrapper:
                     val = None
             else:
                 val = field.field_value(v)
-            setattr(model, field.name, val)
+            # setattr(model, field.name, val)
+            model._set_orig_attr(field.name, val)
 
         # If parent key is None but here is parent key from doc then set the parent for this model
         # This is case when you filter the documents parent key not auto set just set it
@@ -56,7 +58,9 @@ class ModelWrapper:
             if model._meta.id is None:
                 model._meta.id = ('id', IDField())
                 
-            setattr(model, '_id', doc.id)
+            # setattr(model, '_id', doc.id)
+            model._set_orig_attr('_id', doc.id)
+
             # save the firestore reference doc so that further actions can be performed (i.e. collections())
             model._meta.set_reference_doc(doc.reference)
             # even though doc.reference currently points to self, there is no guarantee this will be true
