@@ -45,7 +45,7 @@ class DeleteQuery(BaseQuery):
             for c in ref.collections():
                 DeleteQuery(self.model_cls, query=c, child=True).exec(self.transaction_or_batch)
 
-        if self.transaction_or_batch:
+        if self.transaction_or_batch is not None:
             self.transaction_or_batch.delete(ref)
         else:
             ref.delete()
@@ -62,7 +62,7 @@ class DeleteQuery(BaseQuery):
                 for c in ref.collections():
                     DeleteQuery(self.model_cls, query=c, child=True).exec(self.transaction_or_batch)
 
-            if self.transaction_or_batch:
+            if self.transaction_or_batch is not None:
                 self.transaction_or_batch.delete(ref)
             else:
                 ref.delete()

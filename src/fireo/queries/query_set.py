@@ -52,7 +52,7 @@ class QuerySet:
         Model instance:
             modified instance or new instance if no mutable instance provided
         """
-        transaction_or_batch = transaction if transaction else batch
+        transaction_or_batch = transaction if transaction is not None else batch
         return CreateQuery(self.model_cls, mutable_instance, no_return, **kwargs).exec(transaction_or_batch, merge)
 
     def update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
@@ -80,7 +80,7 @@ class QuerySet:
         Model instance:
             updated modified instance
         """
-        transaction_or_batch = transaction if transaction else batch
+        transaction_or_batch = transaction if transaction is not None else batch
         return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch)
 
     def get(self, key, transaction=None):
@@ -130,6 +130,6 @@ class QuerySet:
         batch:
             Firestore batch writes
         """
-        transaction_or_batch = transaction if transaction else batch
+        transaction_or_batch = transaction if transaction is not None else batch
         DeleteQuery(self.model_cls, key, child=child).exec(
             transaction_or_batch)
