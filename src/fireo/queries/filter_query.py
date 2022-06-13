@@ -361,7 +361,15 @@ class FilterQuery(BaseQuery):
         if field_name[0] == '-':
             order_direction = 'Desc'
             name = field_name[1:]  # Get the field name after dash(-) e.g -age name will be age
-        f_name = self.model._meta.get_field(name).db_column_name
+        
+        # ISSUE # 155
+        # If name is for nested field for MapField then there is not need to get field name
+        # from model because there is no such field in model
+        if "." in name:
+            f_name = name
+        else:
+            f_name = self.model._meta.get_field(name).db_column_name
+
         self.order_by.append((f_name, order_direction))
         return self
 
