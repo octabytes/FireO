@@ -1,13 +1,13 @@
 from fireo.models import Model
-from fireo.fields import TextField, NumberField, IDField
+from fireo.fields import TextField, MapField
 import fireo
 
 
 def test_issue_155():
 
     class Test(Model):
-        name = fo.fields.TextField()
-        score_data = fo.fields.MapField(default={
+        name = TextField()
+        score_data = MapField(default={
             'field1': 0,
             'field2': 0
         })
