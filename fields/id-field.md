@@ -22,7 +22,10 @@ generated automatically.
 ## Example Usage
 
 ```python
-class User(Mode):
+from fireo.models import Model
+from fireo.fields import IDField
+
+class User(Model):
     user_id = IDField()
 
 
