@@ -7,6 +7,7 @@ from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
 from google.cloud import firestore
+from google.cloud.firestore_v1.field_path import FieldPath
 from datetime import datetime
 
 
@@ -217,7 +218,8 @@ class FilterQuery(BaseQuery):
             # ISSUE # 160
             # check if it is ID field
             elif self._is_id_field(name):
-                f_name = "__name__"
+                # should yield "__name__"
+                f_name = FieldPath.document_id()
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
@@ -264,7 +266,8 @@ class FilterQuery(BaseQuery):
     # ISSUE # 160
     def _is_id_field(self, name):
         """Check if this is id field"""
-        if name == "__name__":
+        # should yield "__name__"
+        if name == FieldPath.document_id():
             return True
 
         # checking here because `model._id` or `model.id`` are not yet populated
