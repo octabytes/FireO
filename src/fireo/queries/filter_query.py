@@ -7,6 +7,7 @@ from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
 from google.cloud import firestore
+from google.cloud.firestore_v1.field_path import FieldPath
 from datetime import datetime
 
 
@@ -51,6 +52,9 @@ class FilterQuery(BaseQuery):
 
     _fields_by_column_name():
         Change the field name according to their db column name
+
+    _is_id_field(name):
+        Check if this is id field
 
     _firestore_doc():
         Get document from firestore based on key
@@ -175,7 +179,7 @@ class FilterQuery(BaseQuery):
             except FieldNotFound:
                 # Filter with nested model not able to find the field (e.g user.name)
                 # it require to loop the nested model first to find the field
-                # so just ignore it 
+                # so just ignore it
                 pass
 
             # check if user defined to set the value as lower case
@@ -211,6 +215,11 @@ class FilterQuery(BaseQuery):
                 else:
                     field_name = field
                 f_name = model_name + '.' + field_name
+            # ISSUE # 160
+            # check if it is ID field
+            elif self._is_id_field(name):
+                # should yield "__name__"
+                f_name = FieldPath.document_id()
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
@@ -253,6 +262,19 @@ class FilterQuery(BaseQuery):
             self.model._meta.get_field(k).db_column_name: v
             for k,v in kwargs.items()
         }
+
+    # ISSUE # 160
+    def _is_id_field(self, name):
+        """Check if this is id field"""
+        # should yield "__name__"
+        if name == FieldPath.document_id():
+            return True
+
+        # checking here because `model._id` or `model.id`` are not yet populated
+        if name == self.model._meta.id[0]:
+            return True
+
+        return False
 
     def _firestore_doc(self, key):
         """Get document from firestore based on key"""
@@ -361,7 +383,7 @@ class FilterQuery(BaseQuery):
         if field_name[0] == '-':
             order_direction = 'Desc'
             name = field_name[1:]  # Get the field name after dash(-) e.g -age name will be age
-        
+
         # ISSUE # 155
         # If name is for nested field for MapField then there is not need to get field name
         # from model because there is no such field in model
