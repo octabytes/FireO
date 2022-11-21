@@ -43,3 +43,6 @@ def get_nested(dict, *args):
 
 def generateKeyFromId(model, id):
     return model.collection_name + "/" + id
+
+def isKey(str):
+    return "/" in str

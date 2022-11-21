@@ -1,6 +1,6 @@
 from fireo.database import db
 from fireo.fields import NestedModel, DateTime, ReferenceField
-from fireo.fields.errors import FieldNotFound
+from fireo.fields.errors import AttributeTypeError, FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
@@ -220,6 +220,30 @@ class FilterQuery(BaseQuery):
             elif self._is_id_field(name):
                 # should yield "__name__"
                 f_name = FieldPath.document_id()
+
+                # value should be an array
+                if type(val) is list:
+
+                    # list should contain some values
+                    if len(val) == 0:
+                        raise AttributeError("List should contain some values")
+
+                    # convert values into document ref
+                    filter_items_ref = []
+                    for filterItem in val:
+                        # check is it key or id
+                        if utils.isKey(filterItem):
+                            filter_items_ref.append(db.conn.document(filterItem))
+                        else:
+                            key = utils.generateKeyFromId(self.model, filterItem)
+                            filter_items_ref.append(db.conn.document(key))
+
+                    # change val and assign filter item ref to val
+                    val = filter_items_ref
+
+                else:
+                    raise AttributeTypeError(f'Expected type list but given {type(val)}')
+
             else:
                 f_name = self.model._meta.get_field(name).db_column_name
             filters.append((f_name, op, val))
@@ -268,6 +292,12 @@ class FilterQuery(BaseQuery):
         """Check if this is id field"""
         # should yield "__name__"
         if name == FieldPath.document_id():
+            return True
+
+        # if name is just "id" then might be user did not define IDField in model
+        # so just return True otherwise if user did not mention IDField model._meta.id
+        # return None and failed to execute operation 
+        if name == "id":
             return True
 
         # checking here because `model._id` or `model.id`` are not yet populated
