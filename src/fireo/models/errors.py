@@ -12,3 +12,5 @@ class NonAbstractModel(Exception):
 class AbstractNotInstantiate(Exception):
     pass
 
+class DuplicateIDField(Exception):
+    pass

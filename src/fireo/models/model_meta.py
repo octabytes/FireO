@@ -1,7 +1,7 @@
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.managers import managers
 from fireo import fields
-from fireo.models.errors import NonAbstractModel, UnSupportedMeta
+from fireo.models.errors import DuplicateIDField, NonAbstractModel, UnSupportedMeta
 from fireo.utils import utils
 
 
@@ -173,7 +173,10 @@ class ModelMeta(type):
                 field : IDField()
                     User defined custom id field
                 """
-                self.id = (field.name, field)
+                if not self.id:
+                    self.id = (field.name, field)
+                else:
+                    raise DuplicateIDField("Duplicate ID Field")
 
             def add_field(self, field):
                 """Add model fields into model meta class
