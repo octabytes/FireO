@@ -6,7 +6,7 @@ from fireo.models import Model
 
 def test_issue_162_duplicate_id_fields():
     with pytest.raises(DuplicateIDField):
-        class DuplicateIDFieldsModel(Model):
+        class Test(Model):
             id = IDField()
             id2 = IDField()
             name = TextField()
