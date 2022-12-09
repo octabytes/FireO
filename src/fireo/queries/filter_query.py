@@ -300,9 +300,15 @@ class FilterQuery(BaseQuery):
         if name == "id":
             return True
 
-        # checking here because `model._id` or `model.id`` are not yet populated
-        if name == self.model._meta.id[0]:
-            return True
+        # Checking `model._meta.id` because `model._id` or `model.id` are not
+        # populated on CLS
+        # If model is using implicit "id" field and has not been fully initialized
+        # (i.e. used to get or save), `self.model._meta.id` isn't even set, so
+        # we need to gate on that as well
+        # https://github.com/octabytes/FireO/issues/168
+        if self.model._meta.id is not None:
+            if name == self.model._meta.id[0]:
+                return True
 
         return False
 
