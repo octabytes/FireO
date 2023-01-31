@@ -83,7 +83,7 @@ class FieldAttribute:
 
             # check this field is required or not
             if self.required and value is None and not ignore_required:
-                raise RequiredField(f'"{self.field.__class__.__name__}" is required for model {self.field.model_cls} '
+                raise RequiredField(f'"{self.field.name}" is required for model {self.field.model_cls} '
                                     f'but received no default and no value.')
 
             # check if there any custom validation provided by user
