@@ -38,6 +38,7 @@ The following attributes supported by List Field.
 2. [required](#required)
 3. [column_name](#column-name)
 4. [validator](#validator)
+5. [nested_field](#nested-field)
 
 - ### Default
 
@@ -53,3 +54,19 @@ The following attributes supported by List Field.
 
 - ### Validator
   Validate given value of field. This is base attribute that is available in all fields [Read More](/FireO/fields/field#validator)
+
+- ### Nested Field
+  Set nested field for list field.
+
+  #### Example Usage
+  
+  {: .no_toc }
+  
+  ```python
+  class User(Model):
+    subjects = ListField(nested_field=TextField())  
+  
+  u = User(salary=1000)
+  u.save()
+  ```
+    
