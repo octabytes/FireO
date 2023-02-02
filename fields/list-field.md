@@ -66,7 +66,7 @@ The following attributes supported by List Field.
   class User(Model):
     subjects = ListField(nested_field=TextField())  
   
-  u = User(salary=1000)
-  u.save()
+  u = User()
+  u.subjects = ['English', 'Math']
   ```
     
