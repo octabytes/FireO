@@ -98,7 +98,7 @@ class Field(metaclass=MetaField):
         """
         return self.raw_attributes.get("column_name") or self.name
 
-    def get_value(self, val, ignore_required=False, ignore_default=False):
+    def get_value(self, val, ignore_required=False, ignore_default=False, changed_only=False):
         """Get field value after validation
 
         Make validation and applying attribute function on it.
@@ -114,6 +114,10 @@ class Field(metaclass=MetaField):
 
         ignore_default : Bool
             Ignore default fields or not mostly ignore when updating the document
+
+        changed_only : Bool
+            Ignore fields which are not changed when updating the document.
+            Used in NestedModelField
 
         Returns
         -------
@@ -157,7 +161,7 @@ class Field(metaclass=MetaField):
                 return val.lower() if type(val) is str else val
         return val
 
-    def field_value(self, val):
+    def field_value(self, val, model):
         """ How this field represent value that is coming from firestore
 
         Value can be modified after getting value from firestore

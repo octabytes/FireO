@@ -1,6 +1,7 @@
 from fireo.database import db
-from fireo.fields import NestedModel, DateTime, ReferenceField
+from fireo.fields import DateTime, MapField, ReferenceField
 from fireo.fields.errors import AttributeTypeError, FieldNotFound
+from fireo.fields.nested_model_field import NestedModelField
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
@@ -188,33 +189,25 @@ class FilterQuery(BaseQuery):
 
             # Check it is nested model field
             if '.' in name:
-                # m, f = name.split('.')
-                # model_field = self.model._meta.get_field(m)
-                # model_name = model_field.db_column_name
-                # nested_model = model_field.nested_model
-                # field_name = nested_model._meta.get_field(f).db_column_name
-                # f_name = model_name + '.' + field_name
-                model_names = []
-                nested_model = None
-                *models, field = name.split('.')
-                for m in models:
-                    try:
-                        model_field = self.model._meta.get_field(m)
-                    except FieldNotFound:
-                        model_field = nested_model._meta.get_field(m)
+                field, *field_path = name.split('.')
+                db_field_path = []
+                model_field = self.model._meta.get_field(field)
+                db_field_path.append(model_field.db_column_name)
 
-                    if isinstance(model_field, NestedModel):
+                for p in field_path:
+                    if isinstance(model_field, NestedModelField):
                         nested_model = model_field.nested_model
-                    name = model_field.db_column_name
+                        model_field = nested_model._meta.get_field(p)
+                        db_field_path.append(model_field.db_column_name)
 
-                    model_names.append(name)
-                model_name = '.'.join(model_names)
-                if nested_model is not None:
-                    field_name = nested_model._meta.get_field(
-                        field).db_column_name
-                else:
-                    field_name = field
-                f_name = model_name + '.' + field_name
+                    elif isinstance(model_field, MapField):
+                        db_field_path.append(p)
+
+                    else:
+                        raise AttributeTypeError(f"Invalid field type: {model_field}")
+
+                f_name = '.'.join(db_field_path)
+
             # ISSUE # 160
             # check if it is ID field
             elif self._is_id_field(name):

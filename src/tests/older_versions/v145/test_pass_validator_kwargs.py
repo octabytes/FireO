@@ -3,6 +3,7 @@ import pytest
 from fireo import fields
 from fireo.models import Model
 from fireo.fields.errors import FieldValidationFailed
+from fireo.models.errors import ModelSerializingError
 
 
 def validator_func_check_kwargs(a, **kwargs):
@@ -39,10 +40,12 @@ def test_pass_validator_kwargs():
 
 
 def test_validator_func_without_kwargs_raises_exception():
-    with pytest.raises(FieldValidationFailed):
+    with pytest.raises(ModelSerializingError) as e:
         test = TestB()
         test.name = "test"
         test.save()
+
+    assert isinstance(e.value.original_error, FieldValidationFailed)
 
 
 def test_no_kwargs_passed_to_validator_func_with_kwargs():

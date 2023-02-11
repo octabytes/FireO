@@ -142,7 +142,7 @@ class ModelMeta(type):
                 self.collection_name = utils.collection_name(cls.__name__)
                 self.abstract = False
                 self.missing_field = 'merge'
-                self.ignore_none_field = True
+                self.ignore_none_field = False
                 self.to_lowercase = False
                 self._referenceDoc = None
 

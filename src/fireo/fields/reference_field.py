@@ -1,6 +1,7 @@
 from fireo.database import db
 from fireo.fields import errors
 from fireo.fields.base_field import Field
+from fireo.queries.query_wrapper import ReferenceDocLoader
 from fireo.utils import utils
 from google.cloud import firestore
 
@@ -55,9 +56,18 @@ class ReferenceField(Field):
         self.on_load = None
 
     # Override method
-    def field_value(self, val):
-        v = self.field_attribute.parse(val)
-        return v
+    def field_value(self, val, model):
+        ref = self.field_attribute.parse(val)
+
+        if not ref:
+            return None
+
+        ref_doc = ReferenceDocLoader(model, self, ref)
+
+        if self.auto_load:
+            return ref_doc.get()
+
+        return ref_doc
 
     # Override method
     def db_value(self, model):

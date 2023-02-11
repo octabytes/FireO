@@ -41,7 +41,7 @@ class WeekDays3(Field):
     def db_value(self, val):
         return self.days[val]
 
-    def field_value(self, val):
+    def field_value(self, val, model):
         return self.days.index(val)
 
 

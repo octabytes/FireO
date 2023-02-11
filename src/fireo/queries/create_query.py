@@ -1,4 +1,3 @@
-from fireo.fields import NestedModel
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
@@ -73,7 +72,7 @@ class CreateQuery(BaseQuery):
         """create document ref from firestore"""
         return self.get_ref().document(self.model._id)
 
-    def _parse_field(self):
+    def _parse_field(self, changed_only=False):
         """Get and return `db_value` from model `_meta`
 
         Examples
@@ -89,44 +88,12 @@ class CreateQuery(BaseQuery):
         in this case it will be like this
         `{full_name: "Azeem", age=25}`
         """
-        field_list = {}
-        for f in self.model._meta.field_list.values():
-            if isinstance(f, NestedModel):
-                self._nested_field_list(f, field_list, f.name)
-            else:
-                fv = f.get_value(self.query.get(f.name))
-                if self.model._meta.ignore_none_field:
-                    if fv is not None:
-                        field_list[f.db_column_name] = fv
-                else:
-                    field_list[f.db_column_name] = fv
+        model = self.model_cls(**self.query)
+        field_list = model.to_db_dict(changed_only=changed_only)
+        if self.model._meta.ignore_none_field:
+            field_list = utils.remove_none_field(field_list)
+
         return field_list
-
-    def _nested_field_list(self, f, fl, *name):
-        """Get Nested Fields"""
-        required_nested_model = f.raw_attributes.get('required')
-        if required_nested_model is None or required_nested_model is False:
-            ignore_required = True
-        else:
-            ignore_required = False
-        nested_field_list = {}
-        for n_f in f.nested_model._meta.field_list.values():
-            if isinstance(n_f, NestedModel):
-                n = (*name, n_f.name)
-                self._nested_field_list(n_f, nested_field_list, *n)
-            else:
-                nv = None
-                if utils.get_nested(self.query, *name) is not None:
-                    nv = utils.get_nested(self.query, *name).get(n_f.name)
-
-                nfv = n_f.get_value(nv, ignore_required)
-                if f.nested_model._meta.ignore_none_field:
-                    if nfv is not None:
-                        nested_field_list[n_f.db_column_name] = nfv
-                else:
-                    nested_field_list[n_f.db_column_name] = nfv
-
-        fl[f.db_column_name] = nested_field_list
 
     def _raw_exec(self, transaction_or_batch=None, merge=None):
         """save model into firestore and return the document"""
@@ -140,7 +107,7 @@ class CreateQuery(BaseQuery):
             return ref
 
         if merge:
-            ref.set(self._parse_field(), merge=merge)
+            ref.set(self._parse_field(changed_only=True), merge=merge)
         else:
             ref.set(self._parse_field())
 

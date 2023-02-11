@@ -41,8 +41,39 @@ def get_nested(dict, *args):
             value = dict.get(element)
             return value if len(args) == 1 else get_nested(value, *args[1:])
 
+
+def get_flat_dict(dict_):
+    """Get flat dict from nested dict by joining keys with dot."""
+    flat_dict = {}
+    for key, value in dict_.items():
+        if isinstance(value, dict):
+            flat_dict.update({f'{key}.{k}': v for k, v in get_flat_dict(value).items()})
+        else:
+            flat_dict[key] = value
+    return flat_dict
+
+
 def generateKeyFromId(model, id):
     return model.collection_name + "/" + id
 
+
 def isKey(str):
     return "/" in str
+
+
+def remove_none_field(values):
+    if isinstance(values, list):
+        return [remove_none_field(v) for v in values]
+
+    if not isinstance(values, dict):
+        return values
+
+    result = {}
+    for k, v in values.items():
+        if v is not None:
+            if isinstance(v, (dict, list)):
+                v = remove_none_field(v)
+
+            result[k] = v
+
+    return result

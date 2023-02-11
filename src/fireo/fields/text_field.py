@@ -59,7 +59,7 @@ class TextField(Field):
                                       f'got {type(val)}')
 
     # override method
-    def field_value(self, val):
+    def field_value(self, val, model):
 
         # check if val is None then there is no need to run these functions
         # just return back the None value
