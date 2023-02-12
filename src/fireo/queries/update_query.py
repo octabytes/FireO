@@ -60,9 +60,9 @@ class UpdateQuery(BaseQuery):
                 field_dict[f.db_column_name] = v
 
         # Convert to dot notated fields update objects without replacing
-        field_dict = get_flat_dict(field_dict)
+        flat_field_dict = get_flat_dict(field_dict)
 
-        return field_dict
+        return flat_field_dict
 
     def _raw_exec(self, transaction_or_batch=None):
         """Update document in firestore and return the document"""

@@ -42,12 +42,20 @@ def get_nested(dict, *args):
             return value if len(args) == 1 else get_nested(value, *args[1:])
 
 
-def get_flat_dict(dict_):
-    """Get flat dict from nested dict by joining keys with dot."""
+def get_flat_dict(dict_, prefix: str = None):
+    """Get flat dict from nested dict by joining keys with dot.
+
+    Example:
+        >>> get_flat_dict({'a': 1, 'b': {'c': 2, 'd': {'e': 3}}})
+        {'a': 1, 'b.c': 2, 'b.d.e': 3}
+    """
     flat_dict = {}
     for key, value in dict_.items():
+        if prefix:
+            key = f'{prefix}.{key}'
+
         if isinstance(value, dict):
-            flat_dict.update({f'{key}.{k}': v for k, v in get_flat_dict(value).items()})
+            flat_dict.update(get_flat_dict(value, key))
         else:
             flat_dict[key] = value
     return flat_dict
@@ -62,6 +70,12 @@ def isKey(str):
 
 
 def remove_none_field(values):
+    """Remove None values from dict or list.
+
+    Example:
+        >>> remove_none_field({'a': 1, 'b': None})
+        {'a': 1}
+    """
     if isinstance(values, list):
         return [remove_none_field(v) for v in values]
 
