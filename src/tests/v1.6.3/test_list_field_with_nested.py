@@ -2,7 +2,7 @@ import pytest
 
 from fireo.fields import errors, ListField, NestedModel, TextField
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class LogAccessField(TextField):
@@ -47,7 +47,7 @@ def test_raise_error_on_unsupported_type(nested_field):
     class BrokenListTestModel(Model):
         list_field = ListField(nested_field=nested_field)
 
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         BrokenListTestModel(list_field=[]).save()
 
     assert isinstance(e.value.original_error, errors.AttributeTypeError)

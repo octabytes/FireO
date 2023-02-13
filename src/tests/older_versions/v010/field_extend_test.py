@@ -2,7 +2,7 @@ import pytest
 from fireo.fields import Field
 from fireo.fields.errors import AttributeMethodNotDefined
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class Employee(Field):
@@ -10,7 +10,7 @@ class Employee(Field):
 
 
 def test_extend_field_attr_method_not_defined():
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         class User8(Model):
             name = Employee(some_attr="value")
 

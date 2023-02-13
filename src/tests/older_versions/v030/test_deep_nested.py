@@ -2,7 +2,7 @@ import pytest
 
 from fireo.fields import NestedModel, NumberField, TextField
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class DeepNestedUser(Model):
@@ -75,7 +75,7 @@ def test_deep_nested_with_required_fields_without_value():
     u.dept = 'Math'
     u.student.user.name = 'Azeem'
 
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         u.save()
 
     assert str(e.value) == (
@@ -106,7 +106,7 @@ def test_deep_nested_with_required_fields():
     u.dept = 'Math'
     u.student.user.name = 'Azeem'
 
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         u.save()
     assert str(e.value) == (
         "Cannot serialize model 'test_deep_nested.DeepNestedUni3' with key "

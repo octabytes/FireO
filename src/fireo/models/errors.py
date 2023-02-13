@@ -25,13 +25,13 @@ class DuplicateIDField(BaseModelError):
     pass
 
 
-class ModelSerializingError(BaseModelError):
+class ModelSerializingWrappedError(BaseModelError):
     def __init__(self, model: 'Model', field_path: 'Tuple[str, ...]', error: Exception):
         self.model = model
         self.field_path = field_path
         self.error_msg = str(error)
         self.original_error = error
-        if isinstance(error, ModelSerializingError):
+        if isinstance(error, ModelSerializingWrappedError):
             self.field_path = (*self.field_path, *error.field_path)
             self.error_msg = error.error_msg
             self.original_error = error.original_error

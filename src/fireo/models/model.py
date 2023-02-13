@@ -2,7 +2,7 @@ import warnings
 
 from fireo import fields
 from fireo.managers.managers import Manager
-from fireo.models.errors import AbstractNotInstantiate, ModelSerializingError
+from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
 from fireo.models.model_meta import ModelMeta
 from fireo.queries.errors import InvalidKey
 from fireo.utils import utils
@@ -189,7 +189,7 @@ class Model(metaclass=ModelMeta):
                     value = field.get_value(nested_field_value, ignore_required, ignore_default)
             except Exception as error:
                 path = (field.name,)
-                raise ModelSerializingError(self, path, error) from error
+                raise ModelSerializingWrappedError(self, path, error) from error
 
             if value is not None or not self._meta.ignore_none_field:
                 result[field.db_column_name] = value

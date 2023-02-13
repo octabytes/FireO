@@ -3,7 +3,7 @@ import pytest
 from fireo.fields import TextField
 from fireo.fields.errors import RequiredField
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class TestModel(Model):
@@ -13,7 +13,7 @@ class TestModel(Model):
 
 def test_field_required_error_message():
     model = TestModel(other_field="other_field")
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         model.save()
 
     assert isinstance(e.value.original_error, RequiredField)

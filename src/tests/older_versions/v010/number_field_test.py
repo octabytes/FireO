@@ -3,7 +3,7 @@ import pytest
 from fireo.fields import NumberField
 from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class User(Model):
@@ -20,7 +20,7 @@ def test_num_int():
 
 
 def test_num_int_wrong():
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User.collection.create(age=12.34)
 
     assert isinstance(e.value.original_error, InvalidFieldType)
@@ -40,7 +40,7 @@ def test_num_float():
 
 
 def test_num_float_wrong():
-    with pytest.raises(ModelSerializingError) as e:
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User2.collection.create(age=12)
 
     assert isinstance(e.value.original_error, InvalidFieldType)

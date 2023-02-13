@@ -3,7 +3,7 @@ from fireo.database import db
 from fireo.fields import TextField
 from fireo.fields.errors import RequiredField, UnSupportedAttribute
 from fireo.models import Model
-from fireo.models.errors import ModelSerializingError
+from fireo.models.errors import ModelSerializingWrappedError
 from fireo.utils import utils
 
 
@@ -28,7 +28,7 @@ def test_required_value():
     u = User2()
     u.address = "City 123"
 
-    with pytest.raises(ModelSerializingError):
+    with pytest.raises(ModelSerializingWrappedError):
         u.save()
 
 
@@ -55,5 +55,5 @@ def test_un_supported_attribute():
     u = User4()
     u.name = 'Azeem'
 
-    with pytest.raises(ModelSerializingError):
+    with pytest.raises(ModelSerializingWrappedError):
         u.save()
