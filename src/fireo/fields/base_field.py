@@ -1,4 +1,5 @@
 from fireo.fields.field_attribute import FieldAttribute
+from fireo.utils.types import DumpOptions
 
 
 class MetaField(type):
@@ -98,7 +99,7 @@ class Field(metaclass=MetaField):
         """
         return self.raw_attributes.get("column_name") or self.name
 
-    def get_value(self, val, ignore_required=False, ignore_default=False, changed_only=False):
+    def get_value(self, val, dump_options=DumpOptions()):
         """Get field value after validation
 
         Make validation and applying attribute function on it.
@@ -109,21 +110,18 @@ class Field(metaclass=MetaField):
         val : Any
             Field value
 
-        ignore_required : Bool
-            Ignore required fields or not mostly ignore when updating the document
-
-        ignore_default : Bool
-            Ignore default fields or not mostly ignore when updating the document
-
-        changed_only : Bool
-            Ignore fields which are not changed when updating the document.
-            Used in NestedModelField
+        dump_options : DumpOptions
+            Options for dumping to Firestore dictionary
 
         Returns
         -------
             DB value
         """
-        val = self.field_attribute.parse(val, ignore_required, ignore_default)
+        val = self.field_attribute.parse(
+            val,
+            dump_options.ignore_required,
+            dump_options.ignore_default,
+        )
         return self.db_value(val)
 
     def db_value(self, val):

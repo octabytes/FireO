@@ -1,4 +1,5 @@
 import warnings
+from typing import TYPE_CHECKING
 
 from fireo import fields
 from fireo.managers.managers import Manager
@@ -6,6 +7,10 @@ from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedE
 from fireo.models.model_meta import ModelMeta
 from fireo.queries.errors import InvalidKey
 from fireo.utils import utils
+from fireo.utils.types import DumpOptions
+
+if TYPE_CHECKING:
+    from fireo.fields import Field
 
 
 class Model(metaclass=ModelMeta):
@@ -169,21 +174,33 @@ class Model(metaclass=ModelMeta):
         model_dict['key'] = self.key
         return model_dict
 
-    def to_db_dict(self, ignore_required=False, ignore_default=False, changed_only=False):
+    def to_db_dict(self, dump_options=DumpOptions()):
+        from fireo.fields import IDField
+
         result = {}
         for field in self._meta.field_list.values():
             field: Field  # type: ignore
-            if changed_only and field.name not in self._field_changed:
+
+            if isinstance(field, IDField):
+                # do not include ID field to dict for firestore
+                continue
+
+            field_changed = field.name in self._field_changed
+            if dump_options.ignore_unchanged and not field_changed:
                 continue
 
             try:
                 nested_field_value = getattr(self, field.name)
-                value = field.get_value(nested_field_value, ignore_required, ignore_default, changed_only)
+                value = field.get_value(nested_field_value, dump_options)
             except Exception as error:
                 path = (field.name,)
                 raise ModelSerializingWrappedError(self, path, error) from error
 
-            if value is not None or not self._meta.ignore_none_field:
+            if (
+                value is not None or
+                not dump_options.ignore_default_none or
+                field_changed
+            ):
                 result[field.db_column_name] = value
 
         return result
@@ -206,7 +223,7 @@ class Model(metaclass=ModelMeta):
     # which are attached with this mode
     # to create or update the document
     # return dict {name: value}
-    def _get_fields(self, changed_only=False):
+    def _get_fields(self, ignore_unchanged=False, ignore_default_none=False):
         """Get Model fields and values
 
         Retrieve all fields which are attached with Model from `_meta`
@@ -236,11 +253,14 @@ class Model(metaclass=ModelMeta):
         field_list = {}
         for f in self._meta.field_list.values():
             v = getattr(self, f.name)
-            if (
-                not changed_only or
+            field_changed = (
                 f.name in self._field_changed or
                 # Currently, there is no way to tell if a MapField has been changed
                 isinstance(f, fields.MapField) and v is not None
+            )
+            if (
+                (not ignore_unchanged or field_changed) and
+                (v is not None or not ignore_default_none or field_changed)
             ):
                 field_list[f.name] = v
         return field_list
@@ -386,7 +406,12 @@ class Model(metaclass=ModelMeta):
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
         return self.__class__.collection.create(
-            self, transaction, batch, merge, no_return, **self._get_fields(changed_only=merge)
+            self,
+            transaction,
+            batch,
+            merge,
+            no_return,
+            **self._get_fields(ignore_unchanged=merge, ignore_default_none=True)
         )
 
     def upsert(self, transaction=None, batch=None):
@@ -449,7 +474,7 @@ class Model(metaclass=ModelMeta):
                 f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
-        updated_fields = self._get_fields(changed_only=True)
+        updated_fields = self._get_fields(ignore_unchanged=True, ignore_default_none=True)
 
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance

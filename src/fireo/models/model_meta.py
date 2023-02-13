@@ -142,7 +142,8 @@ class ModelMeta(type):
                 self.collection_name = utils.collection_name(cls.__name__)
                 self.abstract = False
                 self.missing_field = 'merge'
-                self.ignore_none_field = False
+                # If True, then ignore default None values. Changed field with None still will be saved.
+                self.ignore_none_field = True
                 self.to_lowercase = False
                 self._referenceDoc = None
 

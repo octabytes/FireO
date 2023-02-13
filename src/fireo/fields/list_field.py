@@ -1,8 +1,10 @@
+from dataclasses import replace
 from typing import Any, List, Optional
 
 from google.cloud.firestore_v1 import ArrayRemove, ArrayUnion
 
 from fireo.fields import errors, Field, IDField
+from fireo.utils.types import DumpOptions
 
 
 class ListField(Field):
@@ -40,8 +42,8 @@ class ListField(Field):
         return field_val
 
     # Override method
-    def get_value(self, val, ignore_required=False, ignore_default=False, changed_only=False):
-        val = self.field_attribute.parse(val, ignore_required, ignore_default)
+    def get_value(self, val, dump_options=DumpOptions()):
+        val = self.field_attribute.parse(val, dump_options.ignore_required, dump_options.ignore_default)
 
         if val is None:
             return None
@@ -57,10 +59,11 @@ class ListField(Field):
                 try:
                     serialized_values.append(nested_field.get_value(
                         val=item,
-                        ignore_required=ignore_required,
-                        ignore_default=ignore_default,
-                        # changed_only used in update. Object nested in list cannot be updated partially
-                        changed_only=False,
+                        dump_options=replace(
+                            dump_options,
+                            # changed_only used in update. Object nested in list cannot be updated partially
+                            ignore_unchanged=False,
+                        )
                     ))
                 except Exception as error:
                     from fireo.models.errors import ModelSerializingWrappedError

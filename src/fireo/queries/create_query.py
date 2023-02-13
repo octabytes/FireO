@@ -1,6 +1,7 @@
+from fireo.managers.errors import EmptyDocument
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
-from fireo.utils import utils
+from fireo.utils.types import DumpOptions
 
 
 class CreateQuery(BaseQuery):
@@ -23,7 +24,6 @@ class CreateQuery(BaseQuery):
 
     def __init__(self, model_cls, mutable_instance=None, no_return=False, **kwargs):
         super().__init__(model_cls)
-        self.query = kwargs
         self.no_return = no_return
         # If this is called from manager or mutable model is
         # not provided then this `model` will be a class not instance
@@ -51,6 +51,10 @@ class CreateQuery(BaseQuery):
             if parent:
                 self.model.parent = parent
                 super().set_collection_path(path=parent)
+
+        for k, v in kwargs.items():
+            setattr(self.model, k, v)
+
         # Attach key to this model for updating this model
         # Purpose of attaching this key is user can update
         # this model after getting it
@@ -61,17 +65,11 @@ class CreateQuery(BaseQuery):
         #   u.update()
         self.model._update_doc = self.model.key
 
-        # Reset the field changed list
-        # This is important to reset, so we can
-        # find next time which fields are changed
-        # when we are going to update it
-        self.model._field_changed = []
-
     def _doc_ref(self):
         """create document ref from firestore"""
         return self.get_ref().document(self.model._id)
 
-    def _parse_field(self, changed_only=False):
+    def _parse_field(self, ignore_unchanged=False):
         """Get and return `db_value` from model `_meta`
 
         Examples
@@ -87,10 +85,15 @@ class CreateQuery(BaseQuery):
         in this case it will be like this
         `{full_name: "Azeem", age=25}`
         """
-        model = self.model_cls(**self.query)
-        field_list = model.to_db_dict(changed_only=changed_only)
-        if self.model._meta.ignore_none_field:
-            field_list = utils.remove_none_field(field_list)
+        field_list = self.model.to_db_dict(dump_options=DumpOptions(
+            ignore_default_none=self.model._meta.ignore_none_field,
+            ignore_unchanged=ignore_unchanged,
+        ))
+
+        if not field_list:
+            raise EmptyDocument(
+                "Empty document can not be save, Add at least one field value"
+            )
 
         return field_list
 
@@ -106,9 +109,15 @@ class CreateQuery(BaseQuery):
             return ref
 
         if merge:
-            ref.set(self._parse_field(changed_only=True), merge=merge)
+            ref.set(self._parse_field(ignore_unchanged=True), merge=merge)
         else:
             ref.set(self._parse_field())
+
+        # Reset the field changed list
+        # This is important to reset, so we can
+        # find next time which fields are changed
+        # when we are going to update it
+        self.model._field_changed = []
 
         # If no_return is True then return nothing otherwise 
         # return object instance issue #126

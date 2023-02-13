@@ -2,6 +2,7 @@ from fireo.fields import DateTime
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
+from fireo.utils.types import DumpOptions
 from fireo.utils.utils import get_flat_dict
 
 
@@ -53,9 +54,11 @@ class UpdateQuery(BaseQuery):
             if f.name in self.query:
                 v = f.get_value(
                     self.query.get(f.name),
-                    ignore_required=True,
-                    ignore_default=True,
-                    changed_only=True,
+                    dump_options=DumpOptions(
+                        ignore_required=True,
+                        ignore_default=True,
+                        ignore_unchanged=True,
+                    ),
                 )
                 field_dict[f.db_column_name] = v
 
