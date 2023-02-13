@@ -1,8 +1,8 @@
 import pytest
 
-from fireo.fields import TextField, NumberField, NestedModel
-from fireo.fields.errors import RequiredField
+from fireo.fields import NestedModel, NumberField, TextField
 from fireo.models import Model
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class DeepNestedUser(Model):
@@ -54,6 +54,7 @@ def test_simple_deep_nested_update():
     assert u3.student.user.name == 'Arfan'
     assert u3.student.user.age == 26
 
+
 class DeepNestedUser2(Model):
     name = TextField()
     age = NumberField(default=26)
@@ -73,14 +74,16 @@ def test_deep_nested_with_required_fields_without_value():
     u = DeepNestedUni2()
     u.dept = 'Math'
     u.student.user.name = 'Azeem'
-    u.save()
 
-    u = DeepNestedUni2.collection.get(u.key)
+    with pytest.raises(ModelSerializingWrappedError) as e:
+        u.save()
 
-    assert u.dept == 'Math'
-    assert u.student.uni is None
-    assert u.student.user.name == 'Azeem'
-    assert u.student.user.age == 26
+    assert str(e.value) == (
+        "Cannot serialize model 'test_deep_nested.DeepNestedUni2' with key "
+        "'deep_nested_uni2/@temp_doc_id' due to error in field 'student.uni': "
+        '"uni" is required for model <class \'test_deep_nested.DeepNestedStudent2\'> '
+        'but received no default and no value.'
+    )
 
 
 class DeepNestedUser3(Model):
@@ -103,8 +106,14 @@ def test_deep_nested_with_required_fields():
     u.dept = 'Math'
     u.student.user.name = 'Azeem'
 
-    with pytest.raises(RequiredField):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         u.save()
+    assert str(e.value) == (
+        "Cannot serialize model 'test_deep_nested.DeepNestedUni3' with key "
+        "'deep_nested_uni3/@temp_doc_id' due to error in field 'student.uni': "
+        '"uni" is required for model <class \'test_deep_nested.DeepNestedStudent3\'> '
+        'but received no default and no value.'
+    )
 
 
 class DeepDirectNestedModel(Model):

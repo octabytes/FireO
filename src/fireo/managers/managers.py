@@ -2,7 +2,6 @@ import base64
 import json
 
 from fireo.managers.errors import EmptyDocument
-from fireo.fields import NestedModel
 from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_set as queries
 
@@ -187,31 +186,9 @@ class Manager:
         if is_none_dict:
             raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
 
-        field_list = {}
         # if mutable instance is none this mean user is creating document directly from manager
         # For example User.collection.create(name="Azeem") in this case mutable instance will be None
-        # If document is creating by directly using manager then check if there is any NestedModel
-        # If there is any nested model then get get value from nested model
-        if mutable_instance is None:
-            for k, v in kwargs.items():
-                try:
-                    # if this is an id field then save it in field list and pass it
-                    f = self.model_cls._meta.get_field(k)
-                except FieldNotFound:
-                    field_list[k] = v
-                    continue
-                if isinstance(f, NestedModel):
-                    model_instance = v
-                    if f.valid_model(model_instance):
-                        field_list[f.name] = model_instance._get_fields()
-                else:
-                    field_list[k] = v
-            # Create instance for nested model
-            for f in self.model_cls._meta.field_list.values():
-                if isinstance(f, NestedModel):
-                    field_list[f.name] = f.nested_model()._get_fields()
-        else:
-            field_list = kwargs
+        field_list = kwargs
 
         # If this model has custom IDField then
         # Check if field list length is one(1) and field is IDField

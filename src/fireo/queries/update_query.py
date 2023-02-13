@@ -1,7 +1,8 @@
-from fireo.fields import DateTime, NestedModel
+from fireo.fields import DateTime
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
+from fireo.utils.utils import get_flat_dict
 
 
 class UpdateQuery(BaseQuery):
@@ -50,31 +51,18 @@ class UpdateQuery(BaseQuery):
         field_dict = {}
         for f in self.model._meta.field_list.values():
             if f.name in self.query:
-                # Check if it is nested model
-                if isinstance(f, NestedModel):
-                    # Get nested model field
-                    self._nested_field_list(f, field_dict, f.name)
-                else:
-                    v = f.get_value(self.query.get(f.name), ignore_required=True, ignore_default=True)
-                    if v is not None or type(v) is bool:
-                        field_dict[f.db_column_name] = v
-                    if v is None and isinstance(f, DateTime):
-                        field_dict[f.db_column_name] = v
-        return field_dict
-
-    def _nested_field_list(self, f, fl, *name):
-        """Get Nested Fields"""
-        nested_field_list = {}
-        for n_f in f.nested_model._meta.field_list.values():
-            if isinstance(n_f, NestedModel):
-                n = (*name, n_f.name)
-                self._nested_field_list(n_f, nested_field_list, *n)
-            else:
-                nested_field_list[n_f.db_column_name] = n_f.get_value(
-                    utils.get_nested(self.query, *name).get(n_f.name),
-                    ignore_required=True
+                v = f.get_value(
+                    self.query.get(f.name),
+                    ignore_required=True,
+                    ignore_default=True,
+                    changed_only=True,
                 )
-        fl[f.db_column_name] = nested_field_list
+                field_dict[f.db_column_name] = v
+
+        # Convert to dot notated fields update objects without replacing
+        flat_field_dict = get_flat_dict(field_dict)
+
+        return flat_field_dict
 
     def _raw_exec(self, transaction_or_batch=None):
         """Update document in firestore and return the document"""

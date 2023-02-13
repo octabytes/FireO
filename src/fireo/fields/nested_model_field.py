@@ -1,8 +1,13 @@
+from typing import Optional, TYPE_CHECKING
+
 from fireo.fields import errors
 from fireo.fields.base_field import Field
 
+if TYPE_CHECKING:
+    from fireo.models import Model
 
-class NestedModel(Field):
+
+class NestedModelField(Field):
     """Model inside another model"""
 
     def __init__(self, model, *args, **kwargs):
@@ -26,3 +31,19 @@ class NestedModel(Field):
                                           f'"{self.nested_model.__name__}", but got '
                                           f'"{model_instance.__class__.__name__}"')
 
+    def field_value(self, val, model, initial):
+        if not val:
+            return None
+        nested_model = self.nested_model()
+        nested_model.populate_from_doc_dict(val, initial)
+        return nested_model
+
+    def get_value(self, val: 'Optional[Model]', ignore_required=False, ignore_default=False, changed_only=False):
+        if val is not None:
+            val = val.to_db_dict(ignore_required, ignore_default, changed_only)
+        val = self.field_attribute.parse(val, ignore_required, ignore_default)
+        return self.db_value(val)
+
+
+# NestedModel is deprecated. This name is now reserved for model that should be used as a nested model
+NestedModel = NestedModelField

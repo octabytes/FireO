@@ -5,6 +5,7 @@ import pytest
 from fireo.fields import BooleanField, DateTime, GeoPoint, ListField, MapField, NumberField, TextField, Field
 from fireo.fields.errors import InvalidFieldType
 from fireo.models import Model
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class Animal(Model):
@@ -33,8 +34,10 @@ def test_bool_field():
 
 
 def test_bool_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User2(Model):
@@ -50,8 +53,10 @@ def test_datetime_field():
 
 
 def test_datetime_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User2.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User3(Model):
@@ -66,8 +71,10 @@ def test_geopoint_field():
 
 
 def test_geopoint_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User3.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User4(Model):
@@ -82,8 +89,10 @@ def test_list_field():
 
 
 def test_list_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User4.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User5(Model):
@@ -98,8 +107,10 @@ def test_map_field():
 
 
 def test_map_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User5.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User6(Model):
@@ -114,8 +125,10 @@ def test_num_field():
 
 
 def test_num_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User6.collection.create(field="wrong_type")
+
+    assert isinstance(e.value.original_error, InvalidFieldType)
 
 
 class User7(Model):
@@ -130,5 +143,7 @@ def test_text_field():
 
 
 def test_text_field_e():
-    with pytest.raises(InvalidFieldType):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         assert User7.collection.create(field=123)
+
+    assert isinstance(e.value.original_error, InvalidFieldType)

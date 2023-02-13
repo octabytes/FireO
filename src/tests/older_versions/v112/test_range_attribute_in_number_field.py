@@ -3,6 +3,7 @@ import pytest
 from fireo.fields import NumberField
 from fireo.fields.errors import NumberRangeError
 from fireo.models import Model
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 class RangeNumberField(Model):
@@ -22,11 +23,15 @@ def test_range_start_stop_number():
     r2 = RangeNumberField.collection.get(r1.key)
     assert r2.number == 3
 
-    with pytest.raises(NumberRangeError):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         RangeNumberField.collection.create(number=0)
 
-    with pytest.raises(NumberRangeError):
+    assert isinstance(e.value.original_error, NumberRangeError)
+
+    with pytest.raises(ModelSerializingWrappedError) as e:
         RangeNumberField.collection.create(number=6)
+
+    assert isinstance(e.value.original_error, NumberRangeError)
 
 
 class RangeNumberField1(Model):
@@ -42,5 +47,7 @@ def test_range_start_only_number():
     r2 = RangeNumberField1.collection.get(r1.key)
     assert r2.number == 4
 
-    with pytest.raises(NumberRangeError):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         RangeNumberField1.collection.create(number=2)
+
+    assert isinstance(e.value.original_error, NumberRangeError)

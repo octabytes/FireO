@@ -1,6 +1,8 @@
+import warnings
+
 from fireo import fields
 from fireo.managers.managers import Manager
-from fireo.models.errors import AbstractNotInstantiate
+from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
 from fireo.models.model_meta import ModelMeta
 from fireo.queries.errors import InvalidKey
 from fireo.utils import utils
@@ -113,14 +115,7 @@ class Model(metaclass=ModelMeta):
 
     # Track which fields are changed or not
     # it is useful when updating document
-    _field_list = []
-    _field_changed = []
-
-    # check instance is modified or not
-    # When you get the document from firestore or
-    # save the document then the model instance changed
-    # This also give the help to track update fields
-    _instance_modified = False
+    _field_changed = None
 
     # Update doc hold the key which is used to update the document
     _update_doc = None
@@ -129,10 +124,13 @@ class Model(metaclass=ModelMeta):
     _update_time = None
 
     def __init__(self, *args, **kwargs):
+        assert not args, 'You must use keyword arguments when instantiating a model'
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
             raise AbstractNotInstantiate(
                 f'Can not instantiate abstract model "{self.__class__.__name__}"')
+
+        self._field_changed = []
 
         # Allow users to set fields values direct from the constructor method
         for k, v in kwargs.items():
@@ -141,23 +139,29 @@ class Model(metaclass=ModelMeta):
         # Create instance for nested model
         # for direct assignment to nested model
         for f in self._meta.field_list.values():
-            if isinstance(f, fields.NestedModel):
-                if f.name in kwargs:
-                    setattr(self, f.name, f.nested_model.from_dict(
-                        kwargs[f.name]))
-                else:
+            if isinstance(f, fields.NestedModelField):
+                if f.name not in kwargs:
                     setattr(self, f.name, f.nested_model())
+                elif isinstance(kwargs[f.name], dict):
+                    warnings.warn(
+                        'Use Model.from_dict to deserialize from dict',
+                        DeprecationWarning
+                    )
+                    setattr(self, f.name, f.nested_model.from_dict(kwargs[f.name]))
 
     @classmethod
     def from_dict(cls, model_dict):
         """Instantiate model from dict"""
         if model_dict is None:
             return None
-        return cls(**model_dict)
+
+        instance = cls()
+        instance.populate_from_doc_dict(model_dict)
+        return instance
 
     def to_dict(self):
         """Convert model into dict"""
-        model_dict = self._get_fields()
+        model_dict = self.to_db_dict()
         id = 'id'
         if self._meta.id is not None:
             id, _ = self._meta.id
@@ -165,11 +169,44 @@ class Model(metaclass=ModelMeta):
         model_dict['key'] = self.key
         return model_dict
 
+    def to_db_dict(self, ignore_required=False, ignore_default=False, changed_only=False):
+        result = {}
+        for field in self._meta.field_list.values():
+            field: Field  # type: ignore
+            if changed_only and field.name not in self._field_changed:
+                continue
+
+            try:
+                nested_field_value = getattr(self, field.name)
+                value = field.get_value(nested_field_value, ignore_required, ignore_default, changed_only)
+            except Exception as error:
+                path = (field.name,)
+                raise ModelSerializingWrappedError(self, path, error) from error
+
+            if value is not None or not self._meta.ignore_none_field:
+                result[field.db_column_name] = value
+
+        return result
+
+    def populate_from_doc_dict(self, doc_dict, initial=False):
+        for k, v in doc_dict.items():
+            field = self._meta.get_field_by_column_name(k)
+            # if missing field setting is set to "ignore" then
+            # get_field_by_column_name return None So, just skip this field
+            if field is None:
+                continue
+
+            val = field.field_value(v, self, initial)
+            if initial:
+                self._set_orig_attr(field.name, val)
+            else:
+                setattr(self, field.name, val)
+
     # Get all the fields values from meta
     # which are attached with this mode
-    # and convert them into corresponding db value
+    # to create or update the document
     # return dict {name: value}
-    def _get_fields(self):
+    def _get_fields(self, changed_only=False):
         """Get Model fields and values
 
         Retrieve all fields which are attached with Model from `_meta`
@@ -198,12 +235,14 @@ class Model(metaclass=ModelMeta):
         """
         field_list = {}
         for f in self._meta.field_list.values():
-            if isinstance(f, fields.NestedModel):
-                model_instance = getattr(self, f.name)
-                if f.valid_model(model_instance):
-                    field_list[f.name] = model_instance._get_fields()
-            else:
-                field_list[f.name] = getattr(self, f.name)
+            v = getattr(self, f.name)
+            if (
+                not changed_only or
+                f.name in self._field_changed or
+                # Currently, there is no way to tell if a MapField has been changed
+                isinstance(f, fields.MapField) and v is not None
+            ):
+                field_list[f.name] = v
         return field_list
 
     @property
@@ -346,7 +385,9 @@ class Model(metaclass=ModelMeta):
         """
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection.create(self, transaction, batch, merge, no_return, **self._get_fields())
+        return self.__class__.collection.create(
+            self, transaction, batch, merge, no_return, **self._get_fields(changed_only=merge)
+        )
 
     def upsert(self, transaction=None, batch=None):
         """If the document does not exist, it will be created. 
@@ -408,37 +449,18 @@ class Model(metaclass=ModelMeta):
                 f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
-        updated_fields = {}
-        for k, v in self._get_fields().items():
-            if k in self._field_changed:
-                updated_fields[k] = v
-            # Get nested fields if any
-            # Nested model store as dict in firestore so check values type is dict
-            if type(v) is dict:
-                # nested field name and value
-                for name, value in v.items():
-                    if name in self._field_changed:
-                        # create the name with parent field name and child name
-                        # For example:
-                        #   class User(Model):
-                        #       address = TextField()
-                        #   class Student(Model):
-                        #       age = NumberField()
-                        #       user = NestedModel(User)
-                        #
-                        # Then the field name for nested model will be "user.address"
-                        updated_fields[k+"."+name] = value
+        updated_fields = self._get_fields(changed_only=True)
+
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
         return self.__class__.collection._update(self, transaction=transaction, batch=batch, **updated_fields)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
-        self._field_changed.append(key)
-        self._field_list.append(key)
+        if key in self._meta.field_list:
+            self._field_changed.append(key)
         super(Model, self).__setattr__(key, value)
 
     def _set_orig_attr(self, key, value):
         """Keep track which filed values are changed"""
-        self._field_list.append(key)
         super(Model, self).__setattr__(key, value)
