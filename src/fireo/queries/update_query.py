@@ -1,4 +1,3 @@
-from fireo.fields import DateTime
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.utils import utils
@@ -23,9 +22,9 @@ class UpdateQuery(BaseQuery):
     exec(transaction_or_batch):
         return modified instance of model
     """
-    def __init__(self, model_cls, mutable_instance=None, **kwargs):
+
+    def __init__(self, model_cls, mutable_instance):
         super().__init__(model_cls)
-        self.query = kwargs
         self.model = mutable_instance
         super().set_collection_path(key=mutable_instance.key)
 
@@ -49,18 +48,11 @@ class UpdateQuery(BaseQuery):
         in this case it will be like this
         `{full_name: "Azeem", age=25}`
         """
-        field_dict = {}
-        for f in self.model._meta.field_list.values():
-            if f.name in self.query:
-                v = f.get_value(
-                    self.query.get(f.name),
-                    dump_options=DumpOptions(
-                        ignore_required=True,
-                        ignore_default=True,
-                        ignore_unchanged=True,
-                    ),
-                )
-                field_dict[f.db_column_name] = v
+        field_dict = self.model.to_db_dict(dump_options=DumpOptions(
+            ignore_required=True,
+            ignore_default=True,
+            ignore_unchanged=True,
+        ))
 
         # Convert to dot notated fields update objects without replacing
         flat_field_dict = get_flat_dict(field_dict)

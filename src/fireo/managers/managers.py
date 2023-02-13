@@ -166,7 +166,7 @@ class Manager:
         """
         return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **kwargs)
 
-    def _update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
+    def _update(self, mutable_instance, transaction=None, batch=None):
         """Update existing document in firestore collection
 
         Parameters
@@ -181,7 +181,7 @@ class Manager:
         batch:
             Firestore batch
         """
-        return self.queryset.update(mutable_instance, transaction, batch, **kwargs)
+        return self.queryset.update(mutable_instance, transaction, batch)
 
     def get(self, key, transaction=None):
         """Get document from firestore"""

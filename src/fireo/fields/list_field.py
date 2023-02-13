@@ -61,7 +61,7 @@ class ListField(Field):
                         val=item,
                         dump_options=replace(
                             dump_options,
-                            # changed_only used in update. Object nested in list cannot be updated partially
+                            # ignore_unchanged used in update. Object nested in list cannot be updated partially
                             ignore_unchanged=False,
                         )
                     ))

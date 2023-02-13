@@ -260,7 +260,7 @@ class Model(metaclass=ModelMeta):
             )
             if (
                 (not ignore_unchanged or field_changed) and
-                (v is not None or not ignore_default_none or field_changed)
+                (not ignore_default_none or field_changed or v is not None)
             ):
                 field_list[f.name] = v
         return field_list
@@ -411,7 +411,7 @@ class Model(metaclass=ModelMeta):
             batch,
             merge,
             no_return,
-            **self._get_fields(ignore_unchanged=merge, ignore_default_none=True)
+            **self._get_fields(ignore_default_none=True)
         )
 
     def upsert(self, transaction=None, batch=None):
@@ -473,12 +473,9 @@ class Model(metaclass=ModelMeta):
             raise InvalidKey(
                 f'Invalid key to update model "{self.__class__.__name__}" ')
 
-        # Get the updated fields
-        updated_fields = self._get_fields(ignore_unchanged=True, ignore_default_none=True)
-
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection._update(self, transaction=transaction, batch=batch, **updated_fields)
+        return self.__class__.collection._update(self, transaction=transaction, batch=batch)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
