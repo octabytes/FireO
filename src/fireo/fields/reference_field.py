@@ -56,7 +56,7 @@ class ReferenceField(Field):
         self.on_load = None
 
     # Override method
-    def field_value(self, val, model):
+    def field_value(self, val, model, initial):
         ref = self.field_attribute.parse(val)
 
         if not ref:

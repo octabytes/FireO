@@ -188,7 +188,7 @@ class Model(metaclass=ModelMeta):
 
         return result
 
-    def populate_from_doc_dict(self, doc_dict):
+    def populate_from_doc_dict(self, doc_dict, initial=False):
         for k, v in doc_dict.items():
             field = self._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
@@ -196,8 +196,11 @@ class Model(metaclass=ModelMeta):
             if field is None:
                 continue
 
-            val = field.field_value(v, self)
-            self._set_orig_attr(field.name, val)
+            val = field.field_value(v, self, initial)
+            if initial:
+                self._set_orig_attr(field.name, val)
+            else:
+                setattr(self, field.name, val)
 
     # Get all the fields values from meta
     # which are attached with this mode
@@ -446,10 +449,7 @@ class Model(metaclass=ModelMeta):
                 f'Invalid key to update model "{self.__class__.__name__}" ')
 
         # Get the updated fields
-        updated_fields = {}
-        for k, v in self._get_fields().items():
-            if k in self._field_changed:
-                updated_fields[k] = v
+        updated_fields = self._get_fields(changed_only=True)
 
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance

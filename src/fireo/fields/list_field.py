@@ -77,12 +77,12 @@ class ListField(Field):
 
         return val
 
-    def field_value(self, val: Optional[List[Any]], model) -> Optional[List[Any]]:
-        parsed = super().field_value(val, model)
+    def field_value(self, val: Optional[List[Any]], model, initial) -> Optional[List[Any]]:
+        parsed = super().field_value(val, model, initial)
         nested_field: Optional[Field] = self.raw_attributes.get('nested_field')
 
         if parsed is not None and nested_field is not None:
-            parsed = [nested_field.field_value(item, model) for item in parsed]
+            parsed = [nested_field.field_value(item, model, initial) for item in parsed]
 
         return parsed
 

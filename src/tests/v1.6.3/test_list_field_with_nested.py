@@ -9,7 +9,7 @@ class LogAccessField(TextField):
     def db_value(self, val):
         return val + '<saved>'
 
-    def field_value(self, val, model):
+    def field_value(self, val, model, initial):
         return val + '<loaded>'
 
 

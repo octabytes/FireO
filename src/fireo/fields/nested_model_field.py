@@ -31,11 +31,11 @@ class NestedModelField(Field):
                                           f'"{self.nested_model.__name__}", but got '
                                           f'"{model_instance.__class__.__name__}"')
 
-    def field_value(self, val, model):
+    def field_value(self, val, model, initial):
         if not val:
             return None
         nested_model = self.nested_model()
-        nested_model.populate_from_doc_dict(val)
+        nested_model.populate_from_doc_dict(val, initial)
         return nested_model
 
     def get_value(self, val: 'Optional[Model]', ignore_required=False, ignore_default=False, changed_only=False):

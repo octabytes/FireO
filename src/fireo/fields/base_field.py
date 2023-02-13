@@ -161,7 +161,7 @@ class Field(metaclass=MetaField):
                 return val.lower() if type(val) is str else val
         return val
 
-    def field_value(self, val, model):
+    def field_value(self, val, model, initial):
         """ How this field represent value that is coming from firestore
 
         Value can be modified after getting value from firestore
@@ -189,5 +189,7 @@ class Field(metaclass=MetaField):
                 Modified value
             model:
                 Model instance
+            initial:
+                Is it initial value or not
         """
         return val
