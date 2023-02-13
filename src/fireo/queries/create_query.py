@@ -61,11 +61,10 @@ class CreateQuery(BaseQuery):
         #   u.update()
         self.model._update_doc = self.model.key
 
-        # Reset the field list and changed list
-        # This is important to reset so we can
+        # Reset the field changed list
+        # This is important to reset, so we can
         # find next time which fields are changed
         # when we are going to update it
-        self.model._field_list = []
         self.model._field_changed = []
 
     def _doc_ref(self):

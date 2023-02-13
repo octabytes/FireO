@@ -42,6 +42,23 @@ def get_nested(dict, *args):
             return value if len(args) == 1 else get_nested(value, *args[1:])
 
 
+def join_keys(first_arg, *args):
+    """Join keys with dot.
+
+    Example:
+        >>> join_keys('a', 'b', 3, 'c')
+        'a.b[3].c'
+    """
+    result = str(first_arg)
+    for arg in args:
+        if isinstance(arg, int):
+            result += f'[{arg}]'
+        else:
+            result += f'.{arg}'
+
+    return result
+
+
 def get_flat_dict(dict_, prefix: str = None):
     """Get flat dict from nested dict by joining keys with dot.
 

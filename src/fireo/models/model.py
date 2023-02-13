@@ -115,14 +115,7 @@ class Model(metaclass=ModelMeta):
 
     # Track which fields are changed or not
     # it is useful when updating document
-    _field_list = None
     _field_changed = None
-
-    # check instance is modified or not
-    # When you get the document from firestore or
-    # save the document then the model instance changed
-    # This also give the help to track update fields
-    _instance_modified = False
 
     # Update doc hold the key which is used to update the document
     _update_doc = None
@@ -137,7 +130,6 @@ class Model(metaclass=ModelMeta):
             raise AbstractNotInstantiate(
                 f'Can not instantiate abstract model "{self.__class__.__name__}"')
 
-        self._field_list = []
         self._field_changed = []
 
         # Allow users to set fields values direct from the constructor method
@@ -160,6 +152,9 @@ class Model(metaclass=ModelMeta):
     @classmethod
     def from_dict(cls, model_dict):
         """Instantiate model from dict"""
+        if model_dict is None:
+            return None
+
         instance = cls()
         instance.populate_from_doc_dict(model_dict)
         return instance
@@ -183,10 +178,7 @@ class Model(metaclass=ModelMeta):
 
             try:
                 nested_field_value = getattr(self, field.name)
-                if isinstance(field, fields.NestedModelField):
-                    value = nested_field_value.to_db_dict(ignore_required, ignore_default, changed_only)
-                else:
-                    value = field.get_value(nested_field_value, ignore_required, ignore_default)
+                value = field.get_value(nested_field_value, ignore_required, ignore_default, changed_only)
             except Exception as error:
                 path = (field.name,)
                 raise ModelSerializingWrappedError(self, path, error) from error
@@ -197,11 +189,6 @@ class Model(metaclass=ModelMeta):
         return result
 
     def populate_from_doc_dict(self, doc_dict):
-        # instance values is changed according to firestore
-        # so mark it modified this will help later for figuring
-        # out the updated fields when need to update this document
-        setattr(self, '_instance_modified', True)
-
         for k, v in doc_dict.items():
             field = self._meta.get_field_by_column_name(k)
             # if missing field setting is set to "ignore" then
@@ -210,12 +197,11 @@ class Model(metaclass=ModelMeta):
                 continue
 
             val = field.field_value(v, self)
-            # setattr(model, field.name, val)
             self._set_orig_attr(field.name, val)
 
     # Get all the fields values from meta
     # which are attached with this mode
-    # and convert them into corresponding db value
+    # to create or update the document
     # return dict {name: value}
     def _get_fields(self, changed_only=False):
         """Get Model fields and values
@@ -250,7 +236,7 @@ class Model(metaclass=ModelMeta):
             if (
                 not changed_only or
                 f.name in self._field_changed or
-                # There is currently no way to tell if a MapField has been changed
+                # Currently, there is no way to tell if a MapField has been changed
                 isinstance(f, fields.MapField) and v is not None
             ):
                 field_list[f.name] = v
@@ -473,10 +459,8 @@ class Model(metaclass=ModelMeta):
         """Keep track which filed values are changed"""
         if key in self._meta.field_list:
             self._field_changed.append(key)
-            self._field_list.append(key)
         super(Model, self).__setattr__(key, value)
 
     def _set_orig_attr(self, key, value):
         """Keep track which filed values are changed"""
-        self._field_list.append(key)
         super(Model, self).__setattr__(key, value)

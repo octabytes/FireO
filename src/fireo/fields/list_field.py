@@ -52,17 +52,25 @@ class ListField(Field):
 
         nested_field: Optional[Field] = self.raw_attributes.get('nested_field')
         if nested_field is not None:
-            val = [
-                nested_field.get_value(
-                    val=item,
-                    ignore_required=ignore_required,
-                    ignore_default=ignore_default,
-                    # changed_only used in update. Object nested in list cannot be updated partially
-                    changed_only=False,
-                )
-                for item in val
-            ]
+            serialized_values = []
+            for index, item in enumerate(val):
+                try:
+                    serialized_values.append(nested_field.get_value(
+                        val=item,
+                        ignore_required=ignore_required,
+                        ignore_default=ignore_default,
+                        # changed_only used in update. Object nested in list cannot be updated partially
+                        changed_only=False,
+                    ))
+                except Exception as error:
+                    from fireo.models.errors import ModelSerializingWrappedError
+                    raise ModelSerializingWrappedError(item, (index,), error) from error
+        else:
+            serialized_values = val
 
+        return self.db_value(serialized_values)
+
+    def db_value(self, val):
         # check if user defined to set the value as lower case
         if self.model_cls._meta.to_lowercase:
             return [v.lower() if type(v) is str else v for v in val]
@@ -70,7 +78,6 @@ class ListField(Field):
         return val
 
     def field_value(self, val: Optional[List[Any]], model) -> Optional[List[Any]]:
-        """Deserialize enum from value"""
         parsed = super().field_value(val, model)
         nested_field: Optional[Field] = self.raw_attributes.get('nested_field')
 

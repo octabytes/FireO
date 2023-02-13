@@ -170,7 +170,7 @@ class Field(metaclass=MetaField):
         -------
             .. code-block:: python
                 class BoolField(Field):
-                    def field_value(self, val):
+                    def field_value(self, val, model):
                         if val == 1:
                             return True
                         else:
@@ -187,5 +187,7 @@ class Field(metaclass=MetaField):
         ------
             val:
                 Modified value
+            model:
+                Model instance
         """
         return val
