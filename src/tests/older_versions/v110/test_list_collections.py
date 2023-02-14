@@ -48,8 +48,7 @@ def test_list_subcollections():
     sub_doc.parent = doc.key
     sub_doc.save()
 
-    subcollections =  doc.list_subcollections()
-
+    subcollections = doc.list_subcollections()
 
     assert subcollections != ""
     assert subcollections == ["child"]

@@ -1,6 +1,6 @@
 import warnings
 
-from fireo import fields
+from fireo import db, fields
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
 from fireo.models.model_meta import ModelMeta
@@ -351,8 +351,7 @@ class Model(metaclass=ModelMeta):
 
     def list_subcollections(self):
         """return a list of any subcollections of the doc"""
-        if self._meta._referenceDoc is not None:
-            return [c.id for c in self._meta._referenceDoc.collections()]
+        return [c.id for c in self.document_reference().collections()]
 
     def save(self, transaction=None, batch=None, merge=None, no_return=False):
         """Save Model in firestore collection
@@ -464,3 +463,14 @@ class Model(metaclass=ModelMeta):
     def _set_orig_attr(self, key, value):
         """Keep track which filed values are changed"""
         super(Model, self).__setattr__(key, value)
+
+    @property
+    def document_path(self):
+        doc_path = self.collection_name + '/' + self._id
+        if self.parent:
+            doc_path = self.parent + '/' + doc_path
+
+        return doc_path
+
+    def document_reference(self):
+        return db.conn.document(self.document_path)

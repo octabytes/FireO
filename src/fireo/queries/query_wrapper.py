@@ -31,8 +31,6 @@ class ModelWrapper:
         # setattr(model, '_id', doc.id)
         model._set_orig_attr('_id', doc.id)
 
-        # save the firestore reference doc so that further actions can be performed (i.e. collections())
-        model._meta.set_reference_doc(doc.reference)
         # even though doc.reference currently points to self, there is no guarantee this will be true
         # in the future, therefore we should store the create time and update time separate.
         model._create_time = doc.create_time
