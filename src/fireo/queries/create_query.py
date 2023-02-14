@@ -34,14 +34,7 @@ class CreateQuery(BaseQuery):
             super().set_collection_path(key=mutable_instance.key)
         else:
             self.model = model_cls()
-
-            # Suppose user is defined the id for model
-            # let name id **id**
-            id_field = 'id'
-
-            # Check user provide any custom name for id
-            if model_cls._meta.id is not None:
-                id_field, _ = model_cls._meta.id
+            id_field, _ = model_cls._meta.id
 
             # _id setter in model check either user defined
             # any id or not in model

@@ -155,22 +155,20 @@ class Model(metaclass=ModelMeta):
                     setattr(self, f.name, f.nested_model.from_dict(kwargs[f.name]))
 
     @classmethod
-    def from_dict(cls, model_dict):
+    def from_dict(cls, model_dict, by_column_name=False):
         """Instantiate model from dict"""
         if model_dict is None:
             return None
 
         instance = cls()
-        instance.populate_from_doc_dict(model_dict)
+        instance.populate_from_doc_dict(model_dict, by_column_name=by_column_name)
         return instance
 
     def to_dict(self):
         """Convert model into dict"""
         model_dict = self.to_db_dict()
-        id = 'id'
-        if self._meta.id is not None:
-            id, _ = self._meta.id
-        model_dict[id] = utils.get_id(self.key)
+        id_field_name, _ = self._meta.id
+        model_dict[id_field_name] = utils.get_id(self.key)
         model_dict['key'] = self.key
         return model_dict
 
@@ -205,9 +203,13 @@ class Model(metaclass=ModelMeta):
 
         return result
 
-    def populate_from_doc_dict(self, doc_dict, initial=False):
+    def populate_from_doc_dict(self, doc_dict, initial=False, by_column_name=True):
         for k, v in doc_dict.items():
-            field = self._meta.get_field_by_column_name(k)
+            if by_column_name:
+                field = self._meta.get_field_by_column_name(k)
+            else:
+                field = self._meta.field_list[k]
+
             # if missing field setting is set to "ignore" then
             # get_field_by_column_name return None So, just skip this field
             if field is None:
@@ -289,8 +291,6 @@ class Model(metaclass=ModelMeta):
         id : str or None
             User defined id or None
         """
-        if self._meta.id is None:
-            return None
         name, field = self._meta.id
         return field.get_value(getattr(self, name))
 
@@ -319,10 +319,8 @@ class Model(metaclass=ModelMeta):
         doc_id : str
             Id of the model user specified or auto generated from firestore
         """
-        id = 'id'
-        if self._meta.id is not None:
-            id, _ = self._meta.id
-        setattr(self, id, doc_id)
+        id_field_name, _ = self._meta.id
+        setattr(self, id_field_name, doc_id)
         # Doc id can be None when user create Model directly from manager
         # For Example:
         #   User.collection.create(name="Azeem")
@@ -464,10 +462,7 @@ class Model(metaclass=ModelMeta):
             # set parent doc from this updated document key
             self.parent = utils.get_parent_doc(self._update_doc)
             # Get id from key and set it for model
-            setattr(self, '_id', utils.get_id(self._update_doc))
-            # Add the temp id field if user is not specified any
-            if self._id is None and self.id:
-                setattr(self._meta, 'id', ('id', fields.IDField()))
+            self._id = utils.get_id(self._update_doc)
         elif self._update_doc is None and '@temp_doc_id' in self.key:
             raise InvalidKey(
                 f'Invalid key to update model "{self.__class__.__name__}" ')

@@ -92,6 +92,17 @@ class ModelMeta(type):
                 if isinstance(field, fields.IDField): continue
                 field.contribute_to_model(cls, name)
 
+        if not cls._meta.abstract and cls._meta.id is None:
+            if 'id' in cls._meta.field_list:
+                raise DuplicateIDField(
+                    f'Model "{cls.__name__}" can not have field named "id" '
+                    f'because it is reserved for the document ID. '
+                    f'Please use a different field name or define custom IDField'
+                )
+            cls.id = fields.IDField()
+            cls.id.name = 'id'
+            cls.id.contribute_to_model(cls, 'id')
+
         # Set collection name to model class that is generated from
         # Model class this name can be user defined or auto generated
         # from model class
@@ -263,6 +274,8 @@ class Meta:
         else:
             raise DuplicateIDField("Duplicate ID Field")
 
+        self.add_field(field)
+
     def add_field(self, field):
         """Add model fields into model meta class
 
@@ -323,7 +336,7 @@ class Meta:
             if field not found in model class and model config for `missing_field` is **raise_error**
         """
         for field in self.field_list.values():
-            if name in [field.name, field.db_column_name]:
+            if name == field.db_column_name:
                 return field
         if self.missing_field == 'merge':
             f = fields.Field()

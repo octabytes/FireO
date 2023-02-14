@@ -187,30 +187,9 @@ class FilterQuery(BaseQuery):
             if self.model._meta.to_lowercase and type(val) is str:
                 val = val.lower()
 
-            # Check it is nested model field
-            if '.' in name:
-                field, *field_path = name.split('.')
-                db_field_path = []
-                model_field = self.model._meta.get_field(field)
-                db_field_path.append(model_field.db_column_name)
-
-                for p in field_path:
-                    if isinstance(model_field, NestedModelField):
-                        nested_model = model_field.nested_model
-                        model_field = nested_model._meta.get_field(p)
-                        db_field_path.append(model_field.db_column_name)
-
-                    elif isinstance(model_field, MapField):
-                        db_field_path.append(p)
-
-                    else:
-                        raise AttributeTypeError(f"Invalid field type: {model_field}")
-
-                f_name = '.'.join(db_field_path)
-
             # ISSUE # 160
             # check if it is ID field
-            elif self._is_id_field(name):
+            if self._is_id_field(name):
                 # should yield "__name__"
                 f_name = FieldPath.document_id()
 
@@ -238,9 +217,28 @@ class FilterQuery(BaseQuery):
                     raise AttributeTypeError(f'Expected type list but given {type(val)}')
 
             else:
-                f_name = self.model._meta.get_field(name).db_column_name
+                f_name = self._get_db_column_name(name)
             filters.append((f_name, op, val))
         return filters
+
+    def _get_db_column_name(self, name):
+        field, *field_path = name.split('.')
+        db_field_path = []
+        model_field = self.model._meta.get_field(field)
+        db_field_path.append(model_field.db_column_name)
+        for p in field_path:
+            if isinstance(model_field, NestedModelField):
+                nested_model = model_field.nested_model
+                model_field = nested_model._meta.get_field(p)
+                db_field_path.append(model_field.db_column_name)
+
+            elif isinstance(model_field, MapField):
+                db_field_path.append(p)
+
+            else:
+                raise AttributeTypeError(f"Invalid field type: {model_field}")
+        f_name = '.'.join(db_field_path)
+        return f_name
 
     def query(self):
         """Make a query for firestore"""
@@ -287,21 +285,14 @@ class FilterQuery(BaseQuery):
         if name == FieldPath.document_id():
             return True
 
-        # if name is just "id" then might be user did not define IDField in model
-        # so just return True otherwise if user did not mention IDField model._meta.id
-        # return None and failed to execute operation 
-        if name == "id":
-            return True
-
         # Checking `model._meta.id` because `model._id` or `model.id` are not
         # populated on CLS
         # If model is using implicit "id" field and has not been fully initialized
         # (i.e. used to get or save), `self.model._meta.id` isn't even set, so
         # we need to gate on that as well
         # https://github.com/octabytes/FireO/issues/168
-        if self.model._meta.id is not None:
-            if name == self.model._meta.id[0]:
-                return True
+        if name == self.model._meta.id[0]:
+            return True
 
         return False
 
@@ -413,13 +404,7 @@ class FilterQuery(BaseQuery):
             order_direction = 'Desc'
             name = field_name[1:]  # Get the field name after dash(-) e.g -age name will be age
 
-        # ISSUE # 155
-        # If name is for nested field for MapField then there is not need to get field name
-        # from model because there is no such field in model
-        if "." in name:
-            f_name = name
-        else:
-            f_name = self.model._meta.get_field(name).db_column_name
+        f_name = self._get_db_column_name(name)
 
         self.order_by.append((f_name, order_direction))
         return self
