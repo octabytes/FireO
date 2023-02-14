@@ -2,6 +2,7 @@ from typing import Optional, TYPE_CHECKING
 
 from fireo.fields import errors
 from fireo.fields.base_field import Field
+from fireo.utils.types import DumpOptions
 
 if TYPE_CHECKING:
     from fireo.models import Model
@@ -38,10 +39,10 @@ class NestedModelField(Field):
         nested_model.populate_from_doc_dict(val, initial)
         return nested_model
 
-    def get_value(self, val: 'Optional[Model]', ignore_required=False, ignore_default=False, changed_only=False):
+    def get_value(self, val: 'Optional[Model]', dump_options=DumpOptions()):
         if val is not None:
-            val = val.to_db_dict(ignore_required, ignore_default, changed_only)
-        val = self.field_attribute.parse(val, ignore_required, ignore_default)
+            val = val.to_db_dict(dump_options)
+        val = self.field_attribute.parse(val, dump_options.ignore_required, dump_options.ignore_default)
         return self.db_value(val)
 
 
