@@ -9,10 +9,10 @@ def test_model_document_path():
     class SubDoc(Model):
         doc_id = TextField()
 
-    doc = Doc(doc_id="parent")
+    doc = Doc(doc_id="parent-id")
     doc.save()
 
-    sub_doc = SubDoc(doc_id="child")
+    sub_doc = SubDoc(doc_id="child-id")
     sub_doc.parent = doc.key
     sub_doc.save()
 
