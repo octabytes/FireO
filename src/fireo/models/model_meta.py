@@ -1,6 +1,6 @@
+from fireo import fields
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.managers import managers
-from fireo import fields
 from fireo.models.errors import DuplicateIDField, NonAbstractModel, UnSupportedMeta
 from fireo.utils import utils
 
@@ -38,272 +38,19 @@ class ModelMeta(type):
         """
         cls = super().__new__(mcs, name, base, attrs)
 
+        # Create instance of Meta class and set it to
+        # Model class as _meta attribute
+        parent_meta = getattr(cls, '_meta', None)
+        if parent_meta is not None:
+            _meta = Meta.from_parent_meta(cls, parent_meta)
+        else:
+            _meta = Meta(cls)
+        setattr(cls, '_meta', _meta)
+
         # check user specify any additional meta data for this model or not
         # For example collection name etc if there is not then assign None to it
         if 'Meta' not in attrs:
             cls.Meta = None
-
-        class Meta:
-            """Hold information about fields, manager and other model related stuff
-
-            Meta class get fields, manager and other model related stuff and attach it to
-            with model class.
-
-            For example:
-                class User:
-                    name = TextField()
-                    age = NumberField()
-
-                u = User()
-                u.name = "Azeem"
-                u.age = 25
-
-                This Meta class is responsible to attach these fields with model class
-                later on these fields can be accessible via **cls._meta**
-
-                For example:
-                    cls._meta.field_list() will return {name: <obj of TextField ox13>, age: <obj of NumberField 0x17>}
-
-                Later on you can use these fields to get corresponding value from model and use them further
-                field value can be get like this:
-
-                    getattr(self, field_name)
-
-                Here `self` is instance of model class and `field_name` is one the name from `field_list()`
-
-                In above example if you run this
-
-                    getattr(model_instance, name)
-                    getattr(model_instance, age)
-
-                it will return **Azeem** and **25**
-
-            Attributes
-            ----------
-            field_list : dict
-                Contain all model field
-
-            id : str, optional
-                Model id if not specify then it return `None` and later create by firestore
-                and attach to model
-
-            abstract: bool
-                Model is abstract or not
-
-            missing_field: str
-                Model config what to do with fields that are comming from firestore and not in model
-                possible values are (merge, ignore, raise_error) merge is default
-
-            to_lowercase: bool
-                Firestore is case sensitive convert all value in lowercase if set True. By default
-                it set False.
-
-            collection : manager
-                Collection is class level attribute can be used to access the manager
-
-            See Also
-            --------
-            fireo.managers.Manager :
-                Manager are responsible to run certain functions on firestore like creating collection
-                getting documents update etc
-
-            Methods
-            -------
-            add_model_id(field):
-                If user specify any id then attach this id to model
-
-            add_field(field):
-                All all user specified fields in Model class
-
-            get_field(name):
-                Get field from model on the base of name
-
-            get_field_by_column_name(name):
-                Get field according to firestore column name(field name)
-
-            set_user_defined_meta(user_meta):
-                Set user defined meta in model class, These meta is actually the config for model
-
-            Raises:
-            -------
-            FieldNotFound:
-                if there is no such in field in model class
-
-            NonAbstractModel:
-                If any model is inherit from non abstract model
-            """
-            field_list = {}  # Hold all the model fields
-            id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
-
-            def __init__(self):
-                # Convert Model class into collection name
-                # change it to lower case and snake case
-                # e.g UserCollection into user_collection
-                self.collection_name = utils.collection_name(cls.__name__)
-                self.abstract = False
-                self.missing_field = 'merge'
-                # If True, then ignore default None values. Changed field with None still will be saved.
-                self.ignore_none_field = True
-                self.to_lowercase = False
-
-            # Attached manager to model class
-            # later on manager can be accessible via class `collection` attribute
-            # like this **cls.collection**
-            if 'collection' not in cls.__dict__:
-                manager = managers.Manager()
-                manager.contribute_to_model(cls)
-
-            def add_model_id(self, field):
-                """ Attach user define id to model
-
-                If user specify any custom id for this model
-                attach it to model this contains two thing custom id and if field
-
-                For Example:
-                    class User:
-                        user_id = IDField()
-
-                    In this case it will hold (user_id, <obj of IDField 0x137>)
-
-                    later `id` can be accessible via `_meta`
-                    like this **cls._meta.id**
-
-                Parameters
-                ----------
-                field : IDField()
-                    User defined custom id field
-                """
-                if not self.id:
-                    self.id = (field.name, field)
-                else:
-                    raise DuplicateIDField("Duplicate ID Field")
-
-            def add_field(self, field):
-                """Add model fields into model meta class
-
-                These fields can be used later for getting corresponding values from
-                model instance and some other operations
-
-                can be accessible via `_meta`
-                like this **cls._meta.field_list()**
-
-                Parameters
-                ----------
-                field : Field
-                    This can be any type which is derived from `Field` sub class
-                    For example `TextField`, `NumberField` etc
-                """
-                self.field_list[field.name] = field
-
-            def get_field(self, name):
-                """Get model field from field list
-
-                Get field on the base of it's name can be accessible via `_meta`
-                like this **cls._meta.get_field(name)**
-
-                Parameters
-                ---------
-                name:
-                    Field name
-
-                Returns
-                ------
-                    Model field
-
-                Raises
-                ------
-                FieldNotFound:
-                    If field not found in model
-                """
-                if name in self.field_list:
-                    return self.field_list[name]
-                raise FieldNotFound(f'Field "{name}" not found in model "{cls.__name__}"')
-
-            def get_field_by_column_name(self, name):
-                """Get field by column name
-
-                User can also define different name for each field to save in firestore
-                Check if user specify any different name then get field corresponding to
-                this db_column_name. If no column name is specify for field then just
-                return the same field name
-
-                Parameters
-                ----------
-                name : str
-                    column name (field name) coming form firestore
-
-                Raises
-                -------
-                FieldNotFound:
-                    if field not found in model class and model config for `missing_field` is **raise_error**
-                """
-                for field in self.field_list.values():
-                    if name in [field.name, field.db_column_name]:
-                        return field
-                if self.missing_field == 'merge':
-                    f = fields.Field()
-                    f.name = name
-                    return f
-                if self.missing_field == 'ignore':
-                    return None
-                if self.missing_field == 'raise_error':
-                    raise FieldNotFound(f'Field "{name}" not found in model "{cls.__name__}"')
-
-            def set_user_defined_meta(self, user_meta):
-                """Set user defined meta attributes for model
-
-                User can define config by using `Meta` class in models
-
-                Examples
-                --------
-                .. code-block:: python
-                    class User(Model):
-                        name = TextField()
-
-                        class Meta:
-                            collection_name = "user_test_collection"
-
-                    # All the documents now save in *user_test_collection* for this model
-
-                Parameters
-                ---------
-                user_meta:
-                    User defined meta for model class
-
-                Raises
-                -------
-                MissingFieldOptionError:
-                    If option for missing_field is other than ignore, merge or raise_error
-                """
-                for name, val in user_meta.__dict__.items():
-                    supported_meta = ['collection_name', 'abstract', 'to_lowercase', 'missing_field', 'ignore_none_field']
-
-                    # check if name is supported by meta and name is not
-                    # any special name for example '__main__, __doc__'
-                    if name not in supported_meta and '__' not in name:
-                        raise UnSupportedMeta(f'Meta "{name}" is not recognize in model "{cls.__name__}" '
-                                              f'Possible value are {", ".join(supported_meta)}')
-
-                    if name == 'collection_name':
-                        self.collection_name = val
-                    if name == 'abstract':
-                        self.abstract = val
-                    if name == 'to_lowercase':
-                        self.to_lowercase = val
-                    if name == 'ignore_none_field':
-                        self.ignore_none_field = val
-                    if name == 'missing_field':
-                        if val in ['merge', 'ignore', 'raise_error']:
-                            self.missing_field = val
-                        else:
-                            raise MissingFieldOptionError(
-                                f'Option "{val}" is not supported by missing_field. '
-                                f'Possible values are ignore, merge, raise_error')
-
-        # Create instance of Meta class and set it to
-        # Model class as _meta attribute
-        _meta = Meta()
-        setattr(cls, '_meta', _meta)
 
         # Get all fields from model and save them into `_meta.field_list()`
         # and then attach this `_meta` to model class
@@ -360,3 +107,290 @@ class ModelMeta(type):
         setattr(cls, "collection_name", cls._meta.collection_name)
 
         return cls
+
+
+class Meta:
+    """Hold information about fields, manager and other model related stuff
+
+    Meta class get fields, manager and other model related stuff and attach it to
+    with model class.
+
+    For example:
+        class User:
+            name = TextField()
+            age = NumberField()
+
+        u = User()
+        u.name = "Azeem"
+        u.age = 25
+
+        This Meta class is responsible to attach these fields with model class
+        later on these fields can be accessible via **cls._meta**
+
+        For example:
+            cls._meta.field_list() will return {name: <obj of TextField ox13>, age: <obj of NumberField 0x17>}
+
+        Later on you can use these fields to get corresponding value from model and use them further
+        field value can be get like this:
+
+            getattr(self, field_name)
+
+        Here `self` is instance of model class and `field_name` is one the name from `field_list()`
+
+        In above example if you run this
+
+            getattr(model_instance, name)
+            getattr(model_instance, age)
+
+        it will return **Azeem** and **25**
+
+    Attributes
+    ----------
+    field_list : dict
+        Contain all model field
+
+    id : str, optional
+        Model id if not specify then it return `None` and later create by firestore
+        and attach to model
+
+    abstract: bool
+        Model is abstract or not
+
+    missing_field: str
+        Model config what to do with fields that are comming from firestore and not in model
+        possible values are (merge, ignore, raise_error) merge is default
+
+    to_lowercase: bool
+        Firestore is case sensitive convert all value in lowercase if set True. By default
+        it set False.
+
+    collection : manager
+        Collection is class level attribute can be used to access the manager
+
+    See Also
+    --------
+    fireo.managers.Manager :
+        Manager are responsible to run certain functions on firestore like creating collection
+        getting documents update etc
+
+    Methods
+    -------
+    add_model_id(field):
+        If user specify any id then attach this id to model
+
+    add_field(field):
+        All all user specified fields in Model class
+
+    get_field(name):
+        Get field from model on the base of name
+
+    get_field_by_column_name(name):
+        Get field according to firestore column name(field name)
+
+    set_user_defined_meta(user_meta):
+        Set user defined meta in model class, These meta is actually the config for model
+
+    Raises:
+    -------
+    FieldNotFound:
+        if there is no such in field in model class
+
+    NonAbstractModel:
+        If any model is inherit from non abstract model
+    """
+
+    def __init__(
+        self,
+        model_cls,
+        default_manager_cls=managers.Manager,
+        missing_field='merge',
+        ignore_none_field=True,
+        to_lowercase=False,
+    ):
+        self.id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
+        self.field_list = {}  # Hold all the model fields
+
+        # Convert Model class into collection name
+        # change it to lower case and snake case
+        # e.g UserCollection into user_collection
+        self.collection_name = utils.collection_name(model_cls.__name__)
+        self.abstract = False
+        self.model_cls = model_cls
+        self.default_manager_cls = default_manager_cls
+        self.missing_field = missing_field
+        self.ignore_none_field = ignore_none_field
+        self.to_lowercase = to_lowercase
+
+        # Attached manager to model class
+        # later on manager can be accessible via class `collection` attribute
+        # like this **cls.collection**
+        if 'collection' not in model_cls.__dict__:
+            manager = self.default_manager_cls()
+            manager.contribute_to_model(model_cls)
+
+    @classmethod
+    def from_parent_meta(cls, model_cls, parent_meta: 'Meta') -> 'Meta':
+        return cls(
+            model_cls,
+            default_manager_cls=parent_meta.default_manager_cls,
+            missing_field=parent_meta.missing_field,
+            ignore_none_field=parent_meta.ignore_none_field,
+            to_lowercase=parent_meta.to_lowercase,
+        )
+
+    def add_model_id(self, field):
+        """ Attach user define id to model
+
+        If user specify any custom id for this model
+        attach it to model this contains two thing custom id and if field
+
+        For Example:
+            class User:
+                user_id = IDField()
+
+            In this case it will hold (user_id, <obj of IDField 0x137>)
+
+            later `id` can be accessible via `_meta`
+            like this **cls._meta.id**
+
+        Parameters
+        ----------
+        field : IDField()
+            User defined custom id field
+        """
+        if not self.id:
+            self.id = (field.name, field)
+        else:
+            raise DuplicateIDField("Duplicate ID Field")
+
+    def add_field(self, field):
+        """Add model fields into model meta class
+
+        These fields can be used later for getting corresponding values from
+        model instance and some other operations
+
+        can be accessible via `_meta`
+        like this **cls._meta.field_list()**
+
+        Parameters
+        ----------
+        field : Field
+            This can be any type which is derived from `Field` sub class
+            For example `TextField`, `NumberField` etc
+        """
+        self.field_list[field.name] = field
+
+    def get_field(self, name):
+        """Get model field from field list
+
+        Get field on the base of it's name can be accessible via `_meta`
+        like this **cls._meta.get_field(name)**
+
+        Parameters
+        ---------
+        name:
+            Field name
+
+        Returns
+        ------
+            Model field
+
+        Raises
+        ------
+        FieldNotFound:
+            If field not found in model
+        """
+        if name in self.field_list:
+            return self.field_list[name]
+        raise FieldNotFound(f'Field "{name}" not found in model "{self.model_cls.__name__}"')
+
+    def get_field_by_column_name(self, name):
+        """Get field by column name
+
+        User can also define different name for each field to save in firestore
+        Check if user specify any different name then get field corresponding to
+        this db_column_name. If no column name is specify for field then just
+        return the same field name
+
+        Parameters
+        ----------
+        name : str
+            column name (field name) coming form firestore
+
+        Raises
+        -------
+        FieldNotFound:
+            if field not found in model class and model config for `missing_field` is **raise_error**
+        """
+        for field in self.field_list.values():
+            if name in [field.name, field.db_column_name]:
+                return field
+        if self.missing_field == 'merge':
+            f = fields.Field()
+            f.name = name
+            return f
+        if self.missing_field == 'ignore':
+            return None
+        if self.missing_field == 'raise_error':
+            raise FieldNotFound(f'Field "{name}" not found in model "{self.model_cls.__name__}"')
+
+    def set_user_defined_meta(self, user_meta):
+        """Set user defined meta attributes for model
+
+        User can define config by using `Meta` class in models
+
+        Examples
+        --------
+        .. code-block:: python
+            class User(Model):
+                name = TextField()
+
+                class Meta:
+                    collection_name = "user_test_collection"
+
+            # All the documents now save in *user_test_collection* for this model
+
+        Parameters
+        ---------
+        user_meta:
+            User defined meta for model class
+
+        Raises
+        -------
+        MissingFieldOptionError:
+            If option for missing_field is other than ignore, merge or raise_error
+        """
+        for name, val in user_meta.__dict__.items():
+            supported_meta = [
+                'collection_name',
+                'abstract',
+                'to_lowercase',
+                'missing_field',
+                'ignore_none_field',
+                'default_manager_cls',
+            ]
+
+            # check if name is supported by meta and name is not
+            # any special name for example '__main__, __doc__'
+            if name not in supported_meta and '__' not in name:
+                raise UnSupportedMeta(f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
+                                      f'Possible value are {", ".join(supported_meta)}')
+
+            if name == 'collection_name':
+                self.collection_name = val
+            if name == 'abstract':
+                self.abstract = val
+            if name == 'to_lowercase':
+                self.to_lowercase = val
+            if name == 'ignore_none_field':
+                self.ignore_none_field = val
+            if name == 'missing_field':
+                if val in ['merge', 'ignore', 'raise_error']:
+                    self.missing_field = val
+                else:
+                    raise MissingFieldOptionError(
+                        f'Option "{val}" is not supported by missing_field. '
+                        f'Possible values are ignore, merge, raise_error')
+            if name == 'default_manager_cls':
+                self.default_manager_cls = val
+
