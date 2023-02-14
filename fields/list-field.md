@@ -56,7 +56,7 @@ The following attributes supported by List Field.
   Validate given value of field. This is base attribute that is available in all fields [Read More](/FireO/fields/field#validator)
 
 - ### Nested Field
-  Set nested field for list field.
+  Set nested field for list field. NestedModelField can be used to define nested model. [Read More](/FireO/fields/nested-model)
 
   #### Example Usage
   
@@ -64,9 +64,36 @@ The following attributes supported by List Field.
   
   ```python
   class User(Model):
-    subjects = ListField(nested_field=TextField())  
+    subjects = ListField(TextField())  
   
   u = User()
   u.subjects = ['English', 'Math']
   ```
-    
+  
+  #### Example Usage with NestedModelField
+  
+  {: .no_toc }
+  
+  ```python
+  class Message(Model):
+      author = TextField()
+      text = TextField()
+  
+  class Chat(Model):
+      title = TextField()
+      messages = ListField(NestedModelField(Message))
+  
+  Chat.from_dict({
+      'title': 'Chat 1',
+      'messages': [
+          {
+              'author': 'John',
+              'text': 'Hello',
+          },
+          {
+              'author': 'Jane',
+              'text': 'Hi',
+          }
+      ]
+  }
+  ```
