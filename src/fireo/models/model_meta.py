@@ -1,4 +1,5 @@
 from fireo import fields
+from fireo.fields import Field
 from fireo.fields.errors import FieldNotFound, MissingFieldOptionError
 from fireo.managers import managers
 from fireo.models.errors import DuplicateIDField, NonAbstractModel, UnSupportedMeta
@@ -16,6 +17,8 @@ class ModelMeta(type):
     __new__(mcs, name, base, attrs):
         Create modified type for model class
     """
+
+    _meta: 'Meta'
 
     def __new__(mcs, name, base, attrs):
         """Create modified type for model class
@@ -117,7 +120,27 @@ class ModelMeta(type):
         # UserCollection will become user_collection
         setattr(cls, "collection_name", cls._meta.collection_name)
 
+        mcs._generate_column_names(_meta.column_name_generator, attrs)
+
         return cls
+
+    @staticmethod
+    def _generate_column_names(column_name_generator, attrs):
+        """Generate column names for fields.
+
+        Can be used to generate camelCase column names for fields.
+        """
+        if column_name_generator is None:
+            return
+
+        for key, value in attrs.items():
+            if not isinstance(value, Field):
+                continue
+
+            if 'column_name' in value.raw_attributes:
+                continue
+
+            value.raw_attributes['column_name'] = column_name_generator(value.name)
 
 
 class Meta:
@@ -217,6 +240,7 @@ class Meta:
         missing_field='merge',
         ignore_none_field=True,
         to_lowercase=False,
+        column_name_generator=None,
     ):
         self.id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
         self.field_list = {}  # Hold all the model fields
@@ -231,6 +255,7 @@ class Meta:
         self.missing_field = missing_field
         self.ignore_none_field = ignore_none_field
         self.to_lowercase = to_lowercase
+        self.column_name_generator = column_name_generator
 
         # Attached manager to model class
         # later on manager can be accessible via class `collection` attribute
@@ -247,6 +272,7 @@ class Meta:
             missing_field=parent_meta.missing_field,
             ignore_none_field=parent_meta.ignore_none_field,
             to_lowercase=parent_meta.to_lowercase,
+            column_name_generator=parent_meta.column_name_generator,
         )
 
     def add_model_id(self, field):
@@ -381,29 +407,24 @@ class Meta:
                 'missing_field',
                 'ignore_none_field',
                 'default_manager_cls',
+                'column_name_generator',
             ]
 
             # check if name is supported by meta and name is not
             # any special name for example '__main__, __doc__'
-            if name not in supported_meta and '__' not in name:
-                raise UnSupportedMeta(f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
-                                      f'Possible value are {", ".join(supported_meta)}')
+            if name not in supported_meta:
+                if '__' not in name:
+                    raise UnSupportedMeta(
+                        f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
+                        f'Possible value are {", ".join(supported_meta)}'
+                    )
 
-            if name == 'collection_name':
-                self.collection_name = val
-            if name == 'abstract':
-                self.abstract = val
-            if name == 'to_lowercase':
-                self.to_lowercase = val
-            if name == 'ignore_none_field':
-                self.ignore_none_field = val
-            if name == 'missing_field':
+            elif name == 'missing_field':
                 if val in ['merge', 'ignore', 'raise_error']:
                     self.missing_field = val
                 else:
                     raise MissingFieldOptionError(
                         f'Option "{val}" is not supported by missing_field. '
                         f'Possible values are ignore, merge, raise_error')
-            if name == 'default_manager_cls':
-                self.default_manager_cls = val
-
+            else:
+                setattr(self, name, val)
