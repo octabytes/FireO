@@ -4,6 +4,7 @@ from fireo.models import Model
 from fireo.fields.text_field import TextField
 from fireo.fields.number_field import NumberField
 from fireo.fields.errors import NumberRangeError
+from fireo.models.errors import ModelSerializingWrappedError
 
 
 def test_fix_issue_48():
@@ -37,5 +38,7 @@ def test_fix_issue_48():
     assert person.type == 1
 
     person.type = 3
-    with pytest.raises(NumberRangeError):
+    with pytest.raises(ModelSerializingWrappedError) as e:
         person.update()
+
+    assert isinstance(e.value.original_error, NumberRangeError)

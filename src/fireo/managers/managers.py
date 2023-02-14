@@ -149,7 +149,7 @@ class Manager:
         """provide operations related to firestore"""
         return queries.QuerySet(self.model_cls)
 
-    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, **kwargs,):
+    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, **kwargs):
         """create new document in firestore collection
 
         Parameters
@@ -164,49 +164,9 @@ class Manager:
         batch:
             Firestore batch
         """
-        _EMPTY_DOC_EXCEPTION = "Empty document can not be save, Add at least one field value"
-        # Check if it empty document then don't save it
-        if not kwargs:
-            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
+        return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **kwargs)
 
-        # Check if of the field value is not None
-        is_none_dict = True
-        for k, v in kwargs.items():
-            try:
-                f = self.model_cls._meta.get_field(k)
-                default_value = f.field_attribute.default
-                if v is not None or default_value is not None:
-                    is_none_dict = False
-                    break
-            except FieldNotFound:
-                if v is not None or default_value is not None:
-                    is_none_dict = False
-                    break
-
-        if is_none_dict:
-            raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
-
-        # if mutable instance is none this mean user is creating document directly from manager
-        # For example User.collection.create(name="Azeem") in this case mutable instance will be None
-        field_list = kwargs
-
-        # If this model has custom IDField then
-        # Check if field list length is one(1) and field is IDField
-        # if this one field is IDField then this is also Empty Document
-        # which can not save
-        if self.model_cls._meta.id is not None:
-            if len(field_list) == 1:
-                # getting first key name from dict
-                first_key_name = next(iter(field_list))
-                id_name, _ = self.model_cls._meta.id
-
-                # Check first key is id
-                if first_key_name == id_name:
-                    raise EmptyDocument(_EMPTY_DOC_EXCEPTION)
-
-        return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **field_list)
-
-    def _update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
+    def _update(self, mutable_instance, transaction=None, batch=None):
         """Update existing document in firestore collection
 
         Parameters
@@ -221,7 +181,7 @@ class Manager:
         batch:
             Firestore batch
         """
-        return self.queryset.update(mutable_instance, transaction, batch, **kwargs)
+        return self.queryset.update(mutable_instance, transaction, batch)
 
     def get(self, key, transaction=None):
         """Get document from firestore"""

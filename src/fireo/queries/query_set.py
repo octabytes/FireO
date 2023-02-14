@@ -55,7 +55,7 @@ class QuerySet:
         transaction_or_batch = transaction if transaction is not None else batch
         return CreateQuery(self.model_cls, mutable_instance, no_return, **kwargs).exec(transaction_or_batch, merge)
 
-    def update(self, mutable_instance=None, transaction=None, batch=None, **kwargs):
+    def update(self, mutable_instance, transaction=None, batch=None):
         """Update existing document in firestore collection
 
         Parameters
@@ -81,7 +81,7 @@ class QuerySet:
             updated modified instance
         """
         transaction_or_batch = transaction if transaction is not None else batch
-        return UpdateQuery(self.model_cls, mutable_instance, **kwargs).exec(transaction_or_batch)
+        return UpdateQuery(self.model_cls, mutable_instance).exec(transaction_or_batch)
 
     def get(self, key, transaction=None):
         """Get document from firestore
