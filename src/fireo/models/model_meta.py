@@ -91,8 +91,6 @@ class ModelMeta(type):
                                            f'model "{b.__name__}"')
                 continue
             for name, field in b._meta.field_list.items():
-                # Ignore the id field
-                if isinstance(field, fields.IDField): continue
                 field.contribute_to_model(cls, name)
 
         if not cls._meta.abstract and cls._meta.id is None:

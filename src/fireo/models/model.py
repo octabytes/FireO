@@ -186,8 +186,9 @@ class Model(metaclass=ModelMeta):
             field: Field  # type: ignore
 
             if isinstance(field, IDField):
-                # do not include ID field to dict for firestore
-                continue
+                if not field.include_in_document:
+                    # do not include ID field to dict for firestore unless it is explicitly set
+                    continue
 
             field_changed = field.name in self._field_changed
             if dump_options.ignore_unchanged and not field_changed:

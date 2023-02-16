@@ -19,7 +19,16 @@ class IDField(Field):
 
         # After save id will be saved in `user_id`
         print(self.user_id)  # custom_doc_id
+
+    Attributes
+    ----------
+        include_in_document: bool = False (default) If true then id will be included in FireStore document
     """
+
+    def __init__(self, *args, include_in_document=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.include_in_document = include_in_document
+
     def contribute_to_model(self, model_cls, name):
         self.name = name
         setattr(model_cls, name, None)
