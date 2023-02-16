@@ -85,11 +85,8 @@ class ModelMeta(type):
             if not hasattr(b, '_meta'):
                 continue
             if not b._meta.abstract:
-                from fireo.models import Model
-                if b != Model:
-                    raise NonAbstractModel(f'Model "{cls.__name__}" can not inherit from non abstract '
-                                           f'model "{b.__name__}"')
-                continue
+                raise NonAbstractModel(f'Model "{cls.__name__}" can not inherit from non abstract '
+                                       f'model "{b.__name__}"')
             for name, field in b._meta.field_list.items():
                 field.contribute_to_model(cls, name)
 

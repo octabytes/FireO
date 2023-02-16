@@ -129,6 +129,9 @@ class Model(metaclass=ModelMeta):
     _create_time = None
     _update_time = None
 
+    class Meta:
+        abstract = True
+
     def __init__(self, *args, **kwargs):
         assert not args, 'You must use keyword arguments when instantiating a model'
         # check this is not abstract model otherwise stop creating instance of this model
