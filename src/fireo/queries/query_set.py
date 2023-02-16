@@ -2,6 +2,7 @@ from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.filter_query import FilterQuery
 from fireo.queries.get_query import GetQuery
 from fireo.queries.create_query import CreateQuery
+from fireo.queries.refresh_query import RefreshQuery
 from fireo.queries.update_query import UpdateQuery
 
 
@@ -100,6 +101,25 @@ class QuerySet:
             wrap query result into model instance
         """
         return GetQuery(self.model_cls, key).exec(transaction)
+
+    def refresh(self, mutable_instance, transaction=None):
+        """Refresh document from firestore
+
+        Parameters
+        ----------
+        mutable_instance: Model instance
+            Make changes in existing model instance After performing firestore action modified this instance
+            adding things init like id, key etc
+
+        transaction:
+            Firestore transaction
+
+        Returns
+        -------
+        Model instance:
+            wrap query result into model instance
+        """
+        return RefreshQuery(self.model_cls, mutable_instance).exec(transaction)
 
     def filter(self, parent=None, *args, **kwargs):
         """Filter document from firestore

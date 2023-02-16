@@ -1,4 +1,8 @@
 from dataclasses import dataclass
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from fireo.models import Model
 
 
 @dataclass(frozen=True)
@@ -18,3 +22,20 @@ class DumpOptions:
     ignore_unchanged: bool = False
     """Ignore fields which are not changed when updating the document.
     Used in NestedModelField."""
+
+
+@dataclass(frozen=True)
+class LoadOptions:
+    """Options for loading a FireStore dictionary to a model."""
+
+    model: 'Optional[Model]' = None
+    """Model instance that contains that field."""
+
+    stored: bool = False
+    """Is the field stored in FireStore or not."""
+
+    merge: bool = False
+    """Merge data with existing data or not. Mostly used in NestedModelField."""
+
+    by_column_name: bool = False
+    """Load data by column name or not. Mostly used in NestedModelField."""

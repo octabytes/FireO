@@ -1,4 +1,5 @@
 import warnings
+from itertools import chain
 from typing import TYPE_CHECKING
 
 from fireo import db, fields
@@ -7,7 +8,7 @@ from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedE
 from fireo.models.model_meta import ModelMeta
 from fireo.queries.errors import InvalidKey
 from fireo.utils import utils
-from fireo.utils.types import DumpOptions
+from fireo.utils.types import DumpOptions, LoadOptions
 
 if TYPE_CHECKING:
     from fireo.fields import Field
@@ -135,7 +136,8 @@ class Model(metaclass=ModelMeta):
             raise AbstractNotInstantiate(
                 f'Can not instantiate abstract model "{self.__class__.__name__}"')
 
-        self._field_changed = []
+        self._field_changed = set()
+        self._extra_fields = set()
 
         # Allow users to set fields values direct from the constructor method
         for k, v in kwargs.items():
@@ -163,6 +165,10 @@ class Model(metaclass=ModelMeta):
         instance = cls()
         instance.populate_from_doc_dict(model_dict, by_column_name=by_column_name)
         return instance
+
+    def merge_with_dict(self, model_dict, by_column_name=False):
+        """Load data from dict into model."""
+        self.populate_from_doc_dict(model_dict, merge=True, by_column_name=by_column_name)
 
     def to_dict(self):
         """Convert model into dict"""
@@ -203,23 +209,51 @@ class Model(metaclass=ModelMeta):
 
         return result
 
-    def populate_from_doc_dict(self, doc_dict, initial=False, by_column_name=True):
-        for k, v in doc_dict.items():
-            if by_column_name:
-                field = self._meta.get_field_by_column_name(k)
-            else:
-                field = self._meta.field_list[k]
+    def populate_from_doc_dict(self, doc_dict: dict, stored=False, merge=False, by_column_name=False):
+        """Populate model from Firestore document dict."""
+        if not merge:
+            old_extra_fields = set(self._extra_fields) - set(self._meta.field_list)
+            for extra_field in old_extra_fields:
+                delattr(self, extra_field)
+            self._extra_fields = set()
 
-            # if missing field setting is set to "ignore" then
-            # get_field_by_column_name return None So, just skip this field
-            if field is None:
-                continue
+        new_extra_fields_names = set(doc_dict) - set(self._meta.field_list)
+        if new_extra_fields_names and not by_column_name:
+            raise NotImplementedError("Can't populate model from dict with unknown fields")
 
-            val = field.field_value(v, self, initial)
-            if initial:
-                self._set_orig_attr(field.name, val)
-            else:
-                setattr(self, field.name, val)
+        new_extra_fields = [
+            self._meta.get_field_by_column_name(field_name)
+            for field_name in new_extra_fields_names
+            # get_field_by_column_name returns None if extra fields are ignored
+            if self._meta.get_field_by_column_name(field_name) is not None
+        ]
+
+        for field in chain(self._meta.field_list.values(), new_extra_fields):
+            field_name_in_dict = field.db_column_name if by_column_name else field.name
+            raw_value = None
+            if field_name_in_dict in doc_dict:
+                raw_value = doc_dict[field_name_in_dict]
+
+            has_value = getattr(self, field.name, None) is not None
+            if field_name_in_dict in doc_dict or (not merge and has_value):
+                # Set value from doc_dict
+                # or reset value if merge is False and field has value
+                value = field.field_value(raw_value, LoadOptions(
+                    model=self,
+                    stored=stored,
+                    merge=merge,
+                    by_column_name=by_column_name,
+                ))
+
+                if stored:
+                    self._set_orig_attr(field.name, value)
+                else:
+                    setattr(self, field.name, value)
+
+        if not merge and stored:
+            # If all fields where replaced by stored values
+            # then there are no changed fields
+            self._field_changed = set()
 
     # Get all the fields values from meta
     # which are attached with this mode
@@ -471,14 +505,23 @@ class Model(metaclass=ModelMeta):
         # otherwise it will return new model instance
         return self.__class__.collection._update(self, transaction=transaction, batch=batch)
 
+    def refresh(self, transaction=None):
+        """Refresh the model from firestore"""
+        if self.key is None:
+            raise ValueError('Model must have key to refresh')
+
+        return self.__class__.collection._refresh(self, transaction=transaction)
+
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""
         if key in self._meta.field_list:
-            self._field_changed.append(key)
+            self._field_changed.add(key)
         super(Model, self).__setattr__(key, value)
 
     def _set_orig_attr(self, key, value):
         """Keep track which filed values are changed"""
+        if key != '_id' and key not in self._meta.field_list:
+            self._extra_fields.add(key)
         super(Model, self).__setattr__(key, value)
 
     @property

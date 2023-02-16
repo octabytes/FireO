@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 from google.cloud.firestore_v1 import ArrayRemove, ArrayUnion
 
 from fireo.fields import errors, Field, IDField
-from fireo.utils.types import DumpOptions
+from fireo.utils.types import DumpOptions, LoadOptions
 
 
 class ListField(Field):
@@ -80,12 +80,18 @@ class ListField(Field):
 
         return val
 
-    def field_value(self, val: Optional[List[Any]], model, initial) -> Optional[List[Any]]:
-        parsed = super().field_value(val, model, initial)
+    def field_value(self, val: Optional[List[Any]], load_options=LoadOptions()) -> Optional[List[Any]]:
+        parsed = super().field_value(val, load_options)
         nested_field: Optional[Field] = self.raw_attributes.get('nested_field')
 
         if parsed is not None and nested_field is not None:
-            parsed = [nested_field.field_value(item, model, initial) for item in parsed]
+            parsed = [
+                nested_field.field_value(item, replace(
+                    load_options,
+                    merge=False,  # merge is not supported for list items
+                ))
+                for item in parsed
+            ]
 
         return parsed
 

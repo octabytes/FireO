@@ -192,6 +192,10 @@ class Manager:
         for key in key_list:
             yield self.queryset.get(key)
 
+    def _refresh(self, mutable_instance, transaction=None):
+        """Refresh document from firestore"""
+        return self.queryset.refresh(mutable_instance, transaction)
+
     def parent(self, key):
         """Parent collection"""
         self._parent_key = key

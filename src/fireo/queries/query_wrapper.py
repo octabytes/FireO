@@ -15,7 +15,7 @@ class ModelWrapper:
         if not doc_dict:
             return None
 
-        model.populate_from_doc_dict(doc_dict, True)
+        model.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
 
         # If parent key is None but here is parent key from doc then set the parent for this model
         # This is case when you filter the documents parent key not auto set just set it

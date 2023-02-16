@@ -5,6 +5,8 @@ from fireo.queries.query_wrapper import ReferenceDocLoader
 from fireo.utils import utils
 from google.cloud import firestore
 
+from fireo.utils.types import LoadOptions
+
 
 class ReferenceField(Field):
     """Reference of other model
@@ -56,13 +58,13 @@ class ReferenceField(Field):
         self.on_load = None
 
     # Override method
-    def field_value(self, val, model, initial):
+    def field_value(self, val, load_options=LoadOptions()):
         ref = self.field_attribute.parse(val)
 
         if not ref:
             return None
 
-        ref_doc = ReferenceDocLoader(model, self, ref)
+        ref_doc = ReferenceDocLoader(load_options.model, self, ref)
 
         if self.auto_load:
             return ref_doc.get()

@@ -1,8 +1,8 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union
 
 from fireo.fields import errors
 from fireo.fields.base_field import Field
-from fireo.utils.types import DumpOptions
+from fireo.utils.types import DumpOptions, LoadOptions
 
 if TYPE_CHECKING:
     from fireo.models import Model
@@ -32,12 +32,22 @@ class NestedModelField(Field):
                                           f'"{self.nested_model.__name__}", but got '
                                           f'"{model_instance.__class__.__name__}"')
 
-    def field_value(self, val, model, initial):
+    def field_value(self, val: Optional[dict], load_options=LoadOptions()):
         if not val:
             return None
-        nested_model = self.nested_model()
-        nested_model.populate_from_doc_dict(val, initial)
-        return nested_model
+
+        instance = getattr(load_options.model, self.name, None)
+        if instance is None or not load_options.merge:
+            # create new instance if not exist or should not be merged
+            instance = self.nested_model()
+
+        instance.populate_from_doc_dict(
+            doc_dict=val,
+            stored=load_options.stored,
+            merge=load_options.merge,
+            by_column_name=load_options.by_column_name,
+        )
+        return instance
 
     def get_value(self, val: 'Optional[Model]', dump_options=DumpOptions()):
         if val is not None:
