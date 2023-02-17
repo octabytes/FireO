@@ -22,7 +22,7 @@ class CreateQuery(BaseQuery):
         return modified or new instance of model
     """
 
-    def __init__(self, model_cls, mutable_instance=None, no_return=False, **kwargs):
+    def __init__(self, model_cls, mutable_instance=None, no_return=False, parent=None, **kwargs):
         super().__init__(model_cls)
         self.no_return = no_return
         # If this is called from manager or mutable model is
@@ -40,7 +40,6 @@ class CreateQuery(BaseQuery):
             # any id or not in model
             setattr(self.model, '_id', kwargs.get(id_field))
             # Check if there is any parent
-            parent = kwargs.get('parent')
             if parent:
                 self.model.parent = parent
                 super().set_collection_path(path=parent)
