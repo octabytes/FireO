@@ -244,6 +244,7 @@ class Meta:
         # Convert Model class into collection name
         # change it to lower case and snake case
         # e.g UserCollection into user_collection
+        self._collection_name = None
         self.abstract = False
         self.model_cls = model_cls
         self.default_manager_cls = default_manager_cls
@@ -262,7 +263,14 @@ class Meta:
 
     @property
     def collection_name(self):
-        return self.collection_name_generator(self.model_cls.__name__)
+        if self._collection_name is None:
+            return self.collection_name_generator(self.model_cls.__name__)
+
+        return self._collection_name
+
+    @collection_name.setter
+    def collection_name(self, value):
+        self._collection_name = value
 
     @classmethod
     def from_parent_meta(cls, model_cls, parent_meta: 'Meta') -> 'Meta':
