@@ -96,9 +96,11 @@ class CreateQuery(BaseQuery):
         if transaction_or_batch is not None:
             if merge:
                 transaction_or_batch.set(
-                    ref, self._parse_field(), merge=merge)
+                    ref, self._parse_field(ignore_unchanged=True), merge=merge)
             else:
                 transaction_or_batch.set(ref, self._parse_field())
+
+            self.model._id = ref.id
             return ref
 
         if merge:
