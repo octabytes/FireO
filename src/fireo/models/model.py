@@ -223,7 +223,9 @@ class Model(metaclass=ModelMeta):
 
         new_extra_fields_names = set(doc_dict) - set(self._meta.field_list)
         if new_extra_fields_names and not by_column_name:
-            raise NotImplementedError("Can't populate model from dict with unknown fields")
+            raise NotImplementedError(
+                f"Can't populate model from dict with unknown fields: {new_extra_fields_names}"
+            )
 
         new_extra_fields = [
             self._meta.get_field_by_column_name(field_name)
