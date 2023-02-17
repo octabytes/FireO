@@ -77,12 +77,7 @@ def get_flat_dict(dict_, prefix: str = None):
             flat_dict[key] = value
     return flat_dict
 
-
-def generateKeyFromId(model, id):
-    return model.collection_name + "/" + id
-
-
-def isKey(str):
+def is_key(str):
     return "/" in str
 
 

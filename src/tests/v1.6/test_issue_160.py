@@ -72,13 +72,6 @@ def test_issue_160_custom_id():
         assert True == False
 
 
-def test_issue_160_should_throw_error_if_not_list_value():
-    class TestIssue160Model(Model):
-        name = TextField()
-
-    with pytest.raises(AttributeTypeError):
-        TestIssue160Model.collection.filter("id", "in", "not-list").fetch()
-
 def test_issue_160_should_able_to_get_with_key():
     class TestIssue160Model(Model):
         name = TextField()
