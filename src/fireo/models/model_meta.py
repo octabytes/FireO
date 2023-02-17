@@ -236,6 +236,7 @@ class Meta:
         ignore_none_field=True,
         to_lowercase=False,
         column_name_generator=None,
+        collection_name_generator=utils.collection_name,
     ):
         self.id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
         self.field_list = {}  # Hold all the model fields
@@ -243,7 +244,6 @@ class Meta:
         # Convert Model class into collection name
         # change it to lower case and snake case
         # e.g UserCollection into user_collection
-        self.collection_name = utils.collection_name(model_cls.__name__)
         self.abstract = False
         self.model_cls = model_cls
         self.default_manager_cls = default_manager_cls
@@ -251,6 +251,7 @@ class Meta:
         self.ignore_none_field = ignore_none_field
         self.to_lowercase = to_lowercase
         self.column_name_generator = column_name_generator
+        self.collection_name_generator = collection_name_generator
 
         # Attached manager to model class
         # later on manager can be accessible via class `collection` attribute
@@ -259,15 +260,20 @@ class Meta:
             manager = self.default_manager_cls()
             manager.contribute_to_model(model_cls)
 
+    @property
+    def collection_name(self):
+        return self.collection_name_generator(self.model_cls.__name__)
+
     @classmethod
     def from_parent_meta(cls, model_cls, parent_meta: 'Meta') -> 'Meta':
         return cls(
-            model_cls,
+            model_cls=model_cls,
             default_manager_cls=parent_meta.default_manager_cls,
             missing_field=parent_meta.missing_field,
             ignore_none_field=parent_meta.ignore_none_field,
             to_lowercase=parent_meta.to_lowercase,
             column_name_generator=parent_meta.column_name_generator,
+            collection_name_generator=parent_meta.collection_name_generator,
         )
 
     def add_model_id(self, field):
@@ -403,6 +409,7 @@ class Meta:
                 'ignore_none_field',
                 'default_manager_cls',
                 'column_name_generator',
+                'collection_name_generator',
             ]
 
             # check if name is supported by meta and name is not
