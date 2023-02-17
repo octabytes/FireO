@@ -164,9 +164,10 @@ class Manager:
         batch:
             Firestore batch
         """
-        return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **{
-            'parent': self._parent_key, **kwargs
-        })
+        if self._parent_key:
+            kwargs['parent'] = self._parent_key
+
+        return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **kwargs)
 
     def _update(self, mutable_instance, transaction=None, batch=None):
         """Update existing document in firestore collection

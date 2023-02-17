@@ -1,3 +1,5 @@
+from google.cloud.firestore_v1.base_collection import _auto_id
+
 from fireo.fields.base_field import Field
 
 
@@ -26,7 +28,8 @@ class IDField(Field):
     """
 
     def __init__(self, *args, include_in_document=False, **kwargs):
-        super().__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, default_factory=_auto_id)
         self.include_in_document = include_in_document
 
     def contribute_to_model(self, model_cls, name):

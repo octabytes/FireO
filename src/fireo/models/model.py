@@ -3,6 +3,7 @@ from itertools import chain
 from typing import TYPE_CHECKING
 
 from fireo import db, fields
+from fireo.fields.errors import RequiredField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
 from fireo.models.model_meta import ModelMeta
@@ -332,7 +333,12 @@ class Model(metaclass=ModelMeta):
             User defined id or None
         """
         name, field = self._meta.id
-        return field.get_value(getattr(self, name))
+        raw_value = getattr(self, name)
+        value = field.get_value(raw_value)
+        if raw_value is None and value is not None:
+            setattr(self, name, value)
+
+        return value
 
     @_id.setter
     def _id(self, doc_id):
@@ -374,7 +380,7 @@ class Model(metaclass=ModelMeta):
             return self._key
         try:
             k = '/'.join([self.parent, self.collection_name, self._id])
-        except TypeError:
+        except (TypeError, RequiredField):
             k = '/'.join([self.parent, self.collection_name, '@temp_doc_id'])
         if k[0] == '/':
             return k[1:]

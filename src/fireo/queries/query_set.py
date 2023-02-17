@@ -27,7 +27,7 @@ class QuerySet:
     def __init__(self, model_cls):
         self.model_cls = model_cls
 
-    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, parent=None, **kwargs):
+    def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, **kwargs):
         """Create new document in firestore collection
 
         Parameters
@@ -54,7 +54,7 @@ class QuerySet:
             modified instance or new instance if no mutable instance provided
         """
         transaction_or_batch = transaction if transaction is not None else batch
-        return CreateQuery(self.model_cls, mutable_instance, no_return, parent, **kwargs).exec(transaction_or_batch, merge)
+        return CreateQuery(self.model_cls, mutable_instance, no_return, **kwargs).exec(transaction_or_batch, merge)
 
     def update(self, mutable_instance, transaction=None, batch=None):
         """Update existing document in firestore collection

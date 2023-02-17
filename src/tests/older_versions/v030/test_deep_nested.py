@@ -80,7 +80,7 @@ def test_deep_nested_with_required_fields_without_value():
 
     assert str(e.value) == (
         "Cannot serialize model 'test_deep_nested.DeepNestedUni2' with key "
-        "'deep_nested_uni2/@temp_doc_id' due to error in field 'student.uni': "
+        f"'deep_nested_uni2/{u.id}' due to error in field 'student.uni': "
         '"uni" is required for model <class \'test_deep_nested.DeepNestedStudent2\'> '
         'but received no default and no value.'
     )
@@ -110,7 +110,7 @@ def test_deep_nested_with_required_fields():
         u.save()
     assert str(e.value) == (
         "Cannot serialize model 'test_deep_nested.DeepNestedUni3' with key "
-        "'deep_nested_uni3/@temp_doc_id' due to error in field 'student.uni': "
+        f"'deep_nested_uni3/{u.id}' due to error in field 'student.uni': "
         '"uni" is required for model <class \'test_deep_nested.DeepNestedStudent3\'> '
         'but received no default and no value.'
     )

@@ -1,3 +1,5 @@
+from copy import copy
+
 from fireo.fields.errors import *
 
 
@@ -20,7 +22,10 @@ class FieldAttribute:
         In firestore this fields will be store as **full_name**
 
     default:
-        if no value is define then default value is set for field
+        if no value is defined then default value is set for field
+
+    default_factory:
+        if no value is defined then default_factory is called to value set for field
 
     required:
         Required field if no value or default set raise an Error
@@ -56,7 +61,7 @@ class FieldAttribute:
     AttributeMethodNotDefined:
         if any custom field not define the method for `allowed_attributes`
     """
-    allowed_attributes = ['default', 'required', 'column_name', 'validator', 'validator_kwargs']
+    allowed_attributes = ['default', 'default_factory', 'required', 'column_name', 'validator', 'validator_kwargs']
 
     def __init__(self, field, attributes):
         self.field = field
@@ -78,8 +83,12 @@ class FieldAttribute:
                 return value
 
             # check default value if set for field
-            if self.default is not None and value is None and not ignore_default:
-                value = self.default
+            if value is None and not ignore_default:
+                if self.default is not None:
+                    value = copy(self.default)
+
+                elif self.default_factory is not None:
+                    value = self.default_factory()
 
             # check this field is required or not
             if self.required and value is None and not ignore_required:
@@ -199,6 +208,11 @@ class FieldAttribute:
     def default(self):
         """if no value is define then default value is set for field"""
         return self.attributes.get('default')
+
+    @property
+    def default_factory(self):
+        """if no value is define then default value is set for field"""
+        return self.attributes.get('default_factory')
 
     @property
     def required(self):
