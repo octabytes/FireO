@@ -27,9 +27,8 @@ class IDField(Field):
         include_in_document: bool = False (default) If true then id will be included in FireStore document
     """
 
-    def __init__(self, *args, include_in_document=False, **kwargs):
-        # super().__init__(*args, **kwargs)
-        super().__init__(*args, **kwargs, default_factory=_auto_id)
+    def __init__(self, *args, include_in_document=False, default_factory=_auto_id, **kwargs):
+        super().__init__(*args, **kwargs, default_factory=default_factory)
         self.include_in_document = include_in_document
 
     def contribute_to_model(self, model_cls, name):
