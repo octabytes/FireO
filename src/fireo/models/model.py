@@ -202,7 +202,7 @@ class Model(metaclass=ModelMeta):
                     # do not include ID field to dict for firestore unless it is explicitly set
                     continue
 
-            field_changed = field.name in self._field_changed
+            field_changed = self._is_field_unchanged(field.name)
             if dump_options.ignore_unchanged and not field_changed:
                 continue
 
@@ -304,11 +304,7 @@ class Model(metaclass=ModelMeta):
         field_list = {}
         for f in self._meta.field_list.values():
             v = getattr(self, f.name)
-            field_changed = (
-                f.name in self._field_changed or
-                # Currently, there is no way to tell if a MapField has been changed
-                isinstance(f, fields.MapField) and v is not None
-            )
+            field_changed = self._is_field_unchanged(f.name)
             if (
                 (not ignore_unchanged or field_changed) and
                 (not ignore_default_none or field_changed or v is not None)
@@ -554,3 +550,22 @@ class Model(metaclass=ModelMeta):
 
     def document_reference(self):
         return db.conn.document(self.document_path)
+
+    def _is_field_unchanged(self, field_name: str) -> bool:
+        """Check if field has changed if possible.
+
+        Return True if field has not changed, False if it has changed, or it is not possible to determine.
+        """
+        if field_name in self._field_changed:
+            return True
+
+        field = self._meta.field_list[field_name]
+        if type(field) in (
+            fields.MapField,
+            fields.ListField,
+            fields.NestedModelField,
+        ):
+            # Is unchanged check is not implemented for these fields types yet
+            return True
+
+        return False
