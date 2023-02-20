@@ -1,5 +1,5 @@
 from fireo.fields.field_attribute import FieldAttribute
-from fireo.utils.types import DumpOptions
+from fireo.utils.types import DumpOptions, LoadOptions
 
 
 class MetaField(type):
@@ -159,7 +159,7 @@ class Field(metaclass=MetaField):
                 return val.lower() if type(val) is str else val
         return val
 
-    def field_value(self, val, model, initial):
+    def field_value(self, val, load_options=LoadOptions()):
         """ How this field represent value that is coming from firestore
 
         Value can be modified after getting value from firestore

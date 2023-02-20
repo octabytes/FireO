@@ -3,13 +3,14 @@ import pytest
 from fireo.fields import errors, ListField, NestedModel, TextField
 from fireo.models import Model
 from fireo.models.errors import ModelSerializingWrappedError
+from fireo.utils.types import LoadOptions
 
 
 class LogAccessField(TextField):
     def db_value(self, val):
         return val + '<saved>'
 
-    def field_value(self, val, model, initial):
+    def field_value(self, val, load_options=LoadOptions()):
         return val + '<loaded>'
 
 

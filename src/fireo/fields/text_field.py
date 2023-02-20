@@ -2,6 +2,8 @@ from fireo.fields import errors
 from fireo.fields.base_field import Field
 import re
 
+from fireo.utils.types import LoadOptions
+
 
 class TextField(Field):
     """Text field for Models
@@ -59,7 +61,7 @@ class TextField(Field):
                                       f'got {type(val)}')
 
     # override method
-    def field_value(self, val, model, initial):
+    def field_value(self, val, load_options=LoadOptions()):
 
         # check if val is None then there is no need to run these functions
         # just return back the None value

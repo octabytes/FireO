@@ -164,6 +164,9 @@ class Manager:
         batch:
             Firestore batch
         """
+        if self._parent_key:
+            kwargs['parent'] = self._parent_key
+
         return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **kwargs)
 
     def _update(self, mutable_instance, transaction=None, batch=None):
@@ -191,6 +194,10 @@ class Manager:
         """Get All documents according to key list"""
         for key in key_list:
             yield self.queryset.get(key)
+
+    def _refresh(self, mutable_instance, transaction=None):
+        """Refresh document from firestore"""
+        return self.queryset.refresh(mutable_instance, transaction)
 
     def parent(self, key):
         """Parent collection"""

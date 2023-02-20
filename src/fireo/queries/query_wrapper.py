@@ -15,24 +15,16 @@ class ModelWrapper:
         if not doc_dict:
             return None
 
-        model.populate_from_doc_dict(doc_dict, True)
+        model.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
 
         # If parent key is None but here is parent key from doc then set the parent for this model
         # This is case when you filter the documents parent key not auto set just set it
         if not model.parent and parent_key is not None:
             model.parent = parent_key
 
-        # When getting document attach the IDField if there is no user specify
-        # it will prevent to generate new id everytime when document save
-        # For more information see issue #45 https://github.com/octabytes/FireO/issues/45
-        if model._meta.id is None:
-            model._meta.id = ('id', IDField())
-
         # setattr(model, '_id', doc.id)
         model._set_orig_attr('_id', doc.id)
 
-        # save the firestore reference doc so that further actions can be performed (i.e. collections())
-        model._meta.set_reference_doc(doc.reference)
         # even though doc.reference currently points to self, there is no guarantee this will be true
         # in the future, therefore we should store the create time and update time separate.
         model._create_time = doc.create_time

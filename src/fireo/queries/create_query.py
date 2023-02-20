@@ -29,28 +29,14 @@ class CreateQuery(BaseQuery):
         # not provided then this `model` will be a class not instance
         # then create new instance from this model class
         # otherwise set mutable instance to self.model
-        if mutable_instance:
-            self.model = mutable_instance
-            super().set_collection_path(key=mutable_instance.key)
-        else:
+        self.model = mutable_instance
+        if self.model is None:
             self.model = model_cls()
 
-            # Suppose user is defined the id for model
-            # let name id **id**
-            id_field = 'id'
+        if "parent" in kwargs:
+            self.model.parent = kwargs["parent"]
 
-            # Check user provide any custom name for id
-            if model_cls._meta.id is not None:
-                id_field, _ = model_cls._meta.id
-
-            # _id setter in model check either user defined
-            # any id or not in model
-            setattr(self.model, '_id', kwargs.get(id_field))
-            # Check if there is any parent
-            parent = kwargs.get('parent')
-            if parent:
-                self.model.parent = parent
-                super().set_collection_path(path=parent)
+        super().set_collection_path(key=self.model.key)
 
         for k, v in kwargs.items():
             setattr(self.model, k, v)
@@ -99,25 +85,21 @@ class CreateQuery(BaseQuery):
 
     def _raw_exec(self, transaction_or_batch=None, merge=None):
         """save model into firestore and return the document"""
+        merge = bool(merge)
         ref = self._doc_ref()
+        self.model._id = ref.id
+        values = self._parse_field(ignore_unchanged=merge)
         if transaction_or_batch is not None:
-            if merge:
-                transaction_or_batch.set(
-                    ref, self._parse_field(), merge=merge)
-            else:
-                transaction_or_batch.set(ref, self._parse_field())
+            transaction_or_batch.set(ref, values, merge=merge)
             return ref
 
-        if merge:
-            ref.set(self._parse_field(ignore_unchanged=True), merge=merge)
-        else:
-            ref.set(self._parse_field())
+        ref.set(values, merge=merge)
 
         # Reset the field changed list
         # This is important to reset, so we can
         # find next time which fields are changed
         # when we are going to update it
-        self.model._field_changed = []
+        self.model._field_changed = set()
 
         # If no_return is True then return nothing otherwise 
         # return object instance issue #126

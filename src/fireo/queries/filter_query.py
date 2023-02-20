@@ -1,3 +1,8 @@
+from datetime import datetime
+
+from google.cloud import firestore
+from google.cloud.firestore_v1.field_path import FieldPath
+
 from fireo.database import db
 from fireo.fields import DateTime, MapField, ReferenceField
 from fireo.fields.errors import AttributeTypeError, FieldNotFound
@@ -7,9 +12,6 @@ from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
-from google.cloud import firestore
-from google.cloud.firestore_v1.field_path import FieldPath
-from datetime import datetime
 
 
 class FilterQuery(BaseQuery):
@@ -154,7 +156,7 @@ class FilterQuery(BaseQuery):
             # convert into string then JSON serialize
             cf = w
             if type(val) is datetime:
-                    cf = (name, op, val.isoformat())
+                cf = (name, op, val.isoformat())
 
             if 'filters' in self.cursor_dict:
                 self.cursor_dict['filters'].append(cf)
@@ -187,60 +189,50 @@ class FilterQuery(BaseQuery):
             if self.model._meta.to_lowercase and type(val) is str:
                 val = val.lower()
 
-            # Check it is nested model field
-            if '.' in name:
-                field, *field_path = name.split('.')
-                db_field_path = []
-                model_field = self.model._meta.get_field(field)
-                db_field_path.append(model_field.db_column_name)
-
-                for p in field_path:
-                    if isinstance(model_field, NestedModelField):
-                        nested_model = model_field.nested_model
-                        model_field = nested_model._meta.get_field(p)
-                        db_field_path.append(model_field.db_column_name)
-
-                    elif isinstance(model_field, MapField):
-                        db_field_path.append(p)
-
-                    else:
-                        raise AttributeTypeError(f"Invalid field type: {model_field}")
-
-                f_name = '.'.join(db_field_path)
-
             # ISSUE # 160
             # check if it is ID field
-            elif self._is_id_field(name):
+            if self._is_id_field(name):
                 # should yield "__name__"
                 f_name = FieldPath.document_id()
 
                 # value should be an array
                 if type(val) is list:
-
-                    # list should contain some values
-                    if len(val) == 0:
-                        raise AttributeError("List should contain some values")
-
-                    # convert values into document ref
-                    filter_items_ref = []
-                    for filterItem in val:
-                        # check is it key or id
-                        if utils.isKey(filterItem):
-                            filter_items_ref.append(db.conn.document(filterItem))
-                        else:
-                            key = utils.generateKeyFromId(self.model, filterItem)
-                            filter_items_ref.append(db.conn.document(key))
-
-                    # change val and assign filter item ref to val
-                    val = filter_items_ref
-
+                    val = [self._get_ref_by_key_or_id(v) for v in val]
                 else:
-                    raise AttributeTypeError(f'Expected type list but given {type(val)}')
-
+                    val = self._get_ref_by_key_or_id(val)
             else:
-                f_name = self.model._meta.get_field(name).db_column_name
+                f_name = self._get_db_column_name(name)
             filters.append((f_name, op, val))
         return filters
+
+    def _get_ref_by_key_or_id(self, key_or_id):
+        """Get document reference by key or id"""
+        key = key_or_id
+        if not utils.is_key(key_or_id):
+            key = self.model.collection_name + "/" + key_or_id
+            if self.model.parent:
+                key = self.model.parent + "/" + key
+
+        return db.conn.document(key)
+
+    def _get_db_column_name(self, name):
+        field, *field_path = name.split('.')
+        db_field_path = []
+        model_field = self.model._meta.get_field(field)
+        db_field_path.append(model_field.db_column_name)
+        for p in field_path:
+            if isinstance(model_field, NestedModelField):
+                nested_model = model_field.nested_model
+                model_field = nested_model._meta.get_field(p)
+                db_field_path.append(model_field.db_column_name)
+
+            elif isinstance(model_field, MapField):
+                db_field_path.append(p)
+
+            else:
+                raise AttributeTypeError(f"Invalid field type: {model_field}")
+        f_name = '.'.join(db_field_path)
+        return f_name
 
     def query(self):
         """Make a query for firestore"""
@@ -277,7 +269,7 @@ class FilterQuery(BaseQuery):
         """Change the field name according to their db column name"""
         return {
             self.model._meta.get_field(k).db_column_name: v
-            for k,v in kwargs.items()
+            for k, v in kwargs.items()
         }
 
     # ISSUE # 160
@@ -287,21 +279,14 @@ class FilterQuery(BaseQuery):
         if name == FieldPath.document_id():
             return True
 
-        # if name is just "id" then might be user did not define IDField in model
-        # so just return True otherwise if user did not mention IDField model._meta.id
-        # return None and failed to execute operation 
-        if name == "id":
+        if name == '_id':
             return True
 
         # Checking `model._meta.id` because `model._id` or `model.id` are not
         # populated on CLS
-        # If model is using implicit "id" field and has not been fully initialized
-        # (i.e. used to get or save), `self.model._meta.id` isn't even set, so
-        # we need to gate on that as well
-        # https://github.com/octabytes/FireO/issues/168
-        if self.model._meta.id is not None:
-            if name == self.model._meta.id[0]:
-                return True
+        field_name, field = self.model._meta.id
+        if name == field_name and not field.include_in_document:
+            return True
 
         return False
 
@@ -413,13 +398,7 @@ class FilterQuery(BaseQuery):
             order_direction = 'Desc'
             name = field_name[1:]  # Get the field name after dash(-) e.g -age name will be age
 
-        # ISSUE # 155
-        # If name is for nested field for MapField then there is not need to get field name
-        # from model because there is no such field in model
-        if "." in name:
-            f_name = name
-        else:
-            f_name = self.model._meta.get_field(name).db_column_name
+        f_name = self._get_db_column_name(name)
 
         self.order_by.append((f_name, order_direction))
         return self

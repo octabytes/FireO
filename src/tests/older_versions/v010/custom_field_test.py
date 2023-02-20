@@ -1,5 +1,6 @@
 from fireo.fields import Field
 from fireo.models import Model
+from fireo.utils.types import LoadOptions
 
 
 class WeekDays(Field):
@@ -41,7 +42,7 @@ class WeekDays3(Field):
     def db_value(self, val):
         return self.days[val]
 
-    def field_value(self, val, model, initial):
+    def field_value(self, val, load_options=LoadOptions()):
         return self.days.index(val)
 
 

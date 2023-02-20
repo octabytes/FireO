@@ -62,6 +62,7 @@ class UpdateQuery(BaseQuery):
     def _raw_exec(self, transaction_or_batch=None):
         """Update document in firestore and return the document"""
         ref = self._doc_ref()
+        self.model._id = ref.id  #
         if transaction_or_batch is not None:
             transaction_or_batch.update(ref, self._parse_field())
             return ref

@@ -63,12 +63,13 @@ def test_error_message_has_list_index():
         list_field = ListField(nested_field=NestedModelField(NestedModel))
 
     with pytest.raises(ModelSerializingWrappedError) as e:
-        TestModel.from_dict(dict(list_field=[dict(field='str')])).save()
+        m = TestModel.from_dict(dict(list_field=[dict(field='str')]))
+        m.save()
 
     assert str(e.value) == (
         'Cannot serialize model '
         "'test_list_field_with_complex_nested.test_error_message_has_list_index.<locals>.TestModel' "
-        "with key 'test_model/@temp_doc_id' due to error in field "
+        f"with key 'test_model/{m.id}' due to error in field "
         '\'list_field[0].field2\': "field2" is required for model <class '
         "'test_list_field_with_complex_nested.test_error_message_has_list_index.<locals>.NestedModel'> "
         'but received no default and no value.'

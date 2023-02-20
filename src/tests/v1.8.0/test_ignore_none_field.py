@@ -1,5 +1,5 @@
 from fireo import db
-from fireo.fields import NestedModelField, TextField
+from fireo.fields import ListField, NestedModelField, TextField
 from fireo.models import Model
 
 
@@ -18,6 +18,7 @@ class IgnoreNoneModel(Model):
     field1 = TextField()
     field2 = TextField(default='default')
     nested = NestedModelField(NestedIgnoreNoneModel)
+    list_fields = ListField()
 
 
 def test_ignore_default_none_on_create():
