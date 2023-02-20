@@ -560,12 +560,14 @@ class Model(metaclass=ModelMeta):
             return True
 
         field = self._meta.field_list[field_name]
-        if type(field) in (
-            fields.MapField,
-            fields.ListField,
-            fields.NestedModelField,
-        ):
-            # Is unchanged check is not implemented for these fields types yet
-            return True
+        value = getattr(self, field_name)
+        if value is not None:
+            if type(field) in (
+                fields.MapField,
+                fields.ListField,
+                fields.NestedModelField,
+            ):
+                # Is unchanged check is not implemented for these fields types yet
+                return True
 
         return False
