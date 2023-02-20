@@ -133,8 +133,16 @@ class Model(metaclass=ModelMeta):
     class Meta:
         abstract = True
 
-    def __init__(self, *args, **kwargs):
-        assert not args, 'You must use keyword arguments when instantiating a model'
+    def __init__(self, *args, parent: str = "", **kwargs):
+        self.parent = parent
+        if args:
+            raise AttributeError('You must use keyword arguments when instantiating a model')
+        unexpected_kwargs = set(kwargs) - set(self._meta.field_list)
+        if unexpected_kwargs:
+            raise AttributeError(
+                'You passed in unknown keyword arguments: {}'.format(', '.join(unexpected_kwargs))
+            )
+
         # check this is not abstract model otherwise stop creating instance of this model
         if self._meta.abstract:
             raise AbstractNotInstantiate(
