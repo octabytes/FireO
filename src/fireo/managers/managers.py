@@ -1,9 +1,7 @@
 import base64
 import json
 
-from fireo.managers.errors import EmptyDocument
-from fireo.fields.errors import FieldNotFound
-from fireo.queries import query_set as queries
+from fireo.queries.query_set import QuerySet
 
 
 class ManagerError(Exception):
@@ -147,7 +145,7 @@ class Manager:
     @property
     def queryset(self):
         """provide operations related to firestore"""
-        return queries.QuerySet(self.model_cls)
+        return QuerySet(self.model_cls)
 
     def create(self, mutable_instance=None, transaction=None, batch=None, merge=None, no_return=False, **kwargs):
         """create new document in firestore collection

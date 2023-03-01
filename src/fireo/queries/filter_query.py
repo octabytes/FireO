@@ -4,14 +4,14 @@ from google.cloud import firestore
 from google.cloud.firestore_v1.field_path import FieldPath
 
 from fireo.database import db
-from fireo.fields import DateTime, MapField, ReferenceField
-from fireo.fields.errors import AttributeTypeError, FieldNotFound
-from fireo.fields.nested_model_field import NestedModelField
+from fireo.fields import DateTime, ReferenceField
+from fireo.fields.errors import FieldNotFound
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
+from fireo.utils.utils import get_db_column_names_for_path
 
 
 class FilterQuery(BaseQuery):
@@ -216,21 +216,9 @@ class FilterQuery(BaseQuery):
         return db.conn.document(key)
 
     def _get_db_column_name(self, name):
-        field, *field_path = name.split('.')
-        db_field_path = []
-        model_field = self.model._meta.get_field(field)
-        db_field_path.append(model_field.db_column_name)
-        for p in field_path:
-            if isinstance(model_field, NestedModelField):
-                nested_model = model_field.nested_model
-                model_field = nested_model._meta.get_field(p)
-                db_field_path.append(model_field.db_column_name)
+        model = self.model
+        db_field_path = get_db_column_names_for_path(model, *name.split('.'))
 
-            elif isinstance(model_field, MapField):
-                db_field_path.append(p)
-
-            else:
-                raise AttributeTypeError(f"Invalid field type: {model_field}")
         f_name = '.'.join(db_field_path)
         return f_name
 

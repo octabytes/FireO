@@ -2,7 +2,8 @@ import warnings
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from fireo import db, fields
+from fireo.database import db
+import fireo.fields as fields
 from fireo.fields.errors import RequiredField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
