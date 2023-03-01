@@ -18,6 +18,8 @@ class TypedModel(Model, metaclass=TypedModelMeta):
         >>> # Use the model as usual:
         >>> user = User(name='John', age=30)
         >>> user.save()
+
+    Note: postoned type annotation is not supported (e.g. `comments: 'List[Comment]'`)
     """
 
     class Meta:
