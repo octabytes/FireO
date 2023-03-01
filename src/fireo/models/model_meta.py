@@ -117,6 +117,14 @@ class Meta:
         'to_lowercase',
     ]
 
+    abstract = False
+    default_manager_cls = managers.Manager
+    missing_field = 'merge'
+    ignore_none_field = True
+    to_lowercase = False
+    column_name_generator = None
+    collection_name_generator = staticmethod(utils.collection_name)
+
     def __init__(self, model_cls):
         self.id = None  # Model id if user specify otherwise just None will generate late by firestore automatically
         self.field_list = {}  # Hold all the model fields
@@ -125,14 +133,7 @@ class Meta:
         # change it to lower case and snake case
         # e.g UserCollection into user_collection
         self._collection_name = None
-        self.abstract = False
         self.model_cls = model_cls
-        self.default_manager_cls = managers.Manager
-        self.missing_field = 'merge'
-        self.ignore_none_field = True
-        self.to_lowercase = False
-        self.column_name_generator = None
-        self.collection_name_generator = utils.collection_name
 
     @property
     def collection_name(self):
@@ -245,7 +246,8 @@ class Meta:
 
     def set_field_from_parent(self, parent_meta: 'Meta') -> 'Meta':
         for field in self.inherited_fields:
-            setattr(self, field, getattr(parent_meta, field))
+            if hasattr(parent_meta, field):
+                setattr(self, field, getattr(parent_meta, field))
 
     def set_user_defined_meta(self, user_meta):
         """Set user defined meta attributes for model
@@ -442,3 +444,5 @@ class ModelMeta(type):
                 continue
 
             value.raw_attributes['column_name'] = column_name_generator(value.name)
+
+
