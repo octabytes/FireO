@@ -2,7 +2,7 @@
 
 ![Build Status](https://github.com/octabytes/FireO/actions/workflows/python-package-testing.yml/badge.svg)
 <a href="https://badge.fury.io/py/fireo">
-    <img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version">
+<img src="https://badge.fury.io/py/fireo.svg" alt="PyPI version">
 </a>
 
 </p>
@@ -33,6 +33,7 @@ pip install fireo
 ```
 
 ## Example Usage
+
 ```python
 from fireo.models import Model
 from fireo.fields import TextField
@@ -50,19 +51,35 @@ user = User.collection.get(u.key)
 print(user.name)
 ```
 
+## With Typed Model
+
+```python
+from fireo.typedmodels import TypedModel
+
+class User(TypedModel):
+    name: str
+    age: int
+
+# Use the model as usual:
+user = User(name='John', age="30")
+user.save()
+
+print(user.to_dict())
+```
+
 ## Documentation
 
 Full documentation is available in the [FireO Doc](https://octabyte.io/FireO/).
 
 ## Contributing
 
-Bug reports and pull requests are welcome. This project is intended to be a safe, welcoming 
-space for collaboration, and contributors are expected to adhere to the 
+Bug reports and pull requests are welcome. This project is intended to be a safe, welcoming
+space for collaboration, and contributors are expected to adhere to the
 [Contributor Covenant](https://github.com/octabytes/FireO/blob/master/CODE_OF_CONDUCT.md) code of conduct.
 
 1. Fix bug or add new features
 2. Write tests for your functionality
-3. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you have done and how others can use it  
+3. Mention in [Documentation](https://github.com/octabytes/FireO/tree/gh-pages), what you have done and how others can use it
 
 To run the tests while developing on this package, you'll have to setup a Google service account and setup credentials with the following command:
 
