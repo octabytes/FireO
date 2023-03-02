@@ -1,6 +1,10 @@
 import re
+from typing import Type, TYPE_CHECKING, Union
 
 from google.cloud import firestore
+
+if TYPE_CHECKING:
+    from fireo.models.model import Model
 
 
 def collection_name(model):
@@ -77,6 +81,7 @@ def get_flat_dict(dict_, prefix: str = None):
             flat_dict[key] = value
     return flat_dict
 
+
 def is_key(str):
     return "/" in str
 
@@ -103,3 +108,30 @@ def remove_none_field(values):
             result[k] = v
 
     return result
+
+
+def get_db_column_names_for_path(
+    model: 'Union[Model, Type[Model]]',
+    root_field_name: str,
+    *nested_fields_names: str,
+):
+    """Get db column names for nested fields."""
+    from fireo.fields import MapField, NestedModelField
+    from fireo.fields.errors import AttributeTypeError
+
+    model_field = model._meta.get_field(root_field_name)
+    db_field_path = [model_field.db_column_name]
+
+    for p in nested_fields_names:
+        if isinstance(model_field, NestedModelField):
+            nested_model = model_field.nested_model
+            model_field = nested_model._meta.get_field(p)
+            db_field_path.append(model_field.db_column_name)
+
+        elif isinstance(model_field, MapField):
+            db_field_path.append(p)
+
+        else:
+            raise AttributeTypeError(f"Invalid field type: {model_field}")
+
+    return db_field_path

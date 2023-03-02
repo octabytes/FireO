@@ -2,7 +2,8 @@ import warnings
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from fireo import db, fields
+from fireo.database import db
+import fireo.fields as fields
 from fireo.fields.errors import RequiredField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
@@ -562,12 +563,16 @@ class Model(metaclass=ModelMeta):
         field = self._meta.field_list[field_name]
         value = getattr(self, field_name)
         if value is not None:
-            if type(field) in (
+            if isinstance(field, (
                 fields.MapField,
                 fields.ListField,
                 fields.NestedModelField,
-            ):
-                # Is unchanged check is not implemented for these fields types yet
+            )):
+                # Is unchanged check is not implemented for these field types yet
                 return True
+
+        if isinstance(field, fields.DateTime) and field.raw_attributes.get('auto_update', False):
+            # Auto update fields are always considered changed
+            return True
 
         return False
