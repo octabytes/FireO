@@ -571,4 +571,8 @@ class Model(metaclass=ModelMeta):
                 # Is unchanged check is not implemented for these field types yet
                 return True
 
+        if isinstance(field, fields.DateTime) and field.raw_attributes.get('auto_update', False):
+            # Auto update fields are always considered changed
+            return True
+
         return False
