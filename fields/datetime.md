@@ -55,7 +55,11 @@ The following attributes supported by DateTime Field.
 
 - ### Auto
 
-Set the auto date if no value is provided
+  Set the auto date if no value is provided
+
+- ### Auto Update (v2.0.0)
+
+  Set `firestore.SERVER_TIMESTAMP` on every create or update operation
 
 ### Example Usage
 
