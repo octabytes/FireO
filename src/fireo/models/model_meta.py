@@ -276,24 +276,13 @@ class Meta:
             If option for missing_field is other than ignore, merge or raise_error
         """
         for name, val in user_meta.__dict__.items():
-            supported_meta = [
-                'collection_name',
-                'abstract',
-                'to_lowercase',
-                'missing_field',
-                'ignore_none_field',
-                'default_manager_cls',
-                'column_name_generator',
-                'collection_name_generator',
-            ]
-
             # check if name is supported by meta and name is not
             # any special name for example '__main__, __doc__'
-            if name not in supported_meta:
+            if name not in self.supported_fields:
                 if '__' not in name:
                     raise UnSupportedMeta(
                         f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
-                        f'Possible value are {", ".join(supported_meta)}'
+                        f'Possible value are {", ".join(self.supported_fields)}'
                     )
 
             elif name == 'missing_field':
