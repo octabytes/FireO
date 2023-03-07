@@ -136,3 +136,57 @@ user.save()
 # If you check Firestore you will see null value in front of address field
 # To ignore null values in Firestore set ignore_none_field = True
 ```
+
+## Collection Name Generator (v2.0.0)
+
+By default collection name is generated as snake case of model name. 
+You can change this behavior by defining `collection_name_generator` in `Meta` class.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class User(Model):
+    name = TextField()
+    address = TextField()
+
+    class Meta:
+        collection_name_generator = lambda model_name: model_name.lower() + 's'
+
+assert User.collection_name == 'users'
+```
+
+## Columns Name Generator (v2.0.0)
+
+By default field name is used as column name in Firestore. 
+You can change this behavior by defining `columns_name_generator` in `Meta` class.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class User(Model):
+    name = TextField()
+    # Explicitly defined column name will not be affected by column_name_generator
+    address = TextField(column_name='address_line_1')
+
+    class Meta:
+        column_name_generator = lambda field_name: camel_case(field_name)
+```
+
+## Default Manager class (v2.0.0)
+
+By default `Model` use `Manager` class to manage data in Firestore.
+You can change this behavior by defining `default_manager_class` in `Meta` class.
+
+### Example Usage
+{: .no_toc }
+
+```python
+class User(Model):
+    name = TextField()
+    address = TextField()
+
+    class Meta:
+        default_manager_class = CustomManager
+```

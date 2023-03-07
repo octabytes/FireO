@@ -46,6 +46,8 @@ print(u.id)  # xaIkLAGEjkSON
 print(u.key)  # user/xaIkLAGEjkSON 
 ``` 
 
+_Note: the ID is generated locally, so it is accessible even before the `.save()` was called._
+
 ### Using Constructor
 Values can also be passed in constructor.
 
@@ -137,6 +139,7 @@ u.upsert()
 ```
 If you're not sure whether the document exists, pass the option to merge the new data with any existing document to avoid overwriting entire documents.
 
+_Note: `upsert()` and `save(merge=True)` does not populate the default fields values._
 
 ## Using Manager
 Data can be saved by using manger without create model object. Manager return model object after saving data.
