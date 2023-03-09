@@ -343,9 +343,10 @@ class FilterQuery(BaseQuery):
         """Apply limit for query"""
         # save the Limit in cursor for next fetch
         self.cursor_dict['limit'] = count
+        if count is None:
+            del self.cursor_dict['limit']
 
-        if count:
-            self.n_limit = count
+        self.n_limit = count
         return self
 
     def offset(self, num_to_skip):
@@ -400,11 +401,11 @@ class FilterQuery(BaseQuery):
             Apply limit to firestore documents, how much documents you want to retrieve
         """
         # save the Limit in cursor for next fetch
-        self.cursor_dict['limit'] = limit
+        query = self
+        if limit is not None:
+            query = self.limit(limit)
 
-        if limit:
-            self.n_limit = limit
-        return QueryIterator(self)
+        return QueryIterator(query)
 
     def group_fetch(self, limit=None):
         super().set_group_collection(True)
