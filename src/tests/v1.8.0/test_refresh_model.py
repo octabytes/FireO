@@ -15,7 +15,7 @@ class MyModel(Model):
     field1 = TextField()
     field2 = TextField()
     field3 = TextField()
-    nested = NestedModelField(MyNestedModel)
+    nested = NestedModelField(MyNestedModel, required=True)
 
 
 def test_changed_in_db():

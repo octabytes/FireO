@@ -35,7 +35,7 @@ def test_nested_model_to_dict():
 
     class ConvertModelIntoDict(Model):
         name = TextField()
-        nested_parent = NestedModel(NestedParent)
+        nested_parent = NestedModel(NestedParent, required=True)
 
     c = ConvertModelIntoDict()
     c.name = 'Azeem'
@@ -57,7 +57,7 @@ def test_nested_model_default_args_to_dict():
 
     class ConvertModelIntoDict(Model):
         name = TextField()
-        nested_parent = NestedModel(NestedParent)
+        nested_parent = NestedModel(NestedParent, required=True)
 
     c = ConvertModelIntoDict()
     c.name = 'Azeem'

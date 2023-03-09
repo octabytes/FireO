@@ -10,13 +10,13 @@ class Deep0Model(Model):
 class Deep1Model(Model):
     my_field = TextField()
     my_field2 = TextField()
-    my_nested_model = NestedModel(Deep0Model)
+    my_nested_model = NestedModel(Deep0Model, required=True)
 
 
 class Deep2Model(Model):
     my_field = TextField()
     my_field2 = TextField()
-    my_nested_model = NestedModel(Deep1Model)
+    my_nested_model = NestedModel(Deep1Model, required=True)
 
 
 def test_update_first_level_in_model_with_nested():

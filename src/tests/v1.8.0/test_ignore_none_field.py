@@ -17,7 +17,7 @@ class IgnoreNoneModel(Model):
 
     field1 = TextField()
     field2 = TextField(default='default')
-    nested = NestedModelField(NestedIgnoreNoneModel)
+    nested = NestedModelField(NestedIgnoreNoneModel, required=True)
     list_fields = ListField()
 
 
@@ -59,7 +59,7 @@ class NotIgnoreNoneModel(Model):
 
     field1 = TextField()
     field2 = TextField(default='default')
-    nested = NestedModelField(NestedIgnoreNoneModel)
+    nested = NestedModelField(NestedIgnoreNoneModel, required=True)
 
 
 def test_not_ignore_default_none_on_create():
