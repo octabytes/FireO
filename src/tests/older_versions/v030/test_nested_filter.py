@@ -58,12 +58,12 @@ class NFLevel1(Model):
 
 class NFLevel2(Model):
     age = NumberField()
-    lev1 = NestedModel(NFLevel1)
+    lev1 = NestedModel(NFLevel1, required=True)
 
 
 class NFLevel3(Model):
     dept = TextField()
-    lev2 = NestedModel(NFLevel2)
+    lev2 = NestedModel(NFLevel2, required=True)
 
 
 def test_deep_nested_filter_without_column_name():
@@ -86,12 +86,12 @@ class NFLevel4(Model):
 
 class NFLevel5(Model):
     age = NumberField()
-    lev4 = NestedModel(NFLevel4, column_name='lev4')
+    lev4 = NestedModel(NFLevel4, column_name='lev4', required=True)
 
 
 class NFLevel6(Model):
     dept = TextField()
-    lev5 = NestedModel(NFLevel5, column_name='lev5')
+    lev5 = NestedModel(NFLevel5, column_name='lev5', required=True)
 
 
 def test_deep_nested_filter_with_column_name():
