@@ -52,6 +52,17 @@ class NumberField(Field):
 
     # override method
     def db_value(self, val):
+        if isinstance(val, str):
+            # Allow using string values for numbers. In filters as well.
+            org_val = val
+            try:
+                if not self.raw_attributes.get('int_only'):
+                    val = float(org_val)
+                if not self.raw_attributes.get('float_only'):
+                    val = int(org_val)
+            except ValueError:
+                pass
+
         if type(val) in [int, float, Increment] or val is None:
             return val
         raise errors.InvalidFieldType(f'Invalid field type. Field "{self.name}" expected {int} or {float}, '

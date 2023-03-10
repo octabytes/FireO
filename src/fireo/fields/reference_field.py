@@ -76,12 +76,18 @@ class ReferenceField(Field):
         # if no model is provided then return None
         if model is None:
             return None
+
+        # if model is string then return document reference
+        # Used for filtering by key instead of model
+        if isinstance(model, str):
+            return db.conn.document(model)
+
         # check reference model and passing model is same
         if not issubclass(model.__class__, self.model_ref):
             raise errors.ReferenceTypeError(f'Invalid reference type. Field "{self.name}" required value type '
                                             f'"{self.model_ref.__name__}", but got "{model.__class__.__name__}"')
         # Get document reference from firestore
-        return firestore.DocumentReference(*utils.ref_path(model.key), client=db.conn)
+        return db.conn.document(model.key)
 
     def attr_auto_load(self, attr_val, field_val):
         """Attribute method for auto load

@@ -1,16 +1,17 @@
 from enum import Enum
-from typing import Any, Dict
+from functools import partial
 
 from google.cloud import firestore
 from google.cloud.firestore_v1.field_path import FieldPath
 
 from fireo.database import db
-from fireo.fields import ReferenceField
+from fireo.fields import MapField, ReferenceField
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
+from fireo.utils.types import DumpOptions
 from fireo.utils.utils import (
     get_dot_names_as_dot_columns,
     get_nested_field_by_dotted_name,
@@ -155,34 +156,32 @@ class FilterQuery(BaseQuery):
         for w in self.select_query:
             name, op, val = w
 
-            # todo: remove this
-            # check if user defined to set the value as lower case
-            if self.model._meta.to_lowercase and type(val) is str:
-                val = val.lower()
-
             # ISSUE # 160
             # check if it is ID field
             if self._is_id_field(name):
                 # should yield "__name__"
                 db_col_name = FieldPath.document_id()
 
-                # value should be an array
+                # value should an reference
                 if type(val) is list:
                     val = [self._get_ref_by_key_or_id(v) for v in val]
                 else:
                     val = self._get_ref_by_key_or_id(val)
             else:
+                field = get_nested_field_by_dotted_name(self.model_cls, name)
                 db_col_name = get_dot_names_as_dot_columns(self.model_cls, name)
 
-                if isinstance(get_nested_field_by_dotted_name(self.model_cls, name), ReferenceField):
-                    # ISSUE # 78
-                    # check if field is ReferenceField then to query this field we have to
-                    # convert this value into document reference then filter it
-                    # ISSUE # 116
-                    # ReferenceFields can be optional and None
-                    # in which case, do not update val to a doc that doesn't exist
-                    if val is not None:
-                        val = db.conn.document(val)
+                if not isinstance(field, MapField):
+                    serialise_value = partial(
+                        field.get_value,
+                        dump_options=DumpOptions(ignore_required=True, ignore_default=True)
+                    )
+                    if op == 'array_contains':
+                        val = serialise_value([val])[0]
+                    elif op in ('in', 'not_in'):
+                        val = [serialise_value(v) for v in val]
+                    else:
+                        val = serialise_value(val)
 
             filters.append((db_col_name, op, val))
         return filters
