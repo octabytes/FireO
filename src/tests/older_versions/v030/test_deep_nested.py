@@ -12,12 +12,12 @@ class DeepNestedUser(Model):
 
 class DeepNestedStudent(Model):
     uni = TextField(required=True)
-    user = NestedModel(DeepNestedUser)
+    user = NestedModel(DeepNestedUser, required=True)
 
 
 class DeepNestedUni(Model):
     dept = TextField()
-    student = NestedModel(DeepNestedStudent)
+    student = NestedModel(DeepNestedStudent, required=True)
 
 
 def test_simple_deep_nested():
@@ -62,12 +62,12 @@ class DeepNestedUser2(Model):
 
 class DeepNestedStudent2(Model):
     uni = TextField(required=True)
-    user = NestedModel(DeepNestedUser2)
+    user = NestedModel(DeepNestedUser2, required=True)
 
 
 class DeepNestedUni2(Model):
     dept = TextField()
-    student = NestedModel(DeepNestedStudent2)
+    student = NestedModel(DeepNestedStudent2, required=True)
 
 
 def test_deep_nested_with_required_fields_without_value():
@@ -93,7 +93,7 @@ class DeepNestedUser3(Model):
 
 class DeepNestedStudent3(Model):
     uni = TextField(required=True)
-    user = NestedModel(DeepNestedUser3)
+    user = NestedModel(DeepNestedUser3, required=True)
 
 
 class DeepNestedUni3(Model):

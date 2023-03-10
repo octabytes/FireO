@@ -155,7 +155,8 @@ class Model(metaclass=ModelMeta):
         for f in self._meta.field_list.values():
             if isinstance(f, fields.NestedModelField):
                 if f.name not in kwargs:
-                    setattr(self, f.name, f.nested_model())
+                    if f.raw_attributes.get('required', False):
+                        setattr(self, f.name, f.nested_model())
                 elif isinstance(kwargs[f.name], dict):
                     warnings.warn(
                         'Use Model.from_dict to deserialize from dict',
