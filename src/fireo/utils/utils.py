@@ -86,30 +86,6 @@ def is_key(str):
     return "/" in str
 
 
-def remove_none_field(values):
-    """Remove None values from dict or list.
-
-    Example:
-        >>> remove_none_field({'a': 1, 'b': None})
-        {'a': 1}
-    """
-    if isinstance(values, list):
-        return [remove_none_field(v) for v in values]
-
-    if not isinstance(values, dict):
-        return values
-
-    result = {}
-    for k, v in values.items():
-        if v is not None:
-            if isinstance(v, (dict, list)):
-                v = remove_none_field(v)
-
-            result[k] = v
-
-    return result
-
-
 def get_db_column_names_for_path(
     model: 'Union[Model, Type[Model]]',
     root_field_name: str,

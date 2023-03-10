@@ -57,9 +57,6 @@ class Model(metaclass=ModelMeta):
         Model key which contain the model collection name and model id and parent if provided, Id can be user defined
         or generated from firestore
 
-    _update_doc: str
-        Update doc hold the key which is used to update the document
-
     parent: str
         Parent key if user specify
 
@@ -124,9 +121,6 @@ class Model(metaclass=ModelMeta):
     # Track which fields are changed or not
     # it is useful when updating document
     _field_changed = None
-
-    # Update doc hold the key which is used to update the document
-    _update_doc = None
 
     _create_time = None
     _update_time = None
@@ -505,16 +499,16 @@ class Model(metaclass=ModelMeta):
         """
 
         # Check doc key is given or not
-        if key:
-            self._update_doc = key
+        if not key:
+            key = self.key
 
         # make sure update doc in not None
-        if self._update_doc is not None and '@temp_doc_id' not in self._update_doc:
+        if key is not None and '@temp_doc_id' not in key:
             # set parent doc from this updated document key
-            self.parent = utils.get_parent_doc(self._update_doc)
+            self.parent = utils.get_parent_doc(key)
             # Get id from key and set it for model
-            self._id = utils.get_id(self._update_doc)
-        elif self._update_doc is None and '@temp_doc_id' in self.key:
+            self._id = utils.get_id(key)
+        elif key is None and '@temp_doc_id' in self.key:
             raise InvalidKey(
                 f'Invalid key to update model "{self.__class__.__name__}" ')
 

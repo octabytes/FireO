@@ -46,7 +46,6 @@ class GetQuery(BaseQuery):
         #   u = User.collection.get(user_key)
         #   u.name = "Updated Name"
         #   u.update()
-        self.model._update_doc = key
         self.id = utils.get_id(key)
 
     def _raw_exec(self, transaction=None):

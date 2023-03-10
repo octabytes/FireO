@@ -421,7 +421,6 @@ class FilterQuery(BaseQuery):
         doc = next(self.query().stream(self.query_transaction), None)
         if doc:
             m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
-            m._update_doc = self._update_doc_key(m)
             return m
         return None
 

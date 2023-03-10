@@ -41,16 +41,6 @@ class CreateQuery(BaseQuery):
         for k, v in kwargs.items():
             setattr(self.model, k, v)
 
-        # Attach key to this model for updating this model
-        # Purpose of attaching this key is user can update
-        # this model after getting it
-        #
-        # For example:
-        #   u = User.collection.create(name="Azeem", age=25)
-        #   u.name = "Updated Name"
-        #   u.update()
-        self.model._update_doc = self.model.key
-
     def _doc_ref(self):
         """create document ref from firestore"""
         return self.get_ref().document(self.model._id)
