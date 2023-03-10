@@ -11,6 +11,7 @@ from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
+from fireo.utils.cursor import Cursor
 from fireo.utils.types import DumpOptions
 from fireo.utils.utils import (
     get_dot_names_as_dot_columns,
@@ -382,10 +383,16 @@ class FilterQuery(BaseQuery):
         limit : optional
             Apply limit to firestore documents, how much documents you want to retrieve
         """
-        query = self
+        fq = self
         if limit:
-            query = self.copy(limit=limit)
-        return QueryIterator(query)  # todo
+            fq = self.copy(limit=limit)
+        return QueryIterator(
+            model_cls=fq.model_cls,
+            query=fq.query,
+            query_transaction=fq._query_transaction,
+            limit=fq._limit,
+            cursor=Cursor.extract(fq),
+        )
 
     def group_fetch(self, limit=None):
         return self.copy(group_collection=True).fetch(limit)

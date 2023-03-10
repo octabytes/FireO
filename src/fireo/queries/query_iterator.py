@@ -1,11 +1,13 @@
 import itertools
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
+from google.cloud.firestore_v1 import CollectionReference, Transaction
 
 from fireo.queries import query_wrapper
 from fireo.utils.cursor import Cursor
 
 if TYPE_CHECKING:
-    from fireo.queries.filter_query import FilterQuery
+    pass
 
 
 class QueryIterator:
@@ -20,14 +22,22 @@ class QueryIterator:
         Fetch next results
     """
 
-    def __init__(self, query: 'FilterQuery'):  # todo
+    def __init__(
+        self,
+        model_cls,
+        query: CollectionReference,
+        query_transaction: Optional[Transaction],
+        limit: Optional[int],
+        cursor: Cursor,
+    ):
         self.query = query
-        self.model_cls = query.model_cls
-        self.docs = query.query.stream(query._query_transaction)
+        self.model_cls = model_cls
+        self.docs = query.stream(query_transaction)
+        self.limit = limit
 
         # Get offset for next fetch
-        self.offset = query._limit
-        self._cursor = Cursor.extract(query)
+        self.offset = limit
+        self._cursor = cursor
         self._cursor['offset'] = self.offset
 
         # Hold the last doc for next fetch
@@ -63,16 +73,16 @@ class QueryIterator:
             # check if fetch end then use last doc otherwise use the offset
             if self.fetch_end:
                 self.fetch_end = False
-                q = self.query.query.start_after(self.last_doc)
+                q = self.query.start_after(self.last_doc)
             else:
-                q = self.query.query.offset(self.offset)
+                q = self.query.offset(self.offset)
 
             # Apply new Limit if there is any
             if limit:
                 q = q.limit(limit)
                 self.offset += limit
             else:
-                self.offset += self.query._limit
+                self.offset += self.limit
 
             # Update offset in cursor
             self._cursor['offset'] = self.offset
