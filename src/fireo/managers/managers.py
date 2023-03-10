@@ -130,6 +130,7 @@ class Manager:
         return {
             "model_cls": self.model_cls,
             "name": self.name,
+            "parent_key": self._parent_key,
         }
 
     def copy(self, **kwargs) -> "Manager":
