@@ -1,17 +1,25 @@
-from datetime import datetime
+from enum import Enum
+from typing import Any, Dict
 
 from google.cloud import firestore
 from google.cloud.firestore_v1.field_path import FieldPath
 
 from fireo.database import db
-from fireo.fields import DateTime, ReferenceField
-from fireo.fields.errors import FieldNotFound
+from fireo.fields import ReferenceField
 from fireo.queries import query_wrapper
 from fireo.queries.base_query import BaseQuery
 from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.query_iterator import QueryIterator
 from fireo.utils import utils
-from fireo.utils.utils import get_db_column_names_for_path
+from fireo.utils.utils import (
+    get_dot_names_as_dot_columns,
+    get_nested_field_by_dotted_name,
+)
+
+
+class Ordering(str, Enum):
+    ASCENDING = "Asc"
+    DESCENDING = "Desc"
 
 
 class FilterQuery(BaseQuery):
@@ -101,13 +109,13 @@ class FilterQuery(BaseQuery):
 
     def __init__(self, model_cls, parent=None, *args, **kwargs):
         super().__init__(model_cls)
-        self.model = model_cls()
+        self.model = model_cls()  # todo: remove this
+        self.model_cls = model_cls
         self.select_query = self._where_filter(*args, **kwargs)
         self.n_limit = None
         self._offset = None
         self.order_by = []
         self.parent = parent
-        self.cursor_dict = {}
         self._start_after = None
         self._start_at = None
         self._end_before = None
@@ -115,9 +123,7 @@ class FilterQuery(BaseQuery):
         self.query_transaction = None
         self.query_batch = None
         if parent:
-            super().set_collection_path(path=parent)
-            # Add parent in cursor
-            self.cursor_dict['parent'] = parent
+            self.set_collection_path(path=parent)
 
     def _where_filter(self, *args, **kwargs):
         """For Direct assign of filter when equality operator"""
@@ -149,42 +155,7 @@ class FilterQuery(BaseQuery):
         for w in self.select_query:
             name, op, val = w
 
-            # save the filter in cursor for next fetch
-            #
-            # ISSUE # 77
-            # if filter value type is datetime then it need to first
-            # convert into string then JSON serialize
-            cf = w
-            if type(val) is datetime:
-                cf = (name, op, val.isoformat())
-
-            if 'filters' in self.cursor_dict:
-                self.cursor_dict['filters'].append(cf)
-            else:
-                self.cursor_dict['filters'] = [cf]
-
-            try:
-                # ISSUE # 77
-                # if field is datetime and type is str (which is usually come from cursor)
-                # then convert this string into datetime format
-                if isinstance(self.model._meta.get_field(name), DateTime) and type(val) is str:
-                    val = datetime.fromisoformat(val)
-
-                # ISSUE # 78
-                # check if field is ReferenceField then to query this field we have to
-                # convert this value into document reference then filter it
-                if isinstance(self.model._meta.get_field(name), ReferenceField):
-                    # ISSUE # 116
-                    # ReferenceFields can be optional and None
-                    # in which case, do not update val to a doc that doesn't exist
-                    if val is not None:
-                        val = db.conn.document(val)
-            except FieldNotFound:
-                # Filter with nested model not able to find the field (e.g user.name)
-                # it require to loop the nested model first to find the field
-                # so just ignore it
-                pass
-
+            # todo: remove this
             # check if user defined to set the value as lower case
             if self.model._meta.to_lowercase and type(val) is str:
                 val = val.lower()
@@ -193,7 +164,7 @@ class FilterQuery(BaseQuery):
             # check if it is ID field
             if self._is_id_field(name):
                 # should yield "__name__"
-                f_name = FieldPath.document_id()
+                db_col_name = FieldPath.document_id()
 
                 # value should be an array
                 if type(val) is list:
@@ -201,8 +172,19 @@ class FilterQuery(BaseQuery):
                 else:
                     val = self._get_ref_by_key_or_id(val)
             else:
-                f_name = self._get_db_column_name(name)
-            filters.append((f_name, op, val))
+                db_col_name = get_dot_names_as_dot_columns(self.model_cls, name)
+
+                if isinstance(get_nested_field_by_dotted_name(self.model_cls, name), ReferenceField):
+                    # ISSUE # 78
+                    # check if field is ReferenceField then to query this field we have to
+                    # convert this value into document reference then filter it
+                    # ISSUE # 116
+                    # ReferenceFields can be optional and None
+                    # in which case, do not update val to a doc that doesn't exist
+                    if val is not None:
+                        val = db.conn.document(val)
+
+            filters.append((db_col_name, op, val))
         return filters
 
     def _get_ref_by_key_or_id(self, key_or_id):
@@ -214,13 +196,6 @@ class FilterQuery(BaseQuery):
                 key = self.model.parent + "/" + key
 
         return db.conn.document(key)
-
-    def _get_db_column_name(self, name):
-        model = self.model
-        db_field_path = get_db_column_names_for_path(model, *name.split('.'))
-
-        f_name = '.'.join(db_field_path)
-        return f_name
 
     def query(self):
         """Make a query for firestore"""
@@ -237,10 +212,8 @@ class FilterQuery(BaseQuery):
         # order the documents
         for o in self.order_by:
             name, direction = o
-            if direction == 'Desc':
-                ref = ref.order_by(name, direction=firestore.Query.DESCENDING)
-            else:
-                ref = ref.order_by(name)
+            db_column = get_dot_names_as_dot_columns(self.model_cls, name)
+            ref = ref.order_by(db_column, direction=direction)
 
         if self._start_after:
             ref = ref.start_after(self._start_after)
@@ -341,9 +314,6 @@ class FilterQuery(BaseQuery):
 
     def limit(self, count):
         """Apply limit for query"""
-        # save the Limit in cursor for next fetch
-        self.cursor_dict['limit'] = count
-
         if count:
             self.n_limit = count
         return self
@@ -372,23 +342,15 @@ class FilterQuery(BaseQuery):
         -------
             Self object
         """
-        # Save order in cursor dict for next fetch
-        if 'order' in self.cursor_dict:
-            self.cursor_dict['order'] = self.cursor_dict['order'] + ',' + field_name
-        else:
-            self.cursor_dict['order'] = field_name
-
-        order_direction = 'Asc'
+        order_direction = firestore.Query.ASCENDING
         name = field_name
 
         # If this is in Desc order
         if field_name[0] == '-':
-            order_direction = 'Desc'
+            order_direction = firestore.Query.DESCENDING
             name = field_name[1:]  # Get the field name after dash(-) e.g -age name will be age
 
-        f_name = self._get_db_column_name(name)
-
-        self.order_by.append((f_name, order_direction))
+        self.order_by.append((name, order_direction))
         return self
 
     def fetch(self, limit=None):
@@ -399,9 +361,6 @@ class FilterQuery(BaseQuery):
         limit : optional
             Apply limit to firestore documents, how much documents you want to retrieve
         """
-        # save the Limit in cursor for next fetch
-        self.cursor_dict['limit'] = limit
-
         if limit:
             self.n_limit = limit
         return QueryIterator(self)

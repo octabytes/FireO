@@ -1,7 +1,13 @@
 import base64
-import json
 import itertools
+import json
+from typing import TYPE_CHECKING
+
 from fireo.queries import query_wrapper
+from fireo.utils.cursor import Cursor
+
+if TYPE_CHECKING:
+    from fireo.queries.filter_query import FilterQuery
 
 
 class QueryIterator:
@@ -16,13 +22,16 @@ class QueryIterator:
         Fetch next results
     """
 
-    def __init__(self, query):
+    def __init__(self, query: 'FilterQuery'):
         self.query = query
-        self.model_cls = query.model.__class__
+        self.model_cls = query.model_cls
         self.docs = query.query().stream(query.query_transaction)
+
         # Get offset for next fetch
         self.offset = query.n_limit
-        query.cursor_dict['offset'] = query.n_limit
+        self._cursor = Cursor.extract(query)
+        self._cursor['offset'] = self.offset
+
         # Hold the last doc for next fetch
         self.last_doc = None
         self.last_doc_key = None
@@ -43,7 +52,7 @@ class QueryIterator:
                 return m
             self.fetch_end = True
             # Save last doc key in cursor
-            self.query.cursor_dict['last_doc_key'] = self.last_doc_key
+            self._cursor['last_doc_key'] = self.last_doc_key
             raise StopIteration
         except StopIteration:
             raise StopIteration
@@ -68,11 +77,10 @@ class QueryIterator:
                 self.offset += self.query.n_limit
 
             # Update offset in cursor
-            self.query.cursor_dict['offset'] = self.offset
+            self._cursor['offset'] = self.offset
 
             self.docs = itertools.chain(self.docs, q.stream())
 
     @property
     def cursor(self):
-        encodedCursor = base64.b64encode(json.dumps(self.query.cursor_dict).encode('utf-8'))
-        return str(encodedCursor, 'utf-8')
+        return self._cursor.to_string()
