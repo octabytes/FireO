@@ -110,7 +110,6 @@ class FilterQuery(BaseQuery):
 
     def __init__(self, model_cls, parent=None, *args, **kwargs):
         super().__init__(model_cls)
-        self.model = model_cls()  # todo: remove this
         self.model_cls = model_cls
         self.select_query = self._where_filter(*args, **kwargs)
         self.n_limit = None
@@ -190,9 +189,9 @@ class FilterQuery(BaseQuery):
         """Get document reference by key or id"""
         key = key_or_id
         if not utils.is_key(key_or_id):
-            key = self.model.collection_name + "/" + key_or_id
-            if self.model.parent:
-                key = self.model.parent + "/" + key
+            key = self.model_cls.collection_name + "/" + key_or_id
+            if self.model_cls.parent:
+                key = self.model_cls.parent + "/" + key
 
         return db.conn.document(key)
 
@@ -228,7 +227,7 @@ class FilterQuery(BaseQuery):
     def _fields_by_column_name(self, **kwargs):
         """Change the field name according to their db column name"""
         return {
-            self.model._meta.get_field(k).db_column_name: v
+            self.model_cls._meta.get_field(k).db_column_name: v
             for k, v in kwargs.items()
         }
 
@@ -244,7 +243,7 @@ class FilterQuery(BaseQuery):
 
         # Checking `model._meta.id` because `model._id` or `model.id` are not
         # populated on CLS
-        field_name, field = self.model._meta.id
+        field_name, field = self.model_cls._meta.id
         if name == field_name and not field.include_in_document:
             return True
 
@@ -378,7 +377,7 @@ class FilterQuery(BaseQuery):
         self.n_limit = 1
         doc = next(self.query().stream(self.query_transaction), None)
         if doc:
-            m = query_wrapper.ModelWrapper.from_query_result(self.model, doc)
+            m = query_wrapper.ModelWrapper.from_query_result(self.model_cls(), doc)
             return m
         return None
 
@@ -389,7 +388,7 @@ class FilterQuery(BaseQuery):
         """
         transaction_or_batch = self.query_transaction if self.query_transaction else self.query_batch
         q = self.query()
-        DeleteQuery(self.model, query=q, child=child).exec(transaction_or_batch)
+        DeleteQuery(self.model_cls, query=q, child=child).exec(transaction_or_batch)
 
     def _update_doc_key(self, model):
         """Attach key to model for later updating the model
