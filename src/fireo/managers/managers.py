@@ -1,5 +1,6 @@
 import base64
 import json
+from typing import Any, Dict
 
 from fireo.queries.query_set import QuerySet
 from fireo.utils.cursor import Cursor
@@ -120,10 +121,19 @@ class Manager:
         End document at this key or at that matching fields
     """
 
-    def __init__(self):
-        self.model_cls = None
-        self.name = None
-        self._parent_key = None
+    def __init__(self, *, model_cls=None, name=None, parent_key=None):
+        self.model_cls = model_cls
+        self.name = name
+        self._parent_key = parent_key
+
+    def _deconstruct(self) -> Dict[str, Any]:
+        return {
+            "model_cls": self.model_cls,
+            "name": self.name,
+        }
+
+    def copy(self, **kwargs) -> "Manager":
+        return Manager(**{**self._deconstruct(), **kwargs})
 
     def contribute_to_model(self, model_cls, name="collection"):
         """Attach manager to model class
@@ -200,9 +210,7 @@ class Manager:
 
     def parent(self, key):
         """Parent collection"""
-        # todo: fix it
-        self._parent_key = key
-        return self
+        return self.copy(parent_key=key)
 
     def filter(self, *args, **kwargs):
         """Get filter document from firestore"""
