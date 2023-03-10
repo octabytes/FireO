@@ -275,15 +275,17 @@ class Meta:
         MissingFieldOptionError:
             If option for missing_field is other than ignore, merge or raise_error
         """
-        for name, val in user_meta.__dict__.items():
-            # check if name is supported by meta and name is not
-            # any special name for example '__main__, __doc__'
+        for name in dir(user_meta):
+            if name.startswith('__') and name.endswith('__'):
+                # Skip all the magic methods
+                continue
+
+            val = getattr(user_meta, name)
             if name not in self.supported_fields:
-                if '__' not in name:
-                    raise UnSupportedMeta(
-                        f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
-                        f'Possible value are {", ".join(self.supported_fields)}'
-                    )
+                raise UnSupportedMeta(
+                    f'Meta "{name}" is not recognize in model "{self.model_cls.__name__}" '
+                    f'Possible value are {", ".join(self.supported_fields)}'
+                )
 
             elif name == 'missing_field':
                 if val in ['merge', 'ignore', 'raise_error']:

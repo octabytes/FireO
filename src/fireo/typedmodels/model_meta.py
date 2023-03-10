@@ -1,5 +1,6 @@
 from fireo.models.model_meta import Meta, ModelMeta
 from fireo.typedmodels.resolver import AnnotationResolver
+from fireo.typedmodels.utils import resolve_meta_attr
 
 
 class TypedMeta(Meta):
@@ -36,11 +37,12 @@ class TypedModelMeta(ModelMeta):
     """
     _meta_cls = TypedMeta
 
-    def __new__(mcs, name, base, attrs):
+    def __new__(mcs, name, bases, attrs):
         # Check if the model is not base TypedModel by its path and name:
-        if not (name == 'TypedModel' and mcs.__module__ == 'fireo.models.models'):
-            annotation_resolver = AnnotationResolver(attrs)
+        if not (attrs['__qualname__'] == 'TypedModel' and attrs['__module__'] == 'fireo.typedmodels.model'):
+            annotation_resolver_cls = resolve_meta_attr('annotation_resolver_cls', bases, attrs)
+            annotation_resolver = annotation_resolver_cls(attrs)
             attrs.update(annotation_resolver.resolve_fields())
 
-        cls = super().__new__(mcs, name, base, attrs)
+        cls = super().__new__(mcs, name, bases, attrs)
         return cls
