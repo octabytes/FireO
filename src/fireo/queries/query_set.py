@@ -134,7 +134,11 @@ class QuerySet:
         kwargs:
             keyword args Direct assign for equal filter
         """
-        return FilterQuery(self.model_cls, parent, *args, **kwargs)
+        query = FilterQuery(self.model_cls, parent)
+        if args or kwargs:
+            query = query.filter(*args, **kwargs)
+
+        return query
 
     def delete(self, key, transaction=None, batch=None, child=False):
         """Delete document from firestore

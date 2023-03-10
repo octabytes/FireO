@@ -25,7 +25,7 @@ class Cursor(dict):
         if query.parent:
             cursor['parent'] = query.parent
 
-        for name, op, val in query.select_query:
+        for name, op, val in query._select_query:
             # ISSUE # 77
             # if filter value type is datetime then it need to first
             # convert into string then JSON serialize
@@ -34,12 +34,12 @@ class Cursor(dict):
 
             cursor.setdefault('filters', []).append((name, op, val))
 
-        cursor['limit'] = query.n_limit
+        cursor['limit'] = query._limit
 
-        if query.order_by:
+        if query._order:
             cursor['order'] = ','.join(
                 ('-' if direction == 'DESC' else '') + name
-                for name, direction in query.order_by
+                for name, direction in query._order
             )
 
         return cls(**cursor)
@@ -59,19 +59,20 @@ class Cursor(dict):
                 if isinstance(field, DateTime):
                     val = datetime.fromisoformat(val)
 
-                query.filter(name, op, val)
+                query = query.filter(name, op, val)
 
         if 'order' in self:
-            query.order(self['order'])
+            for order in self['order'].split(','):
+                query = query.order(order)
 
         if 'limit' in self:
-            query.limit(self['limit'])
+            query = query.limit(self['limit'])
 
         # check if last doc key is available or not
         if 'last_doc_key' in self:
-            query.start_after(key=self['last_doc_key'])
+            query = query.start_after(key=self['last_doc_key'])
 
         else:
-            query.offset(self['offset'])
+            query = query.offset(self['offset'])
 
         return query

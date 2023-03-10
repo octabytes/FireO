@@ -1,6 +1,4 @@
-import base64
 import itertools
-import json
 from typing import TYPE_CHECKING
 
 from fireo.queries import query_wrapper
@@ -22,13 +20,13 @@ class QueryIterator:
         Fetch next results
     """
 
-    def __init__(self, query: 'FilterQuery'):
+    def __init__(self, query: 'FilterQuery'):  # todo
         self.query = query
         self.model_cls = query.model_cls
-        self.docs = query.query().stream(query.query_transaction)
+        self.docs = query.query.stream(query._query_transaction)
 
         # Get offset for next fetch
-        self.offset = query.n_limit
+        self.offset = query._limit
         self._cursor = Cursor.extract(query)
         self._cursor['offset'] = self.offset
 
@@ -65,16 +63,16 @@ class QueryIterator:
             # check if fetch end then use last doc otherwise use the offset
             if self.fetch_end:
                 self.fetch_end = False
-                q = self.query.query().start_after(self.last_doc)
+                q = self.query.query.start_after(self.last_doc)
             else:
-                q = self.query.query().offset(self.offset)
+                q = self.query.query.offset(self.offset)
 
             # Apply new Limit if there is any
             if limit:
                 q = q.limit(limit)
                 self.offset += limit
             else:
-                self.offset += self.query.n_limit
+                self.offset += self.query._limit
 
             # Update offset in cursor
             self._cursor['offset'] = self.offset

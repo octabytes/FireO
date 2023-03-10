@@ -1,8 +1,9 @@
 import inspect
+from typing import Any, Dict
 
 from fireo.database import db
-from fireo.utils import utils
 from fireo.queries import errors
+from fireo.utils import utils
 
 
 class BaseQuery:
@@ -23,13 +24,22 @@ class BaseQuery:
         Validate the key
     """
 
-    def __init__(self, model_cls):
+    def __init__(self, model_cls, *, group_collection=False):
         self.model_cls = model_cls
         # if collection path and model key both are not available then
         # collection_name will be the base collection path
         self.collection_path = model_cls.collection_name
         # Firestore allow to get documents from group collection
-        self.group_collection = False
+        self.group_collection = group_collection
+
+    def _deconstruct(self) -> Dict[str, Any]:
+        return {
+            'model_cls': self.model_cls,
+            'group_collection': self.group_collection,
+        }
+
+    def copy(self, **kwargs):
+        return self.__class__(**{**self._deconstruct(), **kwargs})
 
     def set_collection_path(self, path=None, key=None):
         """Set collection path"""
