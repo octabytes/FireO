@@ -134,7 +134,7 @@ class Manager:
         }
 
     def copy(self, **kwargs) -> "Manager":
-        return Manager(**{**self._deconstruct(), **kwargs})
+        return type(self)(**{**self._deconstruct(), **kwargs})
 
     def contribute_to_model(self, model_cls, name="collection"):
         """Attach manager to model class

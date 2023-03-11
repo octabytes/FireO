@@ -39,7 +39,7 @@ class BaseQuery:
         }
 
     def copy(self, **kwargs):
-        return self.__class__(**{**self._deconstruct(), **kwargs})
+        return type(self)(**{**self._deconstruct(), **kwargs})
 
     def set_collection_path(self, path=None, key=None):
         """Set collection path"""
