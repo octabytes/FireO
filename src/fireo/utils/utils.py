@@ -1,7 +1,9 @@
 import re
-from typing import Type, TYPE_CHECKING, Union
+from typing import List, Type, TYPE_CHECKING, Union
 
 from google.cloud import firestore
+
+from fireo.fields import Field
 
 if TYPE_CHECKING:
     from fireo.models.model import Model
@@ -86,52 +88,73 @@ def is_key(str):
     return "/" in str
 
 
-def remove_none_field(values):
-    """Remove None values from dict or list.
+def get_fields_for_path(
+    model: 'Union[Model, Type[Model]]',
+    root_field_name: str,
+    *nested_fields_names: str,
+) -> List[Field]:
+    """Get fields for path."""
+    from fireo.fields import MapField, NestedModelField
+    from fireo.fields.errors import AttributeTypeError
 
-    Example:
-        >>> remove_none_field({'a': 1, 'b': None})
-        {'a': 1}
-    """
-    if isinstance(values, list):
-        return [remove_none_field(v) for v in values]
+    model_field: Field = model._meta.get_field(root_field_name)
+    fields = [model_field]
 
-    if not isinstance(values, dict):
-        return values
+    for p in nested_fields_names:
+        if isinstance(model_field, NestedModelField):
+            nested_model = model_field.nested_model
+            model_field = nested_model._meta.get_field(p)
+            fields.append(model_field)
 
-    result = {}
-    for k, v in values.items():
-        if v is not None:
-            if isinstance(v, (dict, list)):
-                v = remove_none_field(v)
+        elif isinstance(model_field, MapField):
+            break
 
-            result[k] = v
+        else:
+            raise AttributeTypeError(f"Invalid field type: {model_field}")
 
-    return result
+    return fields
 
 
 def get_db_column_names_for_path(
     model: 'Union[Model, Type[Model]]',
     root_field_name: str,
     *nested_fields_names: str,
-):
+) -> List[str]:
     """Get db column names for nested fields."""
-    from fireo.fields import MapField, NestedModelField
-    from fireo.fields.errors import AttributeTypeError
+    from fireo.fields import MapField
 
-    model_field = model._meta.get_field(root_field_name)
-    db_field_path = [model_field.db_column_name]
+    fields = get_fields_for_path(model, root_field_name, *nested_fields_names)
+    db_column_names = [f.db_column_name for f in fields]
+    if isinstance(fields[-1], MapField):
+        db_column_names.extend(nested_fields_names[len(fields) - 1:])
 
-    for p in nested_fields_names:
-        if isinstance(model_field, NestedModelField):
-            nested_model = model_field.nested_model
-            model_field = nested_model._meta.get_field(p)
-            db_field_path.append(model_field.db_column_name)
+    return db_column_names
 
-        elif isinstance(model_field, MapField):
-            db_field_path.append(p)
 
-        else:
-            raise AttributeTypeError(f"Invalid field type: {model_field}")
+def get_dot_names_as_dot_columns(
+    model: 'Union[Model, Type[Model]]',
+    dotted_name: str,
+) -> str:
+    """Convert dotted names to db column names."""
+    db_column_path = get_db_column_names_for_path(model, *dotted_name.split('.'))
 
-    return db_field_path
+    return '.'.join(db_column_path)
+
+
+def get_nested_field_by_dotted_name(
+    model: 'Union[Model, Type[Model]]',
+    dotted_name: str,
+) -> Field:
+    """Get nested field by dotted name.
+
+    Example:
+        >>> class Nested(Model):
+        ...     field = NumberField()
+        >>>
+        >>> class MyModel(Model):
+        ...     nested = NestedModelField(Nested)
+        >>>
+        >>> get_nested_field_by_dotted_name(MyModel, 'nested.field')
+        <fireo.fields.number.NumberField object at 0x7f8b8c0b7a90>
+    """
+    return get_fields_for_path(model, *dotted_name.split('.'))[-1]

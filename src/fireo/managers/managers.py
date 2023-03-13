@@ -1,7 +1,9 @@
 import base64
 import json
+from typing import Any, Dict
 
 from fireo.queries.query_set import QuerySet
+from fireo.utils.cursor import Cursor
 
 
 class ManagerError(Exception):
@@ -119,10 +121,20 @@ class Manager:
         End document at this key or at that matching fields
     """
 
-    def __init__(self):
-        self.model_cls = None
-        self.name = None
-        self._parent_key = None
+    def __init__(self, *, model_cls=None, name=None, parent_key=None):
+        self.model_cls = model_cls
+        self.name = name
+        self._parent_key = parent_key
+
+    def _deconstruct(self) -> Dict[str, Any]:
+        return {
+            "model_cls": self.model_cls,
+            "name": self.name,
+            "parent_key": self._parent_key,
+        }
+
+    def copy(self, **kwargs) -> "Manager":
+        return type(self)(**{**self._deconstruct(), **kwargs})
 
     def contribute_to_model(self, model_cls, name="collection"):
         """Attach manager to model class
@@ -199,8 +211,7 @@ class Manager:
 
     def parent(self, key):
         """Parent collection"""
-        self._parent_key = key
-        return self
+        return self.copy(parent_key=key)
 
     def filter(self, *args, **kwargs):
         """Get filter document from firestore"""
@@ -257,26 +268,7 @@ class Manager:
 
         Cursor define where to start the query
         """
-        parent = self._parent_key
-        cursor_dict = json.loads(base64.b64decode(cursor))
-        if 'parent' in cursor_dict:
-            parent = cursor_dict['parent']
-        query = self.queryset.filter(parent)
-        if 'filters' in cursor_dict:
-            for filter in cursor_dict['filters']:
-                query.filter(*filter)
-        if 'order' in cursor_dict:
-            query.order(cursor_dict['order'])
-        if 'limit' in cursor_dict:
-            query.limit(cursor_dict['limit'])
-
-        # check if last doc key is available or not
-        if 'last_doc_key' in cursor_dict:
-            query.start_after(key=cursor_dict['last_doc_key'])
-        else:
-            query.offset(cursor_dict['offset'])
-
-        return query
+        return Cursor.from_string(cursor).apply(self._parent_key, self.queryset)
 
     def start_after(self, key=None, **kwargs):
         """Start document after this key or after that matching fields"""
