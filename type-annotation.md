@@ -50,7 +50,7 @@ Example:
 
 ```python
 from fireo.typedmodel import TypedModel
-from typeing import List, Dict
+from typing import List, Dict
 
 
 class Profile(TypedModel):
