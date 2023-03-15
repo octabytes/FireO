@@ -76,9 +76,11 @@ class User(TypedModel):
 Custom fields support can be added by overriding `annotation_resolver_cls` attribute in Meta:
 
 ```python
+from functools import partial
+
 from fireo.fields import TextField
 from fireo.typedmodels import TypedModel
-from fireo.typedmodels.resolver import AnnotationResolver, SimpleFieldResolver, partial
+from fireo.typedmodels.resolver import AnnotationResolver, SimpleFieldResolver
 
 
 
