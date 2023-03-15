@@ -26,7 +26,7 @@ It is a subclass of `Model` so all the features of `Model` are available in `Typ
 Example:
 
 ```python
-from fireo.models import TypedModel
+from fireo.typedmodels import TypedModel
 
 
 class User(TypedModel):
@@ -49,7 +49,7 @@ and `MapField`.
 Example:
 
 ```python
-from fireo.typedmodel import TypedModel
+from fireo.typedmodels import TypedModel
 from typing import List, Dict
 
 
@@ -76,9 +76,10 @@ class User(TypedModel):
 Custom fields support can be added by overriding `annotation_resolver_cls` attribute in Meta:
 
 ```python
-from fireo.typedmodel import TypedModel
 from fireo.fields import TextField
-from fireo.fields import AnnotationResolver
+from fireo.typedmodels import TypedModel
+from fireo.typedmodels.resolver import AnnotationResolver, SimpleFieldResolver, partial
+
 
 
 class EmailField(TextField):
