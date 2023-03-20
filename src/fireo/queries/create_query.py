@@ -89,7 +89,7 @@ class CreateQuery(BaseQuery):
         # This is important to reset, so we can
         # find next time which fields are changed
         # when we are going to update it
-        self.model._field_changed = set()
+        self.model._reset_field_changed()
 
         # If no_return is True then return nothing otherwise 
         # return object instance issue #126

@@ -2,6 +2,8 @@ import warnings
 from itertools import chain
 from typing import TYPE_CHECKING
 
+from google.cloud.firestore_v1 import DocumentSnapshot
+
 from fireo.database import db
 import fireo.fields as fields
 from fireo.fields.errors import RequiredField
@@ -218,6 +220,20 @@ class Model(metaclass=ModelMeta):
 
         return result
 
+    def populate_from_doc(self, doc: DocumentSnapshot) -> None:
+        """Populate model from firestore document."""
+        self.parent = utils.get_parent_doc(doc.reference.path)
+        collection = doc.reference.path.split('/')[-2]
+        assert collection == self.collection_name, 'Collection name does not match'
+
+        doc_dict = doc.to_dict()
+        if doc_dict:
+            self.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
+
+        self._set_orig_attr('_id', doc.id)
+        self._create_time = doc.create_time
+        self._update_time = doc.update_time
+
     def populate_from_doc_dict(self, doc_dict: dict, stored=False, merge=False, by_column_name=False):
         """Populate model from Firestore document dict."""
         if not merge:
@@ -264,7 +280,10 @@ class Model(metaclass=ModelMeta):
         if not merge and stored:
             # If all fields where replaced by stored values
             # then there are no changed fields
-            self._field_changed = set()
+            self._reset_field_changed()
+
+    def _reset_field_changed(self):
+        self._field_changed = set()
 
     # Get all the fields values from meta
     # which are attached with this mode
