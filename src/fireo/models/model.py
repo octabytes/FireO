@@ -454,7 +454,6 @@ class Model(metaclass=ModelMeta):
             batch,
             merge,
             no_return,
-            **self._get_fields(ignore_default_none=True)
         )
 
     def upsert(self, transaction=None, batch=None):
