@@ -5,7 +5,7 @@ from google.cloud import firestore
 
 from fireo.fields import (
     BooleanField,
-    GeoPoint,
+    Field, GeoPoint,
     ListField,
     MapField,
     NestedModelField,
@@ -69,7 +69,9 @@ def test_generated_fields():
     assert fields['bool_'].raw_attributes == {'required': True}
 
     assert fields['list_'].__class__ is ListField
-    assert fields['list_'].raw_attributes == {'required': True, 'nested_field': None}
+    assert fields['list_'].raw_attributes['required'] is True
+    assert fields['list_'].raw_attributes['nested_field'].__class__ is Field
+    assert fields['list_'].raw_attributes['nested_field'].raw_attributes == {}
 
     assert fields['dict_'].__class__ is MapField
     assert fields['dict_'].raw_attributes == {'required': True}
