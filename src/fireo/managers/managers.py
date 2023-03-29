@@ -301,3 +301,9 @@ class Manager:
     def end_at(self, key=None, **kwargs):
         """End document at this key or at that matching fields"""
         return self.queryset.filter(self._parent_key).end_at(key, **kwargs)
+
+    def get_key_by_id(self, id: str) -> str:
+        """Get document key by id"""
+        # return self.queryset.get_key_by_id(id)
+        self.model_cls: Type[Model]
+        return get_key(self.model_cls.collection_name, id, self._parent_key)
