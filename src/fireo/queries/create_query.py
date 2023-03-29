@@ -93,15 +93,16 @@ class CreateQuery(BaseQuery):
         # when we are going to update it
         self.model._reset_field_changed()
 
-        # If no_return is True then return nothing otherwise 
-        # return object instance issue #126
-        if self.no_return:
-            return None
-
-        return ref.get()
+        return ref
 
     def exec(self, transaction_or_batch=None, merge=None):
         """return modified or new instance of model"""
         if transaction_or_batch is not None:
             return self._raw_exec(transaction_or_batch, merge)
-        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec(merge=merge))
+
+        ref = self._raw_exec(merge=merge)
+
+        if self.no_return:
+            return None
+
+        return query_wrapper.ModelWrapper.from_query_result(self.model, ref.get())

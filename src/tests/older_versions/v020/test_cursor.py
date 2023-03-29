@@ -98,6 +98,6 @@ def test_parent_cursor_fetch():
 
 
 def test_delete_all_cursor_fetch():
-    CursorPages.collection.delete()
-    CursorParentFetch.collection.delete()
-    CursorChildFetch.collection.delete()
+    CursorPages.collection.delete_every()
+    CursorParentFetch.collection.delete_every()
+    CursorChildFetch.collection.delete_every()

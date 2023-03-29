@@ -6,16 +6,13 @@ from fireo.utils import utils
 class ModelWrapper:
     """Convert query result into Model instance"""
     @classmethod
-    def from_query_result(cls, model, doc):
-        if not doc:
+    def from_query_result(cls, mutable_instance, doc):
+        mutable_instance.populate_from_doc(doc)
+
+        if not doc or not doc.to_dict():
             return None
 
-        if not doc.to_dict():
-            return None
-
-        model.populate_from_doc(doc)
-
-        return model
+        return mutable_instance
 
 
 class ReferenceDocLoader:

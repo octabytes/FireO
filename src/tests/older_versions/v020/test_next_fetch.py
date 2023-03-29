@@ -101,4 +101,4 @@ def test_fetch_without_next():
 
 
 def test_delete_all_next_fetch():
-    NextFetchModel.collection.delete()
+    NextFetchModel.collection.delete_every()

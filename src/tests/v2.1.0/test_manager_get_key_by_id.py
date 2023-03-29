@@ -12,4 +12,3 @@ class MyModel(Model):
 def test_get_key_by_id():
     assert MyModel.collection.parent('some-parent/doc').get_key_by_id('some-id') == 'some-parent/doc/my-model/some-id'
     assert MyModel.collection.get_key_by_id('some-id') == 'my-model/some-id'
-

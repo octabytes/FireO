@@ -60,7 +60,8 @@ class QueryIterator:
                 return m
             self.fetch_end = True
             # Save last doc key in cursor
-            self._cursor['last_doc_key'] = self.last_doc_key
+            if self.last_doc_key:
+                self._cursor['last_doc_key'] = self.last_doc_key
             raise StopIteration
         except StopIteration:
             raise StopIteration

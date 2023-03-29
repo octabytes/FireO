@@ -1,11 +1,11 @@
 import warnings
 from itertools import chain
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from google.cloud.firestore_v1 import DocumentSnapshot
 
-from fireo.database import db
 import fireo.fields as fields
+from fireo.database import db
 from fireo.fields.errors import RequiredField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
@@ -16,6 +16,14 @@ from fireo.utils.types import DumpOptions, LoadOptions
 
 if TYPE_CHECKING:
     from fireo.fields import Field
+
+    try:
+        from typing import Self
+    except ImportError:
+        try:
+            from typing_extensions import Self
+        except ImportError:
+            Self = Any
 
 
 class Model(metaclass=ModelMeta):
@@ -115,7 +123,7 @@ class Model(metaclass=ModelMeta):
     _meta = None
 
     # This is for manager
-    collection: Manager = None
+    collection: 'Manager[Self]' = None
 
     # Collection name for this model
     collection_name = None
@@ -222,9 +230,8 @@ class Model(metaclass=ModelMeta):
 
     def populate_from_doc(self, doc: DocumentSnapshot) -> None:
         """Populate model from firestore document."""
-        doc_dict = doc.to_dict()
-        if doc_dict:
-            self.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
+        doc_dict = doc and doc.to_dict() or {}
+        self.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
 
         self.key = doc.reference.path
         self._reset_field_changed()  # Remove 'id' from _field_changed

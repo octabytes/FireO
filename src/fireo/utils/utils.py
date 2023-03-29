@@ -94,8 +94,11 @@ def get_flat_dict(dict_, prefix: str = None):
     return flat_dict
 
 
-def is_key(str):
-    return "/" in str
+def is_key(key: str) -> bool:
+    """Check if string is key."""
+    if not isinstance(key, str):
+        return False
+    return "/" in key
 
 
 def get_fields_for_path(

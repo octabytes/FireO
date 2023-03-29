@@ -110,7 +110,7 @@ class QuerySet:
         """
         return GetQuery(self.model_cls, key, mutable_instance).exec(transaction)
 
-    def filter(self, parent=None, *args, **kwargs):
+    def filter(self, parent=None, *args, **kwargs) -> FilterQuery:
         """Filter document from firestore
 
         Parameters

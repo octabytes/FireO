@@ -27,7 +27,7 @@ def test_multi_delete():
     d = DeleteModelUser(name="Name2")
     d.save()
 
-    DeleteModelUser.collection.delete()
+    DeleteModelUser.collection.delete_every()
 
     d2 = DeleteModelUser.collection.fetch()
 
@@ -58,7 +58,7 @@ def test_multi_parent_delete():
     c.age = 27
     c.save()
 
-    DeleteModelChild.collection.parent(d.key).delete()
+    DeleteModelChild.collection.parent(d.key).delete_every()
 
     c2 = DeleteModelChild.collection.parent(d.key).fetch()
 
