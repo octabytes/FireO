@@ -2,7 +2,6 @@ from fireo.queries.delete_query import DeleteQuery
 from fireo.queries.filter_query import FilterQuery
 from fireo.queries.get_query import GetQuery
 from fireo.queries.create_query import CreateQuery
-from fireo.queries.refresh_query import RefreshQuery
 from fireo.queries.update_query import UpdateQuery
 
 
@@ -54,15 +53,18 @@ class QuerySet:
             modified instance or new instance if no mutable instance provided
         """
         transaction_or_batch = transaction if transaction is not None else batch
-        return CreateQuery(self.model_cls, mutable_instance, no_return, **kwargs).exec(transaction_or_batch, merge)
+        return CreateQuery(self.model_cls, mutable_instance, no_return, kwargs).exec(transaction_or_batch, merge)
 
-    def update(self, mutable_instance, transaction=None, batch=None):
+    def update(self, key=None, mutable_instance=None, transaction=None, batch=None, no_return=False, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
         ---------
         Parameters
         ---------
+        key: str
+            key of the document
+
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
@@ -73,6 +75,9 @@ class QuerySet:
         batch:
             Firestore batch writes
 
+        no_return: bool
+            If set True then return nothing otherwise return updated mutable_instance
+
         **kwargs:
             field name and value
 
@@ -82,9 +87,9 @@ class QuerySet:
             updated modified instance
         """
         transaction_or_batch = transaction if transaction is not None else batch
-        return UpdateQuery(self.model_cls, mutable_instance).exec(transaction_or_batch)
+        return UpdateQuery(self.model_cls, mutable_instance, no_return, key, kwargs).exec(transaction_or_batch)
 
-    def get(self, key, transaction=None):
+    def get(self, key, transaction=None, mutable_instance=None):
         """Get document from firestore
 
         Parameters
@@ -95,31 +100,15 @@ class QuerySet:
         transaction:
             Firestore transaction
 
-        Returns
-        -------
-        Model instance:
-            wrap query result into model instance
-        """
-        return GetQuery(self.model_cls, key).exec(transaction)
-
-    def refresh(self, mutable_instance, transaction=None):
-        """Refresh document from firestore
-
-        Parameters
-        ----------
-        mutable_instance: Model instance
-            Make changes in existing model instance After performing firestore action modified this instance
-            adding things init like id, key etc
-
-        transaction:
-            Firestore transaction
+        mutable_instance:
+            Model instance to populate data
 
         Returns
         -------
         Model instance:
             wrap query result into model instance
         """
-        return RefreshQuery(self.model_cls, mutable_instance).exec(transaction)
+        return GetQuery(self.model_cls, key, mutable_instance).exec(transaction)
 
     def filter(self, parent=None, *args, **kwargs):
         """Filter document from firestore

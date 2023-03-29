@@ -1,9 +1,14 @@
-import base64
-import json
-from typing import Any, Dict
+from functools import wraps
+from typing import Any, Dict, Optional, overload, Type, TYPE_CHECKING
+
+from google.cloud.firestore_v1 import Transaction
 
 from fireo.queries.query_set import QuerySet
 from fireo.utils.cursor import Cursor
+from fireo.utils.utils import get_key, is_key
+
+if TYPE_CHECKING:
+    from fireo.models import Model
 
 
 class ManagerError(Exception):
@@ -179,11 +184,14 @@ class Manager:
 
         return self.queryset.create(mutable_instance, transaction, batch, merge, no_return, **kwargs)
 
-    def _update(self, mutable_instance, transaction=None, batch=None):
+    def update(self, key=None, mutable_instance=None, transaction=None, batch=None, no_return=False, **kwargs):
         """Update existing document in firestore collection
 
         Parameters
         ---------
+        key: str
+            Key of the document. If key is not provided then mutable_instance is required
+
         mutable_instance: Model instance
             Make changes in existing model instance After performing firestore action modified this instance
             adding things init like id, key etc
@@ -193,8 +201,16 @@ class Manager:
 
         batch:
             Firestore batch
+
+        no_return:
+            If True, then updated document will not be fetched from firestore
+
+        **kwargs:
+            Extra fields to be updated
         """
-        return self.queryset.update(mutable_instance, transaction, batch)
+        assert key or mutable_instance, "Either key or mutable_instance is required"
+
+        return self.queryset.update(key, mutable_instance, transaction, batch, no_return, **kwargs)
 
     def get(self, key, transaction=None):
         """Get document from firestore"""
@@ -205,9 +221,9 @@ class Manager:
         for key in key_list:
             yield self.queryset.get(key)
 
-    def _refresh(self, mutable_instance, transaction=None):
+    def refresh(self, mutable_instance, transaction=None):
         """Refresh document from firestore"""
-        return self.queryset.refresh(mutable_instance, transaction)
+        return self.queryset.get(mutable_instance.key, transaction, mutable_instance)
 
     def parent(self, key):
         """Parent collection"""

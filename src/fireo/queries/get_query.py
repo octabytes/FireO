@@ -32,10 +32,13 @@ class GetQuery(BaseQuery):
         Get document from firestore and wrap them into model
     """
 
-    def __init__(self, model_cls, key):
+    def __init__(self, model_cls, key, mutable_instance=None):
         super().__init__(model_cls)
         super().set_collection_path(key=key)
-        self.model = model_cls()
+        self.model = mutable_instance
+        if self.model is None:
+            self.model = model_cls()
+
         # set parent to this model if any
         self.model.parent = utils.get_parent_doc(key)
         # Attach key to this model for updating this model
