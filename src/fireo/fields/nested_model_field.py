@@ -50,9 +50,11 @@ class NestedModelField(Field):
         return instance
 
     def get_value(self, val: 'Optional[Model]', dump_options=DumpOptions()):
+        val = self.field_attribute.parse(val, dump_options.ignore_required, dump_options.ignore_default)
+
         if val is not None:
             val = val.to_db_dict(dump_options)
-        val = self.field_attribute.parse(val, dump_options.ignore_required, dump_options.ignore_default)
+
         return self.db_value(val)
 
 
