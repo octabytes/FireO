@@ -1,9 +1,11 @@
 import warnings
 from itertools import chain
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
-from fireo.database import db
+from google.cloud.firestore_v1 import DocumentSnapshot
+
 import fireo.fields as fields
+from fireo.database import db
 from fireo.fields.errors import RequiredField
 from fireo.managers.managers import Manager
 from fireo.models.errors import AbstractNotInstantiate, ModelSerializingWrappedError
@@ -14,6 +16,14 @@ from fireo.utils.types import DumpOptions, LoadOptions
 
 if TYPE_CHECKING:
     from fireo.fields import Field
+
+    try:
+        from typing import Self
+    except ImportError:
+        try:
+            from typing_extensions import Self
+        except ImportError:
+            Self = Any
 
 
 class Model(metaclass=ModelMeta):
@@ -113,7 +123,7 @@ class Model(metaclass=ModelMeta):
     _meta = None
 
     # This is for manager
-    collection: Manager = None
+    collection: 'Manager[Self]' = None
 
     # Collection name for this model
     collection_name = None
@@ -218,6 +228,16 @@ class Model(metaclass=ModelMeta):
 
         return result
 
+    def populate_from_doc(self, doc: DocumentSnapshot) -> None:
+        """Populate model from firestore document."""
+        doc_dict = doc and doc.to_dict() or {}
+        self.populate_from_doc_dict(doc_dict, stored=True, by_column_name=True)
+
+        self.key = doc.reference.path
+        self._reset_field_changed()  # Remove 'id' from _field_changed
+        self._create_time = doc.create_time
+        self._update_time = doc.update_time
+
     def populate_from_doc_dict(self, doc_dict: dict, stored=False, merge=False, by_column_name=False):
         """Populate model from Firestore document dict."""
         if not merge:
@@ -241,12 +261,10 @@ class Model(metaclass=ModelMeta):
 
         for field in chain(self._meta.field_list.values(), new_extra_fields):
             field_name_in_dict = field.db_column_name if by_column_name else field.name
-            raw_value = None
-            if field_name_in_dict in doc_dict:
-                raw_value = doc_dict[field_name_in_dict]
+            raw_value = doc_dict.get(field_name_in_dict)
 
             has_value = getattr(self, field.name, None) is not None
-            if field_name_in_dict in doc_dict or (not merge and has_value):
+            if field_name_in_dict in doc_dict or has_value and not merge:
                 # Set value from doc_dict
                 # or reset value if merge is False and field has value
                 value = field.field_value(raw_value, LoadOptions(
@@ -264,7 +282,10 @@ class Model(metaclass=ModelMeta):
         if not merge and stored:
             # If all fields where replaced by stored values
             # then there are no changed fields
-            self._field_changed = set()
+            self._reset_field_changed()
+
+    def _reset_field_changed(self):
+        self._field_changed = set()
 
     # Get all the fields values from meta
     # which are attached with this mode
@@ -387,6 +408,13 @@ class Model(metaclass=ModelMeta):
         else:
             return k
 
+    @key.setter
+    def key(self, key: str) -> None:
+        collection = key.split('/')[-2]
+        assert collection == self.collection_name, 'Collection name does not match'
+        self.parent = utils.get_parent_doc(key)
+        self._id = utils.get_id(key)
+
     def _set_key(self, doc_id):
         """Set key for model"""
         p = '/'.join([self.parent, self.collection_name, doc_id])
@@ -454,7 +482,6 @@ class Model(metaclass=ModelMeta):
             batch,
             merge,
             no_return,
-            **self._get_fields(ignore_default_none=True)
         )
 
     def upsert(self, transaction=None, batch=None):
@@ -515,14 +542,18 @@ class Model(metaclass=ModelMeta):
 
         # pass the model instance if want change in it after save, fetch etc operations
         # otherwise it will return new model instance
-        return self.__class__.collection._update(self, transaction=transaction, batch=batch)
+        return self.__class__.collection.update(
+            mutable_instance=self,
+            transaction=transaction,
+            batch=batch,
+        )
 
     def refresh(self, transaction=None):
         """Refresh the model from firestore"""
         if self.key is None:
             raise ValueError('Model must have key to refresh')
 
-        return self.__class__.collection._refresh(self, transaction=transaction)
+        return self.__class__.collection.refresh(self, transaction=transaction)
 
     def __setattr__(self, key, value):
         """Keep track which filed values are changed"""

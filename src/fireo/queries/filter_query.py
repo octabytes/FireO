@@ -208,9 +208,11 @@ class FilterQuery(BaseQuery):
         """Get document reference by key or id"""
         key = key_or_id
         if not utils.is_key(key_or_id):
-            key = self.model_cls.collection_name + "/" + key_or_id
-            if self.model_cls.parent:
-                key = self.model_cls.parent + "/" + key
+            key = utils.get_key(
+                collection=self.model_cls.collection_name,
+                doc_id=key_or_id,
+                parent_key=self.model_cls.parent,
+            )
 
         return db.conn.document(key)
 
@@ -275,7 +277,8 @@ class FilterQuery(BaseQuery):
 
     def start_after(self, key=None, **kwargs):
         """Start document after this"""
-        assert not key or not kwargs, "Cannot use both key and kwargs"
+        self._assert_position_key_or_kwargs(key, kwargs)
+
         if key:
             start_after = self._firestore_doc(key)
         else:
@@ -285,6 +288,8 @@ class FilterQuery(BaseQuery):
 
     def start_at(self, key=None, **kwargs):
         """Start document at this point"""
+        self._assert_position_key_or_kwargs(key, kwargs)
+
         if key:
             start_at = self._firestore_doc(key)
         else:
@@ -294,6 +299,8 @@ class FilterQuery(BaseQuery):
 
     def end_before(self, key=None, **kwargs):
         """End document before this point"""
+        self._assert_position_key_or_kwargs(key, kwargs)
+
         if key:
             end_before = self._firestore_doc(key)
         else:
@@ -303,12 +310,20 @@ class FilterQuery(BaseQuery):
 
     def end_at(self, key=None, **kwargs):
         """End document at this point"""
+        self._assert_position_key_or_kwargs(key, kwargs)
+
         if key:
             end_at = self._firestore_doc(key)
         else:
             end_at = self._fields_by_column_name(**kwargs)
 
         return self.copy(end_at=end_at)
+
+    def _assert_position_key_or_kwargs(self, key, kwargs):
+        """Assert if key or kwargs is provided"""
+        assert key or kwargs, 'You must provide either a key or kwargs'
+        assert not (key and kwargs), 'You must provide either a key or kwargs'
+        assert not key or utils.is_key(key), 'Key must be a valid key'
 
     def filter(self, *args, **kwargs):
         """Apply filter for querying document

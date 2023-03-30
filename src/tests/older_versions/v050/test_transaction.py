@@ -79,4 +79,4 @@ def test_error_read_after_write_transaction():
 
 
 def test_cleanup_trans_city():
-    TransCity.collection.delete()
+    TransCity.collection.delete_every()

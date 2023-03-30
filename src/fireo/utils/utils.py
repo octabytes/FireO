@@ -1,5 +1,5 @@
 import re
-from typing import List, Type, TYPE_CHECKING, Union
+from typing import List, Optional, Type, TYPE_CHECKING, Union
 
 from google.cloud import firestore
 
@@ -34,6 +34,16 @@ def get_id(key):
         return key.split('/')[-1]
     except AttributeError:
         return None
+
+
+def get_key(collection: str, doc_id: str, parent_key: Optional[str] = None) -> str:
+    """Get key for document."""
+    assert not is_key(collection), 'Collection name cannot contain "/"'
+    key = f'{collection}/{doc_id}'
+    if parent_key:
+        key = f'{parent_key}/{key}'
+
+    return key
 
 
 def GeoPoint(latitude: float, longitude: float):
@@ -84,8 +94,11 @@ def get_flat_dict(dict_, prefix: str = None):
     return flat_dict
 
 
-def is_key(str):
-    return "/" in str
+def is_key(key: str) -> bool:
+    """Check if string is key."""
+    if not isinstance(key, str):
+        return False
+    return "/" in key
 
 
 def get_fields_for_path(

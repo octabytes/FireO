@@ -22,7 +22,7 @@ class CreateQuery(BaseQuery):
         return modified or new instance of model
     """
 
-    def __init__(self, model_cls, mutable_instance=None, no_return=False, **kwargs):
+    def __init__(self, model_cls, mutable_instance=None, no_return=False, values=None):
         super().__init__(model_cls)
         self.no_return = no_return
         # If this is called from manager or mutable model is
@@ -33,12 +33,14 @@ class CreateQuery(BaseQuery):
         if self.model is None:
             self.model = model_cls()
 
-        if "parent" in kwargs:
-            self.model.parent = kwargs["parent"]
+        values = values or {}
+
+        if "parent" in values:
+            self.model.parent = values["parent"]
 
         super().set_collection_path(key=self.model.key)
 
-        for k, v in kwargs.items():
+        for k, v in values.items():
             setattr(self.model, k, v)
 
     def _doc_ref(self):
@@ -66,11 +68,6 @@ class CreateQuery(BaseQuery):
             ignore_unchanged=ignore_unchanged,
         ))
 
-        if not field_list:
-            raise EmptyDocument(
-                "Empty document can not be save, Add at least one field value"
-            )
-
         return field_list
 
     def _raw_exec(self, transaction_or_batch=None, merge=None):
@@ -79,6 +76,11 @@ class CreateQuery(BaseQuery):
         ref = self._doc_ref()
         self.model._id = ref.id
         values = self._parse_field(ignore_unchanged=merge)
+        if not values:
+            raise EmptyDocument(
+                "Empty document can not be save, Add at least one field value"
+            )
+
         if transaction_or_batch is not None:
             transaction_or_batch.set(ref, values, merge=merge)
             return ref
@@ -89,17 +91,18 @@ class CreateQuery(BaseQuery):
         # This is important to reset, so we can
         # find next time which fields are changed
         # when we are going to update it
-        self.model._field_changed = set()
+        self.model._reset_field_changed()
 
-        # If no_return is True then return nothing otherwise 
-        # return object instance issue #126
-        if self.no_return:
-            return None
-        else:
-            return ref.get()
+        return ref
 
     def exec(self, transaction_or_batch=None, merge=None):
         """return modified or new instance of model"""
         if transaction_or_batch is not None:
             return self._raw_exec(transaction_or_batch, merge)
-        return query_wrapper.ModelWrapper.from_query_result(self.model, self._raw_exec(merge=merge))
+
+        ref = self._raw_exec(merge=merge)
+
+        if self.no_return:
+            return None
+
+        return query_wrapper.ModelWrapper.from_query_result(self.model, ref.get())
