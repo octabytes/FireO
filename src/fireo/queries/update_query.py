@@ -52,7 +52,10 @@ class UpdateQuery(BaseQuery):
             self.model.key = key
 
         if values is not None:
-            self.model.merge_with_dict(values)
+            # Use direct assignment to assign values in internal representation
+            # E.g.: Models in case of NestedModelField
+            for k, v in values.items():
+                setattr(self.model, k, v)
 
         self.no_return = no_return
         super().set_collection_path(key=self.model.key)
