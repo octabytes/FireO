@@ -188,12 +188,26 @@ class Model(metaclass=ModelMeta):
         """Load data from dict into model."""
         self.populate_from_doc_dict(model_dict, merge=True, by_column_name=by_column_name)
 
-    def to_dict(self):
+    def to_dict(
+        self,
+        include_id: bool = True,
+        include_key: bool = True,
+        include_parent: bool = False,
+        dump_options=DumpOptions(use_column_name=False)
+    ):
         """Convert model into dict"""
-        model_dict = self.to_db_dict()
-        id_field_name, _ = self._meta.id
-        model_dict[id_field_name] = utils.get_id(self.key)
-        model_dict['key'] = self.key
+        model_dict = self.to_db_dict(dump_options)
+
+        if include_id:
+            id_field_name, _ = self._meta.id
+            model_dict[id_field_name] = utils.get_id(self.key)
+
+        if include_key:
+            model_dict['key'] = self.key
+
+        if include_parent:
+            model_dict['parent'] = self.parent
+
         return model_dict
 
     def to_db_dict(self, dump_options=DumpOptions()):
@@ -224,7 +238,10 @@ class Model(metaclass=ModelMeta):
                 not dump_options.ignore_default_none or
                 field_changed
             ):
-                result[field.db_column_name] = value
+                if dump_options.use_column_name:
+                    result[field.db_column_name] = value
+                else:
+                    result[field.name] = value
 
         return result
 

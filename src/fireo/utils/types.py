@@ -23,6 +23,9 @@ class DumpOptions:
     """Ignore fields which are not changed when updating the document.
     Used in NestedModelField."""
 
+    use_column_name: bool = True
+    """Use column name or field name."""
+
 
 @dataclass(frozen=True)
 class LoadOptions:
