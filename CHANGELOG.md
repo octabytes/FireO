@@ -74,4 +74,4 @@
 * Fixed memory leak ([Adrian Dankiv](https://github.com/adr-007))
 * Set Meta.ignore_none_field=False ([Adrian Dankiv](https://github.com/adr-007))
 
-For more detailed information, please refer to the [project repository](https://github.com/octabytes/project).
+For more detailed information, please refer to the [project repository](https://github.com/octabytes/FireO).
