@@ -1,5 +1,7 @@
 from copy import copy
 
+from google.cloud.firestore_v1.transforms import Sentinel
+
 from fireo.fields.errors import *
 
 
@@ -85,7 +87,9 @@ class FieldAttribute:
             # check default value if set for field
             if value is None and not ignore_default:
                 if self.default is not None:
-                    value = copy(self.default)
+                    value = self.default
+                    if not isinstance(self.default, Sentinel):
+                        value = copy(self.default)
 
                 elif self.default_factory is not None:
                     value = self.default_factory()
@@ -195,7 +199,7 @@ class FieldAttribute:
 
         try:
             # call attribute method from field
-            return getattr(self.field, "attr_"+attr)(self.field_attr(attr), value)
+            return getattr(self.field, "attr_" + attr)(self.field_attr(attr), value)
         except AttributeError as e:
             raise AttributeMethodNotDefined(f'Method is not defined for attribute "{attr}" '
                                             f'in field "{self.field.__class__.__name__}"') from e
