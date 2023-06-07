@@ -1,6 +1,19 @@
 # Release Notes
 
-## [v2.1.0](https://github.com/octabytes/FireO/compare/v2.0.0...v2.1.0) (2023-05-30)
+## [Unreleased](https://github.com/octabytes/project/compare/v2.1.0...HEAD)
+
+### Added
+* Added CHANGELOG.md to the project ([Adrian Dankiv](https://github.com/adr-007))
+* Improved model.to_dict() functionality. Now it uses field names by default and includes `include_id`, `include_key`, and `include_parent` arguments ([Adrian Dankiv](https://github.com/adr-007))
+
+### Changes
+* Updated node version to 17.x in python-package-testing.yml ([Azeem Haider](https://github.com/AzeemHaider))
+
+### Fixes
+* Fixed DateTime with both `required=True` and `auto=True` ([Adrian Dankiv](https://github.com/adr-007))
+* Fixed Model.collection.update with nested values ([Adrian Dankiv](https://github.com/adr-007))
+
+## [v2.1.0](https://github.com/octabytes/FireO/compare/v2.0.0...v2.1.0) (2023-04-05)
 
 ### Added
 * Added ability to manage documents by their IDs: get, get_all, update, delete, delete_all ([Adrian Dankiv](https://github.com/adr-007))
@@ -26,7 +39,7 @@
 
 ---
 
-## [v2.0.0](https://github.com/octabytes/FireO/compare/v1.7.0...v2.0.0) (2023-05-15)
+## [v2.0.0](https://github.com/octabytes/FireO/compare/v1.7.0...v2.0.0) (2023-03-02)
 
 ### Added
 * Added TypedModel ([Adrian Dankiv](https://github.com/adr-007))
@@ -59,7 +72,7 @@
 
 ---
 
-## [v1.7.0](https://github.com/octabytes/FireO/compare/v1.6.0...v1.7.0) (2023-05-01)
+## [v1.7.0](https://github.com/octabytes/FireO/compare/v1.6.0...v1.7.0) (2023-01-31)
 
 ### Added
 * Added ability to specify nested_field in ListField ([Adrian Dankiv](https://github.com/adr-007))
