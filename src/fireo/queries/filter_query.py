@@ -1,6 +1,7 @@
 from enum import Enum
 from functools import partial
 
+from google.api_core.exceptions import MethodNotImplemented
 from google.cloud import firestore
 from google.cloud.firestore_v1.field_path import FieldPath
 
@@ -462,3 +463,17 @@ class FilterQuery(BaseQuery):
         else:
             update_doc_key = model.key
         return update_doc_key
+
+    def count(self) -> int:
+        """Count the number of documents in the query
+
+        Returns
+        -------
+        count:
+            Number of documents in the query
+        """
+        try:
+            return self.query.count().get()[0][0].value
+        except MethodNotImplemented:
+            # count() is not implemented for firestore emulator
+            return sum(1 for _ in self.query.stream())
