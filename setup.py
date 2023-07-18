@@ -69,5 +69,5 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['google-cloud-firestore==2.10.0'],
+    install_requires=['google-cloud-firestore==2.11.1,<=2.12.0'],
 )
