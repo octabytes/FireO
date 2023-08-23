@@ -6,6 +6,7 @@
 * Added CHANGELOG.md to the project ([Adrian Dankiv](https://github.com/adr-007))
 * Improved model.to_dict() functionality. Now it uses field names by default and includes `include_id`, `include_key`, and `include_parent` arguments ([Adrian Dankiv](https://github.com/adr-007))
 * Added "count" method to FilterQuery ([Adrian Dankiv](https://github.com/adr-007))
+* Fix reverse order in cursor ([Adrian Dankiv](https://github.com/adr-007))
 
 ### Changes
 * Updated node version to 17.x in python-package-testing.yml ([Azeem Haider](https://github.com/AzeemHaider))

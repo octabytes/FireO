@@ -1,4 +1,3 @@
-from enum import Enum
 from functools import partial
 
 from google.api_core.exceptions import MethodNotImplemented
@@ -18,11 +17,6 @@ from fireo.utils.utils import (
     get_dot_names_as_dot_columns,
     get_nested_field_by_dotted_name,
 )
-
-
-class Ordering(str, Enum):
-    ASCENDING = "Asc"
-    DESCENDING = "Desc"
 
 
 class FilterQuery(BaseQuery):
