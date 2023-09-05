@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 
+from google.cloud.firestore_v1 import Query
+
 from fireo.fields import DateTime
 from fireo.utils.utils import get_nested_field_by_dotted_name
 
@@ -38,7 +40,7 @@ class Cursor(dict):
 
         if query._order:
             cursor['order'] = ','.join(
-                ('-' if direction == 'DESC' else '') + name
+                ('-' if direction == Query.DESCENDING else '') + name
                 for name, direction in query._order
             )
 
