@@ -34,7 +34,7 @@ Delete all documents from collection
 {: .no_toc }
 
 ```python
-User.collection.delete()
+User.collection.delete_every()
 ```
 
 ## Delete child document
