@@ -2,6 +2,7 @@ from functools import partial
 
 from google.api_core.exceptions import MethodNotImplemented
 from google.cloud import firestore
+from google.cloud.firestore_v1 import FieldFilter
 from google.cloud.firestore_v1.field_path import FieldPath
 
 from fireo.database import db
@@ -217,7 +218,7 @@ class FilterQuery(BaseQuery):
         ref = self.get_ref()
         # parse where filter
         for f in self._parse_where():
-            ref = ref.where(*f)
+            ref = ref.where(filter=FieldFilter(*f))
         # Apply limit
         if self._limit:
             ref = ref.limit(self._limit)
