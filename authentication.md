@@ -29,20 +29,20 @@ If you’re running in Compute Engine or App Engine, authentication should “ju
 If you’re developing locally, the easiest way to authenticate is using the [Google Cloud SDK](http://cloud.google.com/sdk)
 
 ```shell
-$ gcloud auth application-default login
+gcloud auth application-default login
 ``` 
 
 Note that this command generates credentials for client libraries. To authenticate the CLI itself, use
 
 ```shell
-$ gcloud auth login
+gcloud auth login
 ``` 
 
 Previously, gcloud auth login was used for both use cases. If your gcloud installation does not support the new command, please update it
 
 
 ```shell
-$ gcloud components update
+gcloud components update
 ``` 
 
 ## Service Account
@@ -50,7 +50,7 @@ $ gcloud components update
 If you’re running your application elsewhere, you should download a service [account JSON](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) keyfile and point to it using an environment variable
 
 ```shell
-$ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/keyfile.json"
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/keyfile.json"
 ```
 
 or you can pass JSON file in FireO connection
